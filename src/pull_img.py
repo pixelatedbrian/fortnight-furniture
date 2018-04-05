@@ -15,7 +15,7 @@
 import sys, os, multiprocessing, urllib3, csv
 from PIL import Image
 from io import BytesIO
-from tqdm  import tqdm
+from tqdm import tqdm
 import json
 
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
@@ -38,8 +38,6 @@ def ParseData(data_file):
         id_ = "{}_{}".format(id_, ann[id_])
     key_url_list.append((id_, url))
   return key_url_list
-
-
 
 
 def DownloadImage(key_url):
