@@ -54,20 +54,26 @@ class LoaderBot(keras.utils.Sequence):
             # Store sample
             # X[i,] = np.load(ID)
 
-            X[i,] = cv2.imread(ID)
-
             # ID:
             # ../data/stage1_imgs/flip_116297_85.jpg
+
+            # For some reason CV2 loads as BGR instead of RGB
+            temp = cv2.imread(ID)
+
+            b,g,r = cv2.split(temp)         # get b,g,r
+            rgb_img = cv2.merge([r,g,b])    # switch it to rgb
+
+            X[i,] = rgb_img
 
             # Store class
             # y[i] = self.labels[ID]
             y[i] = int(ID.split("/")[-1].split(".")[0].split("_")[-1]) - 1
 
-        # standardize the range of values to try to converge faster
-        mu, std = np.mean(X), np.std(X)
-        X = (X - mu) / std
+        # Inceptionv3 was trained on images that were processed so that color
+        # values varied between [-1, 1] therefore we need to do the same:
 
-        # then normalize
-        X = (X - X.min()) / (X.max() - X.min()) - 0.5
+        X /= 255.0
+        X -= 0.5
+        X *= 2.0
 
         return X, keras.utils.to_categorical(y, num_classes=self.n_classes)
