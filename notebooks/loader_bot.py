@@ -63,4 +63,11 @@ class LoaderBot(keras.utils.Sequence):
             # y[i] = self.labels[ID]
             y[i] = int(ID.split("/")[-1].split(".")[0].split("_")[-1]) - 1
 
+        # standardize the range of values to try to converge faster
+        mu, std = np.mean(X), np.std(X)
+        X = (X - mu) / std
+
+        # then normalize
+        X = (X - X.min()) / (X.max() - X.min()) - 0.5
+
         return X, keras.utils.to_categorical(y, num_classes=self.n_classes)
