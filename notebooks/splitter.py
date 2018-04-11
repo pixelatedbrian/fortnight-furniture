@@ -30,7 +30,7 @@ def get_skfold_data():
     dictionary of fold indices like:
         {train_1:[indicies_1], test_1:[indicies_1], ..., test_10:[indicies_10] }
     '''
-    image_paths = glob.glob("../data/stage1_imgs/*.jpg")
+    image_paths = glob.glob("../data/stage2_imgs/*.jpg")
 
     # move list into pandas so we can manipulate it easier
     data = pd.DataFrame(image_paths, columns=["file_path"])

@@ -58,13 +58,16 @@ def add_brian_layers(base_model, num_classes, dropout=0.2):
     """
     x = base_model.output
     x = GlobalAveragePooling2D()(x)
-    x = Dense(1024, activation='relu', kernel_initializer='he_normal')(x) #new FC layer, random init
+    # x = Dense(1024, activation='relu', kernel_initializer='he_normal')(x) #new FC layer, random init
+    x = Dense(1024, activation='relu')(x)
     x = Dropout(dropout)(x)
 
-    x = Dense(512, activation='relu', kernel_initializer='he_normal')(x) #new FC layer, random init
+    # x = Dense(512, activation='relu', kernel_initializer='he_normal')(x) #new FC layer, random init
+    x = Dense(512, activation='relu')(x) #new FC layer, random init
     x = Dropout(dropout)(x)
 
-    x = Dense(256, activation='relu', kernel_initializer='he_normal')(x) #new FC layer, random init
+    # x = Dense(256, activation='relu', kernel_initializer='he_normal')(x) #new FC layer, random init
+    x = Dense(256, activation='relu')(x) #new FC layer, random init
     x = Dropout(dropout)(x)
 
     predictions = Dense(num_classes, activation='softmax')(x) #new softmax layer
@@ -108,7 +111,7 @@ def setup_to_finetune(model):
 
 
 def get_nb_files():
-    file_paths = glob.glob("../data/stage1_imgs/*.jpg")
+    file_paths = glob.glob("../data/stage2_imgs/*.jpg")
 
     return file_paths
 
@@ -256,11 +259,11 @@ def run():
                                      validation_data=validation_generator,
                                      epochs=EPOCHS,
                                      use_multiprocessing=True,
-                                     workers=8)
+                                     workers=6)
 
-    plot_hist(history_tl, "model_v1_1.png", epochs=EPOCHS)
+    plot_hist(history_tl, "model_v1_2.png", epochs=EPOCHS)
 
-    model.save("model_v1_1_weights.h5")
+    model.save("model_v1_2_weights.h5")
 
 
 if __name__ == "__main__":

@@ -58,13 +58,16 @@ def add_brian_layers(base_model, num_classes, dropout=0.2):
     """
     x = base_model.output
     x = GlobalAveragePooling2D()(x)
-    x = Dense(1024, activation='relu', kernel_initializer='he_normal')(x) #new FC layer, random init
+    # x = Dense(1024, activation='relu', kernel_initializer='he_normal')(x) #new FC layer, random init
+    x = Dense(1024, activation='relu')(x)
     x = Dropout(dropout)(x)
 
-    x = Dense(512, activation='relu', kernel_initializer='he_normal')(x) #new FC layer, random init
+    # x = Dense(512, activation='relu', kernel_initializer='he_normal')(x) #new FC layer, random init
+    x = Dense(512, activation='relu')(x) #new FC layer, random init
     x = Dropout(dropout)(x)
 
-    x = Dense(256, activation='relu', kernel_initializer='he_normal')(x) #new FC layer, random init
+    # x = Dense(256, activation='relu', kernel_initializer='he_normal')(x) #new FC layer, random init
+    x = Dense(256, activation='relu')(x) #new FC layer, random init
     x = Dropout(dropout)(x)
 
     predictions = Dense(num_classes, activation='softmax')(x) #new softmax layer
@@ -108,7 +111,7 @@ def setup_to_finetune(model):
 
 
 def get_nb_files():
-    file_paths = glob.glob("../data/stage1_imgs/*.jpg")
+    file_paths = glob.glob("../data/stage2_imgs/*.jpg")
 
     return file_paths
 
@@ -231,11 +234,11 @@ def run():
               'n_channels': 3,
               'shuffle': False}
 
-    EPOCHS = 20
+    EPOCHS = 40
 
     # Datasets
-    X_train_img_paths = data_link_dict["X_train_3"]
-    y_train = data_link_dict["y_train_3"]
+    X_train_img_paths = data_link_dict["X_test_2"]
+    y_train = data_link_dict["y_test_2"]
 
     X_test_img_paths = data_link_dict["X_test_3"]
     y_test = data_link_dict["y_test_3"]
@@ -246,7 +249,7 @@ def run():
 
     # setup model
     base_model = InceptionV3(weights='imagenet', include_top=False) #include_top=False excludes final FC layer
-    model = add_brian_layers(base_model, 128, 0.35)
+    model = add_brian_layers(base_model, 128, 0.55)
 
     # transfer learning
     setup_to_transfer_learn(model, base_model, lr=0.0125)
@@ -258,9 +261,9 @@ def run():
                                      use_multiprocessing=True,
                                      workers=8)
 
-    plot_hist(history_tl, "model_v1_1.png", epochs=EPOCHS)
+    plot_hist(history_tl, "model_v1_3b.png", epochs=EPOCHS)
 
-    model.save("model_v1_1_weights.h5")
+    model.save("model_v1_3b_weights.h5")
 
 
 if __name__ == "__main__":

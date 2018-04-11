@@ -14,6 +14,15 @@
 # resume a partially completed download. All images will be saved in the JPG
 # format with 90% compression quality.
 
+##################
+### HOW TO USE ###
+##################
+# modify hardcoded destination path in this script first!
+# def clean_file_at_location(inpath, outpath="../data/stage2_imgs/"):
+#                                            ^^^^^^^^^^^^^^^^^^^^^^
+# THEN run in local directory like:
+# python clean_images.py ../data/imgs/
+
 # v1.1
 # crop images instead of weird scaling only
 
