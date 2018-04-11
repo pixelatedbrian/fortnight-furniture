@@ -2,7 +2,7 @@
 
 | Version | Score | DropOut | Epochs | Est_Runtime_Hrs | Notes |
 |:--------|:-----:|:-------:|:------:|:---------------:|:-------------------------------------------------------------------|
-| 1.0 | 0.67 | 0.35 | 20 | 5.8 | First full project pipeline |
+| 1.0 | 0.67 | 0.35 | 50 | 14.4 | First full project pipeline |
 | 1.1 | 0.67 | 0.35 | 20 | 5.8 | Improved image processing pipeline for aspect ratio issues, removed flip augmentation. ~830s per epoch |
 | 1.2 | 0.65 | 0.35 | 20 | 5.6 | Tried to optimize workers/batch size for keras fit_generate but wasn't able to improve really ~810s per epoch |
 | 1.3 | 0.57 | 0.35 | 20 | 2.3 | Only training model on 20% of unaugmented data to increase iteration speed and increase epochs. Only ran for 20 epochs and seemed like the model might need more time to converge |
@@ -15,21 +15,31 @@
 * _**/src/clean_images.py**_ - Try to shoot for 10x augmentation
 
 #### v1.3a
+<img src="/imgs/model_v1_3a.png" alt="Model v1.3a" width="800" height="400">
+
 * Tried going for 100 epochs, model seems to start overfitting at ~20 epochs. Runtime for 100 epochs was ~12 hours so that's not speeding anything up. However if runs only need to be ~20-25 epochs the runs would be just over 2.5 hours.
 * _**/src/model_cougar_v1_3.py**_ -
 
 #### v1.3
+<img src="/imgs/model_v1_3.png" alt="Model v1.3" width="800" height="400">
+
 * Mini-training - For previous versions of the model training for 20 epochs took ~6 hours. So concept was to see how well a smaller subset of a training data performed so things could iterate faster. Unsurprisingly correct id of image class dropped, ie error increased.
 * _**/src/model_cougar_v1_3.py**_ - Runtime decreased to ~210s/epoch (but still ~210s for test eval so still ~420s per epoch), also 20 epochs didn't seem long enough to really evaluate
 
 #### v1.2
+<img src="/imgs/model_v1_2.png" alt="Model v1.2" width="800" height="400">
+
 * _**/src/model_beaver_v1_2.py**_ - Tried to optimize workers and score went down slightly, probably related to removing flip augmentation
 
 #### v1.1
+<img src="/imgs/model_v1_1.png" alt="Model v1.1" width="800" height="400">
+
 * _**/src/clean_images.py**_ - Modified to open image, consider aspect ratio, crop if the pic is rectangular, then rescale to 299x299 pixels. Also removed flip augmentation for now on 'underrepresented classes'
 * _**/src/model_anaconda_v1_1.py**_ - Refactored model to run as python script (instead of notebook) as this seemed to fix some notebook related weirdness w/ running tensorflow in the past.  In this case Keras .fit_generator seems to hang.  Running as python script hasn't helped, this issue still occurs sometimes.
 
 #### v1.0
+<img src="/imgs/brian_model_lr_0_005_ep_50_batch_256_dropout_0_15.png" alt="First Model" width="800" height="400">
+
 * Created initial data ingestion, processing, and modeling pipeline:
 * _**/src/splitter.py**_ - extend sklearn StratifiedKfold to generate balanced class folds to evaluate model performance. 10 folds of train 90% eval 10% generated, 3 used.
 * _**/src/clean_images.py**_ - Open images, scale to 299x299, flip under-represented classes on vertical axis to simply augment
