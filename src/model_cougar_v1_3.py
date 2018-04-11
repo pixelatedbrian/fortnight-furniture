@@ -167,8 +167,8 @@ def plot_hist(hist, info_str, epochs=2):
 
     # stuff for marking the major and minor ticks dynamically relative
     # to the numper of epochs used to train
-    major_ticks = int(10 / 10.0)
-    minor_ticks = int(10 / 20.0)
+    major_ticks = int(epochs / 10.0)
+    minor_ticks = int(epochs / 20.0)
 
     if major_ticks < 2:
         major_ticks = 2
@@ -186,19 +186,18 @@ def plot_hist(hist, info_str, epochs=2):
     hist.history['acc'] = [0.0] + hist.history['acc']
     hist.history['val_acc'] = [0.0] + hist.history['val_acc']
 
-    x_line = [0.2] * (epochs + 1)
+    x_line = [0.75] * (epochs + 1)  # this line is now for accuracy of test set
 
     # stuff for the loss chart
-    axs[0].set_title("Iceberg/Ship Classifier Loss Function Error\n Train Set and Dev Set")
+    axs[0].set_title("Homewares and Furniture Image Identification\n Train Set and Dev Set")
     axs[0].set_xlabel('Epochs')
     axs[0].set_xlim(1, epochs)
     axs[0].set_ylabel('Loss')
 #     axs[0].set_ylim(0, 15)
-    axs[0].plot(x_line, color="red", alpha=0.3, lw=4.0)
+
     axs[0].plot(hist.history['loss'], color="blue", linestyle="--", alpha=0.8, lw=1.0)
     axs[0].plot(hist.history['val_loss'], color="blue", alpha=0.8, lw=1.0)
-    axs[0].plot(x_line, color="red", linestyle="--", alpha=0.8, lw=1.0)
-    axs[0].legend(["Minimum Acceptable Error", 'Training', 'Validation'])
+    axs[0].legend(['Training', 'Validation'])
     axs[0].xaxis.set_major_locator(majorLocator)
     axs[0].xaxis.set_major_formatter(majorFormatter)
 
@@ -206,14 +205,16 @@ def plot_hist(hist, info_str, epochs=2):
     axs[0].xaxis.set_minor_locator(minorLocator)
 
     # stuff for the accuracy chart
-    axs[1].set_title("Iceberg/Ship Classifier Accuracy\n Train Set and Dev Set")
+    axs[1].set_title("Homewares and Furniture Image Identification\n Train Set and Dev Set")
     axs[1].set_xlabel('Epochs')
     axs[1].set_xlim(1, epochs)
     axs[1].set_ylabel('Accuracy')
     axs[1].set_ylim(0.0, 1.0)
+    axs[1].plot(x_line, color="red", alpha=0.3, lw=4.0)
     axs[1].plot(hist.history['acc'], color="blue", linestyle="--", alpha=0.5, lw=1.0)
     axs[1].plot(hist.history['val_acc'], color="blue", alpha=0.8, lw=1.0)
-    axs[1].legend(['Training', 'Validation'], loc='lower right')
+    axs[1].plot(x_line, color="red", linestyle="--", alpha=0.8, lw=1.0)
+    axs[1].legend(['Minimum Acceptable Accuracy', 'Training', 'Validation'], loc='lower right')
     axs[1].xaxis.set_major_locator(majorLocator)
     axs[1].xaxis.set_major_formatter(majorFormatter)
 
