@@ -8,7 +8,7 @@
 | 1.3 | 0.57 | 0.35 | 20 | 18k | 1.9 | Only training model on 20% of unaugmented data to increase iteration speed and increase epochs. Only ran for 20 epochs and seemed like the model might need more time to converge |
 | 1.3a | 0.59 | 0.35 | 100 | 18k | 9.3 | Increased epochs to 100. Overkill but making sure that model has enough time to converge. Model overfits against test data around epoch 20, ~210s per epoch |
 | 1.3b | 0.56 | 0.55 | 40 | 18k | 3.7 | Increased dropout to see if that helps during the sprint mini-fitting, to then apply it to model fitted on wider data. Running for 40 epochs to give model more time to converge since dropout is so high learning is much more difficult |
-| 1.3c | ? | 0.55 | 60 | 18k | 5.6 | Increased epochs of 1.3b to 60 as it looked like test loss was plateauing but want to be sure |
+| 1.3c | ? | 0.55 | 60 | 18k | 5.6 | Increased epochs of 1.3b to 60 as it looked like test loss was plateauing but want to be sure. Changed weight initialization back to he_normal to see if the model converges faster since epochs 1 - 40 should be the same ground |
 | 1.4 | ? | ? | ? | 1620k | ? | Improve splitter.py to v1.1 Improve Image Processing to v1.2 also (see version details) |
 
 #### v1.4 (planned)
