@@ -234,7 +234,7 @@ def run():
               'n_channels': 3,
               'shuffle': False}
 
-    EPOCHS = 40
+    EPOCHS = 60
 
     # Datasets
     X_train_img_paths = data_link_dict["X_test_2"]
@@ -261,9 +261,9 @@ def run():
                                      use_multiprocessing=True,
                                      workers=8)
 
-    plot_hist(history_tl, "model_v1_3b.png", epochs=EPOCHS)
+    plot_hist(history_tl, "model_v1_3c.png", epochs=EPOCHS)
 
-    model.save("model_v1_3b_weights.h5")
+    model.save("model_v1_3c_weights.h5")
 
 
 if __name__ == "__main__":
