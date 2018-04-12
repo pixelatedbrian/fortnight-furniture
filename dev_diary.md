@@ -23,6 +23,12 @@
 * Went back to normal 'full data' of split. Best score yet. Augmented 2x by flip over vertical axis. Score is probably a bit artificially high because the splitting code hasn't yet been updated to withhold augmented images.
 * _**/src/clean_images.py**_ - Simply modified to flip augment all pictures, but not handling the issue of say the model training on normal version of an image and validating on the flipped version.  Will update again for v1.5
 
+#### Comparison of default (Xavier) model weight initialization vs 'he_normal'
+
+<img src="/imgs/model_xavier_v_he_normal.png" alt="Model v1.3d" width="800" height="400">
+
+* Model v1.3c and v1.3d the only difference is epoch length and then the type of initialization.  Using PS to overlay the Xavier over the He_normal (Xavier in red) it seems like Xavier overfits slightly less and has slightly better accuracy, in this case.  Not really enough to worry about now but using default seems better.
+
 #### v1.3d
 <img src="/imgs/model_v1_3d.png" alt="Model v1.3d" width="800" height="400">
 
