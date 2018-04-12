@@ -8,12 +8,30 @@
 | 1.3 | 0.57 | 0.35 | 20 | 18k | 1.9 | Only training model on 20% of unaugmented data to increase iteration speed and increase epochs. Only ran for 20 epochs and seemed like the model might need more time to converge |
 | 1.3a | 0.59 | 0.35 | 100 | 18k | 9.3 | Increased epochs to 100. Overkill but making sure that model has enough time to converge. Model overfits against test data around epoch 20, ~210s per epoch |
 | 1.3b | 0.56 | 0.55 | 40 | 18k | 3.7 | Increased dropout to see if that helps during the sprint mini-fitting, to then apply it to model fitted on wider data. Running for 40 epochs to give model more time to converge since dropout is so high learning is much more difficult |
-| 1.3c | ? | 0.55 | 60 | 18k | 5.6 | Increased epochs of 1.3b to 60 as it looked like test loss was plateauing but want to be sure. Changed weight initialization back to he_normal to see if the model converges faster since epochs 1 - 40 should be the same ground |
-| 1.4 | ? | ? | ? | 1620k | ? | Improve splitter.py to v1.1 Improve Image Processing to v1.2 also (see version details) |
+| 1.3c | 0.58 | 0.55 | 60 | 18k | 5.6 | Increased epochs of 1.3b to 60 as it looked like test loss was plateauing but want to be sure. Changed weight initialization back to he_normal to see if the model converges faster since epochs 1 - 40 should be the same ground |
+| 1.3d | 0.59 | 0.55 | 100 | 18k | 9.3 | Increased epochs to 100. Overkill but making sure that model has enough time to converge with higher dropout. Back to 'he_normal' weight initialization to see if it helps. |
+| 1.4 | 0.71 | 0.45 | 30 | 360k | 13.3 | Image augmentation flip, dropout down to 0.45, score prob higher than it should be since flipped images are still in the test set |
+| 1.5 | ? | ? | ? | 1620k | ? | Improve splitter.py to v1.1 Improve Image Processing to v1.2 also (see version details) |
 
-#### v1.4 (planned)
+#### v1.5 (planned)
 * _**/src/splitter.py**_ - previously splitter did StratifiedKFold on ALL of the images in the processed images directory.  So augmented images (thus far only flipped) would also end up in the validation set.  As augmentation will be ramped up majorly in this version we need to fix this undesirable behavior.
 * _**/src/clean_images.py**_ - Try to shoot for 10x augmentation
+
+#### v1.4
+<img src="/imgs/model_v1_4.png" alt="Model v1.4" width="800" height="400">
+
+* Went back to normal 'full data' of split. Best score yet. Augmented 2x by flip over vertical axis. Score is probably a bit artificially high because the splitting code hasn't yet been updated to withhold augmented images.
+* _**/src/clean_images.py**_ - Simply modified to flip augment all pictures, but not handling the issue of say the model training on normal version of an image and validating on the flipped version.  Will update again for v1.5
+
+#### v1.3d
+<img src="/imgs/model_v1_3d.png" alt="Model v1.3d" width="800" height="400">
+
+* Increased epochs from 60 to 100 to give more time to converge/verify that it's over fitting.  Also changed weight initialization from default to 'he_normal'
+
+#### v1.3c
+<img src="/imgs/model_v1_3c.png" alt="Model v1.3b" width="800" height="400">
+
+* Increased dropout to relatively absurd level of 0.55. (But had success with that value in the past) Increased epochs to 40 because convergence should be slower since it's much more difficult to learn. This is confirmed in the above chart but it also seems like a few more epochs may show if the accuracy can improve.
 
 #### v1.3b
 <img src="/imgs/model_v1_3b.png" alt="Model v1.3b" width="800" height="400">
