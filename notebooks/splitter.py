@@ -4,6 +4,8 @@ import numpy as np
 from sklearn.model_selection import StratifiedKFold
 
 
+# v1.04 load from stage3_imgs which is augmented by all being flipped
+
 # make a function so the dataframe apply isn't super messy
 def path_to_label(path):
     '''
@@ -19,7 +21,7 @@ def path_to_label(path):
     return temp
 
 
-def get_skfold_data():
+def get_skfold_data(path="../data/stage3_imgs/*.jpg"):
     '''
     * Loads all files in hard coded directory
     * Gets the labels from the file names
@@ -30,7 +32,7 @@ def get_skfold_data():
     dictionary of fold indices like:
         {train_1:[indicies_1], test_1:[indicies_1], ..., test_10:[indicies_10] }
     '''
-    image_paths = glob.glob("../data/stage2_imgs/*.jpg")
+    image_paths = glob.glob(path)
 
     # move list into pandas so we can manipulate it easier
     data = pd.DataFrame(image_paths, columns=["file_path"])
