@@ -243,7 +243,7 @@ def run():
               'n_channels': 3,
               'shuffle': True}
 
-    EPOCHS = 30
+    EPOCHS = 3
 
     # Datasets
     X_train_img_paths = data_link_dict["X_train_2"]
