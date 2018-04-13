@@ -158,6 +158,8 @@ def get_skfold_data2(path="../data/stage3_imgs/*.jpg"):
         index_dict["X_test_" + str(idx)] = data.loc[:, "file_path"].values[test_index]
         index_dict["y_test_" + str(idx)] = data.loc[:, "y"].values[test_index]
 
+        # take the list of all files, drop the test ones, the remainder will be
+
         temp_x = list(data.loc[:, "file_path"].values[train_index])
         temp_y = list(data.loc[:, "y"].values[train_index])
 
