@@ -15,6 +15,7 @@ from keras.utils import np_utils
 from keras.preprocessing.image import ImageDataGenerator
 
 import glob
+import json
 
 from loader_bot import LoaderBot
 from splitter import get_skfold_data
@@ -95,6 +96,7 @@ def add_new_last_layer(base_model, nb_classes):
 
     return model
 
+
 def setup_to_finetune(model):
     """Freeze the bottom NB_IV3_LAYERS and retrain the remaining top layers.
     note: NB_IV3_LAYERS corresponds to the top 2 inception blocks in the inceptionv3 arch
@@ -115,6 +117,7 @@ def get_nb_files():
 
     return file_paths
 
+
 def y_labels(file_paths):
     train_img_files = get_nb_files()
 
@@ -125,6 +128,7 @@ def y_labels(file_paths):
         y[idx] = int(file.split("/")[-1].split(".")[0].split("_")[-1])
 
     return y, train_img_files
+
 
 def give_labels_get_dummies(y):
     '''
@@ -226,7 +230,11 @@ def plot_hist(hist, info_str, epochs=2):
 
 
 def run():
-    data_link_dict = get_skfold_data(path="../data/stage3_imgs/*.jpg")
+    # data_link_dict = get_skfold_data(path="../data/stage3_imgs/*.jpg")
+
+    # Use json to load the permanent dictionary that has been Created
+    with open("../data/data_splits.json") as infile:
+        data_link_dict = json.load(infile)
 
     # Parameters for Generators
     params = {'dim': (299,299),
@@ -262,9 +270,9 @@ def run():
                                      use_multiprocessing=True,
                                      workers=8)
 
-    plot_hist(history_tl, "model_v1_4.png", epochs=EPOCHS)
+    plot_hist(history_tl, "model_v1_4b.png", epochs=EPOCHS)
 
-    model.save("model_v1_4_weights.h5")
+    model.save("model_v1_4b_weights.h5")
 
 
 if __name__ == "__main__":

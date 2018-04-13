@@ -15,6 +15,7 @@ from keras.utils import np_utils
 from keras.preprocessing.image import ImageDataGenerator
 
 import glob
+import json
 
 from loader_bot import LoaderBot
 from splitter import get_skfold_data
@@ -226,7 +227,11 @@ def plot_hist(hist, info_str, epochs=2):
 
 
 def run():
-    data_link_dict = get_skfold_data()
+    # data_link_dict = get_skfold_data()
+
+    # Use json to load the permanent dictionary that has been Created
+    with open("../data/data_splits.json") as infile:
+        data_link_dict = json.load(infile)
 
     # Parameters for Generators
     params = {'dim': (299,299),
@@ -235,7 +240,7 @@ def run():
               'n_channels': 3,
               'shuffle': False}
 
-    EPOCHS = 100
+    EPOCHS = 50
 
     # Datasets
     X_train_img_paths = data_link_dict["X_test_2"]
@@ -250,7 +255,7 @@ def run():
 
     # setup model
     base_model = InceptionV3(weights='imagenet', include_top=False) #include_top=False excludes final FC layer
-    model = add_brian_layers(base_model, 128, 0.55)
+    model = add_brian_layers(base_model, 128, 0.65)
 
     # transfer learning
     setup_to_transfer_learn(model, base_model, lr=0.0125)
