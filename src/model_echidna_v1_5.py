@@ -263,9 +263,9 @@ def run():
                                      use_multiprocessing=True,
                                      workers=8)
 
-    plot_hist(history_tl, "model_v1_3c.png", epochs=EPOCHS)
+    plot_hist(history_tl, "model_v1_5a.png", epochs=EPOCHS)
 
-    model.save("model_v1_3c_weights.h5")
+    model.save("model_v1_5a_weights.h5")
 
 
 if __name__ == "__main__":
