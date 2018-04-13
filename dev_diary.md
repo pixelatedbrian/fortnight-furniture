@@ -13,9 +13,18 @@
 | 1.4 | 0.71 | 0.45 | 30 | 360k | 13.3 | Image augmentation flip, dropout down to 0.45, score prob higher than it should be since flipped images are still in the test set |
 | 1.5 | ? | ? | ? | 1620k | ? | Improve splitter.py to v1.1 Improve Image Processing to v1.2 also (see version details) |
 
-#### v1.5 (planned)
-* _**/src/splitter.py**_ - previously splitter did StratifiedKFold on ALL of the images in the processed images directory.  So augmented images (thus far only flipped) would also end up in the validation set.  As augmentation will be ramped up majorly in this version we need to fix this undesirable behavior.
+#### v1.6
 * _**/src/clean_images.py**_ - Try to shoot for 10x augmentation
+
+#### v1.5a/b
+* _**`/src/model_echidna_v1_5a.py`**_ - Take model v1_3b for rapid prototyping. Experiment with tuning the optimizer to see if we can get Adam working (better) than SGD that has been used so far.
+
+#### v1.4b
+* _**/src/splitter.py**_ - previously splitter did StratifiedKFold on ALL of the images in the processed images directory.  So augmented images (thus far only flipped) would also end up in the validation set.  As augmentation will be ramped up majorly in this version we need to fix this undesirable behavior.
+* Splitter now creates a dictionary that is serialized to a json file.  Test sets contain no augmented images, train set contains all augmented and normal images, but no test set images (augmented or otherwise)
+* Verified that models are training properly after loading train/test set indices from JSON file
+* Attempted to change optimizer from SGD to Adam but reverted after model diverged
+* Models not run to completion so no data logged as far as learning rate, accuracy, etc
 
 #### v1.4
 <img src="/imgs/model_v1_4.png" alt="Model v1.4" width="800" height="400">
