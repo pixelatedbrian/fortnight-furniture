@@ -21,10 +21,15 @@
 | 1.4 | 0.71 | 0.45 | 0.0135 | 30 | 360k | 13.3 | Image augmentation flip, dropout down to 0.45, score prob higher than it should be since flipped images are still in the test set |
 | 1.5a | .53 | 0.55 | 0.001 | 40 | 18k | 3.7 | Experiment with Adam optimizer |
 | 1.5b | .15 | 0.55 | 0.005 | 40 | 18k | 3.7 | Adam optimizer increased learning rate and model never converged |
-| 1.5c | ? | 0.55 | 0.0005 | 40 | 18k | 3.7 | Adam optimizer decreased learning rate and...  |
+| 1.5c | 0.57 | 0.55 | 0.0005 | 40 | 18k | 3.7 | Adam optimizer decreased learning rate and...  |
+| 1.6 | ? | 0.55 | 0.00025 | 40 | 18k | 3.7 | Two stage, use frozen Iv3 model for 20 epochs then unfreeze top 7 layers (172 frozen to 165 frozen)  |
+
+
+#### v1.7
+* _**/src/clean_images.py**_ - Try to shoot for 10x augmentation
 
 #### v1.6
-* _**/src/clean_images.py**_ - Try to shoot for 10x augmentation
+* _**`/src/model_echidna_v1_5a.py`**_ - Fine tune model after some break in. After 20 epochs go from 172 (all) frozen Iv3 layers to 165 frozen layers.
 
 #### v1.5a/b
 * _**`/src/model_echidna_v1_5a.py`**_ - Take model v1_3b for rapid prototyping. Experiment with tuning the optimizer to see if we can get Adam working (better) than SGD that has been used so far.
