@@ -235,18 +235,18 @@ def run():
               'batch_size': 256,
               'n_classes': 128,
               'n_channels': 3,
-              'shuffle': False}
+              'shuffle': True}
 
     EPOCHS = 10
-    LR = 0.00025
+    LR = 0.0001
     NB_IV3_LAYERS_TO_FREEZE = 170
 
     # Datasets
-    X_train_img_paths = data_link_dict["X_test_2"]
-    y_train = data_link_dict["y_test_2"]
+    X_train_img_paths = data_link_dict["X_train_1]
+    y_train = data_link_dict["y_train_1"]
 
-    X_test_img_paths = data_link_dict["X_test_3"]
-    y_test = data_link_dict["y_test_3"]
+    X_test_img_paths = data_link_dict["X_test_1"]
+    y_test = data_link_dict["y_test_1"]
 
     # Generators
     training_generator = LoaderBot(X_train_img_paths, y_train, **params)
@@ -314,9 +314,9 @@ def run():
     history_tl["loss"] += history_t4.history["loss"]
     history_tl["val_loss"] += history_t4.history["val_loss"]
 
-    plot_hist(history_tl, "model_v1_6b.png", epochs=len(history_tl["acc"]))
+    plot_hist(history_tl, "model_v1_7.png", epochs=len(history_tl["acc"]))
 
-    model.save("model_v1_6b_weights.h5")
+    model.save("model_v1_7_weights.h5")
 
 
 if __name__ == "__main__":
