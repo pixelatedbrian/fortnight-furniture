@@ -254,7 +254,7 @@ def run():
     model = add_brian_layers(base_model, 128, 0.55)
 
     # transfer learning
-    setup_to_transfer_learn(model, base_model, lr=0.005)
+    setup_to_transfer_learn(model, base_model, lr=0.0005)
 
     # Run model
     history_tl = model.fit_generator(generator=training_generator,
@@ -263,9 +263,9 @@ def run():
                                      use_multiprocessing=True,
                                      workers=8)
 
-    plot_hist(history_tl, "model_v1_5b.png", epochs=EPOCHS)
+    plot_hist(history_tl, "model_v1_5c.png", epochs=EPOCHS)
 
-    model.save("model_v1_5a_weights.h5")
+    model.save("model_v1_5c_weights.h5")
 
 
 if __name__ == "__main__":
