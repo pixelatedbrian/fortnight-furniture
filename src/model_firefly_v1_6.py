@@ -133,7 +133,7 @@ def setup_to_finetune(model, lr=0.001):
 #     return pd.get_dummies(y.loc[:, "y"])
 
 
-def plot_hist(hist, info_str, epochs=2):
+def plot_hist(history, info_str, epochs=2):
     '''
     Make a plot of the rate of error as well as the accuracy of the model
     during training.  Also include a line at error 0.20 which was the original
@@ -179,10 +179,10 @@ def plot_hist(hist, info_str, epochs=2):
     minorLocator = MultipleLocator(minor_ticks)
 
     # correct x axis
-    hist.history['loss'] = [0.0] + hist.history['loss']
-    hist.history['val_loss'] = [0.0] + hist.history['val_loss']
-    hist.history['acc'] = [0.0] + hist.history['acc']
-    hist.history['val_acc'] = [0.0] + hist.history['val_acc']
+    history['loss'] = [0.0] + history['loss']
+    history['val_loss'] = [0.0] + history['val_loss']
+    history['acc'] = [0.0] + history['acc']
+    history['val_acc'] = [0.0] + history['val_acc']
 
     x_line = [0.75] * (epochs + 1)  # this line is now for accuracy of test set
 
@@ -193,8 +193,8 @@ def plot_hist(hist, info_str, epochs=2):
     axs[0].set_ylabel('Loss')
 #     axs[0].set_ylim(0, 15)
 
-    axs[0].plot(hist.history['loss'], color="blue", linestyle="--", alpha=0.8, lw=1.0)
-    axs[0].plot(hist.history['val_loss'], color="blue", alpha=0.8, lw=1.0)
+    axs[0].plot(history['loss'], color="blue", linestyle="--", alpha=0.8, lw=1.0)
+    axs[0].plot(history['val_loss'], color="blue", alpha=0.8, lw=1.0)
     axs[0].legend(['Training', 'Validation'])
     axs[0].xaxis.set_major_locator(majorLocator)
     axs[0].xaxis.set_major_formatter(majorFormatter)
@@ -209,8 +209,8 @@ def plot_hist(hist, info_str, epochs=2):
     axs[1].set_ylabel('Accuracy')
     axs[1].set_ylim(0.0, 1.0)
     axs[1].plot(x_line, color="red", alpha=0.3, lw=4.0)
-    axs[1].plot(hist.history['acc'], color="blue", linestyle="--", alpha=0.5, lw=1.0)
-    axs[1].plot(hist.history['val_acc'], color="blue", alpha=0.8, lw=1.0)
+    axs[1].plot(history['acc'], color="blue", linestyle="--", alpha=0.5, lw=1.0)
+    axs[1].plot(history['val_acc'], color="blue", alpha=0.8, lw=1.0)
     axs[1].plot(x_line, color="red", linestyle="--", alpha=0.8, lw=1.0)
     axs[1].legend(['Minimum Acceptable Accuracy', 'Training', 'Validation'], loc='lower right')
     axs[1].xaxis.set_major_locator(majorLocator)
@@ -237,7 +237,7 @@ def run():
               'n_channels': 3,
               'shuffle': False}
 
-    EPOCHS = 4
+    EPOCHS = 1
     LR = 0.00025
 
     # Datasets
@@ -275,11 +275,11 @@ def run():
                                      use_multiprocessing=True,
                                      workers=8)
 
-    history_tl = history_t1
-    history_tl["acc"] += history_t2["acc"]
-    history_tl["val_acc"] += history_t2["val_acc"]
-    history_tl["loss"] += history_t2["loss"]
-    history_tl["val_loss"] += history_t2["val_loss"]
+    history_tl = history_t1.history
+    history_tl["acc"] += history_t2.history["acc"]
+    history_tl["val_acc"] += history_t2.history["val_acc"]
+    history_tl["loss"] += history_t2.history["loss"]
+    history_tl["val_loss"] += history_t2.history["val_loss"]
 
     plot_hist(history_tl, "model_v1_6.png", epochs=len(history_tl["acc"]))
 
