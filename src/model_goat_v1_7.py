@@ -237,12 +237,12 @@ def run():
               'n_channels': 3,
               'shuffle': True}
 
-    EPOCHS = 10
+    EPOCHS = 5
     LR = 0.0001
     NB_IV3_LAYERS_TO_FREEZE = 170
 
     # Datasets
-    X_train_img_paths = data_link_dict["X_train_1]
+    X_train_img_paths = data_link_dict["X_train_1"]
     y_train = data_link_dict["y_train_1"]
 
     X_test_img_paths = data_link_dict["X_test_1"]
