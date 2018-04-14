@@ -20,7 +20,8 @@
 | 1.3d | 0.59 | 0.55 | 0.0135 | 100 | 18k | 9.3 | Increased epochs to 100. Overkill but making sure that model has enough time to converge with higher dropout. Back to 'he_normal' weight initialization to see if it helps. |
 | 1.4 | 0.71 | 0.45 | 0.0135 | 30 | 360k | 13.3 | Image augmentation flip, dropout down to 0.45, score prob higher than it should be since flipped images are still in the test set |
 | 1.5a | .53 | 0.55 | 0.001 | 40 | 18k | 3.7 | Experiment with Adam optimizer |
-| 1.5b | ? | 0.55 | 0.005 | 40 | 18k | 3.7 | Experiment with Adam optimizer |
+| 1.5b | .15 | 0.55 | 0.005 | 40 | 18k | 3.7 | Adam optimizer increased learning rate and model never converged |
+| 1.5c | ? | 0.55 | 0.0005 | 40 | 18k | 3.7 | Adam optimizer decreased learning rate and...  |
 
 #### v1.6
 * _**/src/clean_images.py**_ - Try to shoot for 10x augmentation
