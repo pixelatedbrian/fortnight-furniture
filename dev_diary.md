@@ -24,16 +24,25 @@
 | 1.5c | 0.57 | 0.55 | 0.0005 | 40 | 18k | 3.7 | Adam optimizer decreased learning rate and... did the best of these models  |
 | 1.6 | 0.72 | 0.55 | 0.00025 | 40 | 18k | 3.7 | Two stage, use frozen Iv3 model for 20 epochs then unfreeze top 7 layers (172 frozen to 165 frozen) New record accuracy 0.72  |
 | 1.6b | 0.74 | 0.55 | 0.00025 | 40 | 18k | 3.7 | Four stage, use frozen Iv3 model for 5 epochs then unfreeze top 2 layers for each of remaining 3 rounds. Also decrease learning rate by LR/2^round New record accuracy 0.72  |
-| 1.7 | ? | 0.55 | 0.00025 | 20 | 360k | ? | Defrosting on fuller data pipeline, all non-split pics with 2x augmentation from flip over vertical axis. |
+| 1.7 | 0.80 | 0.55 | 0.00025 | 20 | 360k | 9.3 | Defrosting on fuller data pipeline, all non-split pics with 2x augmentation from flip over vertical axis. New record 0.80 accuracy. |
 
 
 #### v1.8
 * _**/src/clean_images.py**_ - Try to shoot for 10x augmentation
 
+#### v1.7b
+<img src="/imgs/model_v1_7b.png" alt="Model v1.7b" width="800" height="400">
+
+* _**`/src/model_goat_v1_7.py`**_ - Modify model v1.7b slightly from model v1.7:
+  * First increase lead in pre-training from 5 epochs to 10 epochs.
+  * Also decrease initial learning rate of unfrozen stages but also keep it constant. Trying reducing LR by an order of magnitude (LR / 10) because it seems like as layers thaw the model wants to overfit very quickly.
+
 #### v1.7
 <img src="/imgs/model_v1_7.png" alt="Model v1.7" width="800" height="400">
 
-* _**`/src/model_goat_v1_7.py`**_ - Take 1.6b architecture with a planned 20 epoch run of 4 mini-trains of 5 epochs each. Use the same decaying LR and layer thawing. This time, however, train on ~360k images, normal and flip augmented.  Run time will probably be around 8 hours but results could be much better than in the past as sprint trains have already exceeded past records.
+* _**`/src/model_goat_v1_7.py`**_ - Take 1.6b architecture with a planned 20 epoch run of 4 mini-trains of 5 epochs each. Use the same decaying LR and layer thawing. This time, however, train on ~360k images, normal and flip augmented.  Run time will probably be around 8 hours but results could be much better than in the past as sprint trains have already exceeded past records. 
+* First attempt hung during fit on epoch 17. Speculate that resource exhaustion was occuring with workers set to 8. The second run with workers=6 ran to completion. Errors from wedged runs capture during break as stall_info.txt or similar.  The first run had the slowly falling LR for stage 2, 3, 4 of mini-trainings.  During the stalled run it appeared that the model was overfitting rapidly but it also appeared that test accuracy was around 0.82. The run that ran to completion had LR reduced more aggressively, stage 2 = LR / 4, stage 3 = LR / 8, stage 4 = LR / 16. The final test error ended up being around 0.80 so it seems that the LR was too low despite this model also overfitting in the end (see chart above).
+* This is the first complete model to exceed the minimum goal of 0.75 accuracy on the test set.  There's a lot of room for improvement. At this time top 10 on public leader board is 0.15234 error. Assuming the test error accurately projected to the leaderboard score (quite the assumption) then that would currently place around 60th on the LB. April 15, 2018
 
 #### v1.6b (sprint)
 <img src="/imgs/model_v1_6b.png" alt="Model v1.6b" width="800" height="400">
