@@ -19,20 +19,47 @@
 | 1.3c | 0.58 | 0.55 | 0.0135 | 60 | 18k | 5.6 | Increased epochs of 1.3b to 60 as it looked like test loss was plateauing but want to be sure. Changed weight initialization back to he_normal to see if the model converges faster since epochs 1 - 40 should be the same ground |
 | 1.3d | 0.59 | 0.55 | 0.0135 | 100 | 18k | 9.3 | Increased epochs to 100. Overkill but making sure that model has enough time to converge with higher dropout. Back to 'he_normal' weight initialization to see if it helps. |
 | 1.4 | 0.71 | 0.45 | 0.0135 | 30 | 360k | 13.3 | Image augmentation flip, dropout down to 0.45, score prob higher than it should be since flipped images are still in the test set |
-| 1.5a | .53 | 0.55 | 0.001 | 40 | 18k | 3.7 | Experiment with Adam optimizer |
-| 1.5b | .15 | 0.55 | 0.005 | 40 | 18k | 3.7 | Adam optimizer increased learning rate and model never converged |
-| 1.5c | 0.57 | 0.55 | 0.0005 | 40 | 18k | 3.7 | Adam optimizer decreased learning rate and...  |
-| 1.6 | ? | 0.55 | 0.00025 | 40 | 18k | 3.7 | Two stage, use frozen Iv3 model for 20 epochs then unfreeze top 7 layers (172 frozen to 165 frozen)  |
+| 1.5a | 0.53 | 0.55 | 0.001 | 40 | 18k | 3.7 | Experiment with Adam optimizer, needs some tuning |
+| 1.5b | 0.15 | 0.55 | 0.005 | 40 | 18k | 3.7 | Adam optimizer increased learning rate and model never converged |
+| 1.5c | 0.57 | 0.55 | 0.0005 | 40 | 18k | 3.7 | Adam optimizer decreased learning rate and... did the best of these models  |
+| 1.6 | 0.72 | 0.55 | 0.00025 | 40 | 18k | 3.7 | Two stage, use frozen Iv3 model for 20 epochs then unfreeze top 7 layers (172 frozen to 165 frozen) New record accuracy 0.72  |
+| 1.6b | 0.74 | 0.55 | 0.00025 | 40 | 18k | 3.7 | Four stage, use frozen Iv3 model for 5 epochs then unfreeze top 2 layers for each of remaining 3 rounds. Also decrease learning rate by LR/2^round New record accuracy 0.72  |
+| 1.7 | ? | 0.55 | 0.00025 | 20 | 360k | ? | Defrosting on fuller data pipeline, all non-split pics with 2x augmentation from flip over vertical axis. |
 
 
-#### v1.7
+#### v1.8
 * _**/src/clean_images.py**_ - Try to shoot for 10x augmentation
 
-#### v1.6
-* _**`/src/model_echidna_v1_5a.py`**_ - Fine tune model after some break in. After 20 epochs go from 172 (all) frozen Iv3 layers to 165 frozen layers.
+#### v1.7
+<img src="/imgs/model_v1_7.png" alt="Model v1.7" width="800" height="400">
 
-#### v1.5a/b
-* _**`/src/model_echidna_v1_5a.py`**_ - Take model v1_3b for rapid prototyping. Experiment with tuning the optimizer to see if we can get Adam working (better) than SGD that has been used so far.
+* _**`/src/model_goat_v1_7.py`**_ - Take 1.6b architecture with a planned 20 epoch run of 4 mini-trains of 5 epochs each. Use the same decaying LR and layer thawing. This time, however, train on ~360k images, normal and flip augmented.  Run time will probably be around 8 hours but results could be much better than in the past as sprint trains have already exceeded past records.
+
+#### v1.6b (sprint)
+<img src="/imgs/model_v1_6b.png" alt="Model v1.6b" width="800" height="400">
+
+* _**`/src/model_firefly_v1_6.py`**_ - Fine tune model after some break in. Run for 20 total epochs of 5 rounds. First round is simply a normal mini-train with LR at 0.00025.  However for each successive mini-train unfroze the top 2 layers of Iv3 and also divided LR by 2^round.  Therefore round 2 had 2 unfrozen layers and LR of 0.000125, round 3: 4 unfrozen layers and LR of 0.0000625, etc. New record accuracy of 0.7445
+
+#### v1.6 (sprint)
+<img src="/imgs/model_v1_6.png" alt="Model v1.6" width="800" height="400">
+
+* _**`/src/model_echidna_v1_5a.py`**_ - Fine tune model after some break in. After 20 epochs go from 172 (all) frozen Iv3 layers to 165 frozen layers. Figured out how to concatenate the model history so the chart accounts for both training regimes. New record accuracy of 0.72 and chart looks very interesting.
+
+
+#### v1.5c (sprint)
+<img src="/imgs/model_v1_5c.png" alt="Model v1.5c" width="800" height="400">
+
+* _**`/src/model_echidna_v1_5.py`**_ - Adam learning rate of 0.0005 seems the best so far
+
+#### v1.5b (sprint)
+<img src="/imgs/model_v1_5b.png" alt="Model v1.5b" width="800" height="400">
+
+* _**`/src/model_echidna_v1_5.py`**_ - Adam learning rate of 0.005 completely failed
+
+#### v1.5a (sprint)
+<img src="/imgs/model_v1_5a.png" alt="Model v1.5a" width="800" height="400">
+
+* _**`/src/model_echidna_v1_5.py`**_ - Take model v1_3b for rapid prototyping. Experiment with tuning the optimizer to see if we can get Adam working (better) than SGD that has been used so far.  Default Adam learning rate of 0.001, seems ok.
 
 #### v1.4b
 * _**/src/splitter.py**_ - previously splitter did StratifiedKFold on ALL of the images in the processed images directory.  So augmented images (thus far only flipped) would also end up in the validation set.  As augmentation will be ramped up majorly in this version we need to fix this undesirable behavior.
@@ -53,27 +80,27 @@
 
 * Model v1.3c and v1.3d the only difference is epoch length and then the type of initialization.  Using PS to overlay the Xavier over the He_normal (Xavier in red) it seems like Xavier overfits slightly less and has slightly better accuracy, in this case.  Not really enough to worry about now but using default seems better.
 
-#### v1.3d
+#### v1.3d (sprint)
 <img src="/imgs/model_v1_3d.png" alt="Model v1.3d" width="800" height="400">
 
 * Increased epochs from 60 to 100 to give more time to converge/verify that it's over fitting.  Also changed weight initialization from default to 'he_normal'
 
-#### v1.3c
+#### v1.3c (sprint)
 <img src="/imgs/model_v1_3c.png" alt="Model v1.3b" width="800" height="400">
 
 * Increased dropout to relatively absurd level of 0.55. (But had success with that value in the past) Increased epochs to 40 because convergence should be slower since it's much more difficult to learn. This is confirmed in the above chart but it also seems like a few more epochs may show if the accuracy can improve.
 
-#### v1.3b
+#### v1.3b (sprint)
 <img src="/imgs/model_v1_3b.png" alt="Model v1.3b" width="800" height="400">
 
 * Increased dropout to relatively absurd level of 0.55. (But had success with that value in the past) Increased epochs to 40 because convergence should be slower since it's much more difficult to learn. This is confirmed in the above chart but it also seems like a few more epochs may show if the accuracy can improve.
 
-#### v1.3a
+#### v1.3a (sprint)
 <img src="/imgs/model_v1_3a.png" alt="Model v1.3a" width="800" height="400">
 
 * Tried going for 100 epochs, model seems to start overfitting at ~20 epochs. Runtime for 100 epochs was ~12 hours so that's not speeding anything up. However if runs only need to be ~20-25 epochs the runs would be just over 2.5 hours.
 
-#### v1.3
+#### v1.3 (sprint)
 <img src="/imgs/model_v1_3.png" alt="Model v1.3" width="800" height="400">
 
 * Mini-training - For previous versions of the model training for 20 epochs took ~6 hours. So concept was to see how well a smaller subset of a training data performed so things could iterate faster. Unsurprisingly correct id of image class dropped, ie error increased.
