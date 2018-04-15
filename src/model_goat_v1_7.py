@@ -262,12 +262,12 @@ def run():
     # Run model
     history_t1 = model.fit_generator(generator=training_generator,
                                      validation_data=validation_generator,
-                                     epochs=EPOCHS,
+                                     epochs=EPOCHS * 2,
                                      use_multiprocessing=True,
                                      workers=6)
 
     # try to fine tune some of the InceptionV3 layers also
-    setup_to_finetune(model, NB_IV3_LAYERS_TO_FREEZE, lr=LR / 4.0)
+    setup_to_finetune(model, NB_IV3_LAYERS_TO_FREEZE, lr=LR / 10.0)
 
     # Run model
     history_t2 = model.fit_generator(generator=training_generator,
@@ -277,7 +277,7 @@ def run():
                                      workers=6)
 
     # try to fine tune some of the InceptionV3 layers also
-    setup_to_finetune(model, NB_IV3_LAYERS_TO_FREEZE - 2, lr=LR / 8.0)
+    setup_to_finetune(model, NB_IV3_LAYERS_TO_FREEZE - 2, lr=LR / 10.0)
 
     # Run model
     history_t3 = model.fit_generator(generator=training_generator,
@@ -287,7 +287,7 @@ def run():
                                      workers=6)
 
     # try to fine tune some of the InceptionV3 layers also
-    setup_to_finetune(model, NB_IV3_LAYERS_TO_FREEZE - 4, lr=LR / 16.0)
+    setup_to_finetune(model, NB_IV3_LAYERS_TO_FREEZE - 4, lr=LR / 10.0)
 
     # Run model
     history_t4 = model.fit_generator(generator=training_generator,
@@ -314,9 +314,9 @@ def run():
     history_tl["loss"] += history_t4.history["loss"]
     history_tl["val_loss"] += history_t4.history["val_loss"]
 
-    plot_hist(history_tl, "model_v1_7.png", epochs=len(history_tl["acc"]))
+    plot_hist(history_tl, "model_v1_7b.png", epochs=len(history_tl["acc"]))
 
-    model.save("model_v1_7_weights.h5")
+    model.save("model_v1_7b_weights.h5")
 
 
 if __name__ == "__main__":
