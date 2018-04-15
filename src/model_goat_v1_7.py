@@ -264,37 +264,37 @@ def run():
                                      validation_data=validation_generator,
                                      epochs=EPOCHS,
                                      use_multiprocessing=True,
-                                     workers=8)
+                                     workers=6)
 
     # try to fine tune some of the InceptionV3 layers also
-    setup_to_finetune(model, NB_IV3_LAYERS_TO_FREEZE, lr=LR / 2.0)
+    setup_to_finetune(model, NB_IV3_LAYERS_TO_FREEZE, lr=LR / 4.0)
 
     # Run model
     history_t2 = model.fit_generator(generator=training_generator,
                                      validation_data=validation_generator,
                                      epochs=EPOCHS,
                                      use_multiprocessing=True,
-                                     workers=8)
+                                     workers=6)
 
     # try to fine tune some of the InceptionV3 layers also
-    setup_to_finetune(model, NB_IV3_LAYERS_TO_FREEZE - 2, lr=LR / 4.0)
+    setup_to_finetune(model, NB_IV3_LAYERS_TO_FREEZE - 2, lr=LR / 8.0)
 
     # Run model
     history_t3 = model.fit_generator(generator=training_generator,
                                      validation_data=validation_generator,
                                      epochs=EPOCHS,
                                      use_multiprocessing=True,
-                                     workers=8)
+                                     workers=6)
 
     # try to fine tune some of the InceptionV3 layers also
-    setup_to_finetune(model, NB_IV3_LAYERS_TO_FREEZE - 4, lr=LR / 8.0)
+    setup_to_finetune(model, NB_IV3_LAYERS_TO_FREEZE - 4, lr=LR / 16.0)
 
     # Run model
     history_t4 = model.fit_generator(generator=training_generator,
                                      validation_data=validation_generator,
                                      epochs=EPOCHS,
                                      use_multiprocessing=True,
-                                     workers=8)
+                                     workers=6)
 
     history_tl = history_t1.history
     history_tl["acc"] += history_t2.history["acc"]
