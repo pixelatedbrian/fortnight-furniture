@@ -1,0 +1,24 @@
+Epoch 1:
+  PID USER      PR  NI    VIRT    RES    SHR S  %CPU %MEM     TIME+ COMMAND
+32278 brian     20   0 32.366g 0.013t 481048 S 101.7 43.2   2:58.86 python
+ 1105 brian     20   0 19.280g 1.146g 168192 S  43.9  3.7   0:23.89 python
+ 1117 brian     20   0 20.303g 1.812g 168192 R  41.9  5.8   0:25.34 python
+ 1112 brian     20   0 19.280g 1.146g 168192 S  30.2  3.7   0:24.18 python
+ 1107 brian     20   0 19.791g 1.649g 168192 R  13.6  5.3   0:24.72 python
+ 1113 brian     20   0 19.280g 1.146g 168192 S   3.7  3.7   0:24.06 python
+
+# STalled out on batch 377 on epoch 2:
+
+PID USER      PR  NI    VIRT    RES    SHR S  %CPU %MEM     TIME+ COMMAND
+1955 root      20   0  248356  25060  16492 S   4.3  0.1   0:20.64 Xorg
+1972 root     -51   0       0      0      0 S   2.0  0.0   1:14.17 irq/150-nv+
+2798 brian     20   0 1318072  75352  34112 S   2.0  0.2   0:23.11 compiz
+3002 brian     20   0  672328  18540   8952 S   1.7  0.1   0:10.68 gnome-term+
+5425 brian     20   0 32.581g 0.013t 310952 S   1.3 44.1  30:41.73 python
+2592 brian     20   0  486728   9724   4568 S   0.7  0.0   0:00.16 ibus-ui-gt+
+3681 brian     20   0   21028   2368   2004 S   0.7  0.0   0:17.86 watch
+2567 brian     20   0  365292   3904   2428 S   0.3  0.0   0:00.40 ibus-daemon
+2610 brian     20   0  208688   2692   1996 S   0.3  0.0   0:00.09 ibus-engin+
+4685 brian     20   0   49136   2820   2064 R   0.3  0.0   0:07.63 top
+
+Seems like processes died? 

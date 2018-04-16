@@ -266,7 +266,7 @@ def run():
     # Run model
     history_t1 = model.fit_generator(generator=training_generator,
                                      validation_data=validation_generator,
-                                     epochs=EPOCHS * 2,
+                                     epochs=EPOCHS,
                                      use_multiprocessing=True,
                                      workers=6)
 
