@@ -321,9 +321,9 @@ def run():
     # history_tl["loss"] += history_t4.history["loss"]
     # history_tl["val_loss"] += history_t4.history["val_loss"]
 
-    plot_hist(history_tl, "model_v1_7c.png", epochs=len(history_tl["acc"]))
+    plot_hist(history_tl, "model_v1_7d.png", epochs=len(history_tl["acc"]))
 
-    model.save("model_v1_7c_weights.h5")
+    model.save("model_v1_7d_weights.h5")
 
     print("\n\n\n\nCompleted in {:6.2f} hrs".format((time.time() - start_time)) / 3600)  # convert to hours
 
