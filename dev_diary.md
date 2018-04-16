@@ -24,11 +24,31 @@
 | 1.5c | 0.57 | 0.55 | 0.0005 | 40 | 18k | 3.7 | Adam optimizer decreased learning rate and... did the best of these models  |
 | 1.6 | 0.72 | 0.55 | 0.00025 | 40 | 18k | 3.7 | Two stage, use frozen Iv3 model for 20 epochs then unfreeze top 7 layers (172 frozen to 165 frozen) New record accuracy 0.72  |
 | 1.6b | 0.74 | 0.55 | 0.00025 | 40 | 18k | 3.7 | Four stage, use frozen Iv3 model for 5 epochs then unfreeze top 2 layers for each of remaining 3 rounds. Also decrease learning rate by LR/2^round New record accuracy 0.72  |
-| 1.7 | 0.80 | 0.55 | 0.00025 | 20 | 360k | 9.3 | Defrosting on fuller data pipeline, all non-split pics with 2x augmentation from flip over vertical axis. New record 0.80 accuracy. |
+| 1.7a | 0.80 | 0.55 | 0.0001 | 20 | 360k | 9.3 | Defrosting on fuller data pipeline, all non-split pics with 2x augmentation from flip over vertical axis. New record 0.80 accuracy. |
+| 1.7b | 0.79 | 0.55 | 0.0001 | 25 | 360k | 9.3 | Made initial training of frozen model + addon for double epochs (10) then three stages of 5 epochs with more layers unfreezing per mini-train |
+| 1.7c | 0.80 | 0.55 | 0.00025 | 24 | 360k | 16.1 | Dropped mini-trains to 3 batches, made first train the same number of epochs as other mini-trains. Raised LR some and kept it stable. |
+| 1.7d | ? | 0.55 | 0.00025 | 12 | 360k | ? | Dropped mini-trains to 3 batches, made first train the same number of epochs as other mini-trains. Raised LR some and kept it stable. |
 
 
 #### v1.8
 * _**/src/clean_images.py**_ - Try to shoot for 10x augmentation
+
+#### v1.7d
+<img src="/imgs/model_v1_7d.png" alt="Model v1.7d" width="800" height="400">
+
+* _**`/src/model_goat_v1_7.py`**_ - Modify model v1.7d slightly from model v1.7c:
+  * Seems to be no need to train first stage more than 6-7 epochs because the curve seems to stabilize right there.
+  * Thawing small amounts of layers (1-2 layers) per mini-train doesn't seem to be helping. Basically there is a big jump from the first unfreeze and then after that it's just helping the model overfit.
+  * Therefore this run trying to unfreeze a bunch of layers but only for one mini-epoch.  As an additional benefit it should run faster because not as many total epochs. Ran into the generating hang again on 1.7c so shorter runs will help reduce the probability of that occurring.
+  * Therefore going from 3 x 8 epochs to 2 x 6 for this run.
+
+#### v1.7c
+<img src="/imgs/model_v1_7c.png" alt="Model v1.7c" width="800" height="400">
+
+* _**`/src/model_goat_v1_7.py`**_ - Modify model v1.7c slightly from model v1.7b:
+  * Raise LR to 0.00025 because that was the LR of the 'accidental' but ephemereal 0.82 acc
+  * Kept learning rate constant between mini-trains
+  * Doubling the first stage train epochs didn't seem to help, as one can see looking at these charts, so went back to same number of epochs for all minibatches but increased epochs per mini-train from 5 epochs to 8.
 
 #### v1.7b
 <img src="/imgs/model_v1_7b.png" alt="Model v1.7b" width="800" height="400">
@@ -37,8 +57,8 @@
   * First increase lead in pre-training from 5 epochs to 10 epochs.
   * Also decrease initial learning rate of unfrozen stages but also keep it constant. Trying reducing LR by an order of magnitude (LR / 10) because it seems like as layers thaw the model wants to overfit very quickly.
 
-#### v1.7
-<img src="/imgs/model_v1_7.png" alt="Model v1.7" width="800" height="400">
+#### v1.7a
+<img src="/imgs/model_v1_7.png" alt="Model v1.7a" width="800" height="400">
 
 * _**`/src/model_goat_v1_7.py`**_ - Take 1.6b architecture with a planned 20 epoch run of 4 mini-trains of 5 epochs each. Use the same decaying LR and layer thawing. This time, however, train on ~360k images, normal and flip augmented.  Run time will probably be around 8 hours but results could be much better than in the past as sprint trains have already exceeded past records. 
 * First attempt hung during fit on epoch 17. Speculate that resource exhaustion was occuring with workers set to 8. The second run with workers=6 ran to completion. Errors from wedged runs capture during break as stall_info.txt or similar.  The first run had the slowly falling LR for stage 2, 3, 4 of mini-trainings.  During the stalled run it appeared that the model was overfitting rapidly but it also appeared that test accuracy was around 0.82. The run that ran to completion had LR reduced more aggressively, stage 2 = LR / 4, stage 3 = LR / 8, stage 4 = LR / 16. The final test error ended up being around 0.80 so it seems that the LR was too low despite this model also overfitting in the end (see chart above).
