@@ -240,9 +240,9 @@ def run():
               'n_channels': 3,
               'shuffle': True}
 
-    EPOCHS = 8
+    EPOCHS = 6
     LR = 0.00025
-    NB_IV3_LAYERS_TO_FREEZE = 171
+    NB_IV3_LAYERS_TO_FREEZE = 172 - 8
 
     # Datasets
     X_train_img_paths = data_link_dict["X_train_1"]
@@ -281,16 +281,16 @@ def run():
                                      use_multiprocessing=True,
                                      workers=6)
 
-    # mini-train 3
-    # try to fine tune some of the InceptionV3 layers also
-    setup_to_finetune(model, NB_IV3_LAYERS_TO_FREEZE - 1, lr=LR)
-
-    # Run model
-    history_t3 = model.fit_generator(generator=training_generator,
-                                     validation_data=validation_generator,
-                                     epochs=EPOCHS,
-                                     use_multiprocessing=True,
-                                     workers=6)
+    # # mini-train 3
+    # # try to fine tune some of the InceptionV3 layers also
+    # setup_to_finetune(model, NB_IV3_LAYERS_TO_FREEZE - 1, lr=LR)
+    #
+    # # Run model
+    # history_t3 = model.fit_generator(generator=training_generator,
+    #                                  validation_data=validation_generator,
+    #                                  epochs=EPOCHS,
+    #                                  use_multiprocessing=True,
+    #                                  workers=6)
 
     # mini-train 4
     # # try to fine tune some of the InceptionV3 layers also
@@ -309,11 +309,11 @@ def run():
     history_tl["loss"] += history_t2.history["loss"]
     history_tl["val_loss"] += history_t2.history["val_loss"]
 
-    history_tl = history_t1.history
-    history_tl["acc"] += history_t3.history["acc"]
-    history_tl["val_acc"] += history_t3.history["val_acc"]
-    history_tl["loss"] += history_t3.history["loss"]
-    history_tl["val_loss"] += history_t3.history["val_loss"]
+    # history_tl = history_t1.history
+    # history_tl["acc"] += history_t3.history["acc"]
+    # history_tl["val_acc"] += history_t3.history["val_acc"]
+    # history_tl["loss"] += history_t3.history["loss"]
+    # history_tl["val_loss"] += history_t3.history["val_loss"]
 
     # history_tl = history_t1.history
     # history_tl["acc"] += history_t4.history["acc"]
@@ -325,7 +325,7 @@ def run():
 
     model.save("model_v1_7c_weights.h5")
 
-    print("\n\n\n\nCompleted in {:6.2s}s".format(time.time() - start_time))
+    print("\n\n\n\nCompleted in {:6.2f} hrs".format((time.time() - start_time)) / 3600)  # convert to hours
 
 if __name__ == "__main__":
     run()
