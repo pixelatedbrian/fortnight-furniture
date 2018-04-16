@@ -16,6 +16,8 @@ import json
 
 from loader_bot import LoaderBot
 
+import time
+
 # import pandas as pd
 # import numpy as np
 
@@ -225,6 +227,7 @@ def plot_hist(history, info_str, epochs=2):
 
 def run():
     # data_link_dict = get_skfold_data()
+    start_time = time.time()
 
     # Use json to load the permanent dictionary that has been Created
     with open("../data/data_splits.json") as infile:
@@ -322,6 +325,7 @@ def run():
 
     model.save("model_v1_7c_weights.h5")
 
+    print("\n\n\n\nCompleted in {:6.2s}s".format(time.time() - start_time))
 
 if __name__ == "__main__":
     run()
