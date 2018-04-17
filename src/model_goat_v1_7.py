@@ -170,6 +170,8 @@ def plot_hist(history, info_str, epochs=2):
     major_ticks = int(epochs / 10.0)
     minor_ticks = int(epochs / 20.0)
 
+    ACC = 0.80   # record accuracy
+
     if major_ticks < 2:
         major_ticks = 2
 
@@ -186,7 +188,7 @@ def plot_hist(history, info_str, epochs=2):
     history['acc'] = [0.0] + history['acc']
     history['val_acc'] = [0.0] + history['val_acc']
 
-    x_line = [0.75] * (epochs + 1)  # this line is now for accuracy of test set
+    x_line = [ACC] * (epochs + 1)  # this line is now for accuracy of test set
 
     # stuff for the loss chart
     axs[0].set_title("Homewares and Furniture Image Identification\n Train Set and Dev Set")
@@ -214,7 +216,7 @@ def plot_hist(history, info_str, epochs=2):
     axs[1].plot(history['acc'], color="blue", linestyle="--", alpha=0.5, lw=1.0)
     axs[1].plot(history['val_acc'], color="blue", alpha=0.8, lw=1.0)
     axs[1].plot(x_line, color="red", linestyle="--", alpha=0.8, lw=1.0)
-    axs[1].legend(['Minimum Acceptable Accuracy', 'Training', 'Validation'], loc='lower right')
+    axs[1].legend(['Record Accuracy (0.80)', 'Training', 'Validation'], loc='lower right')
     axs[1].xaxis.set_major_locator(majorLocator)
     axs[1].xaxis.set_major_formatter(majorFormatter)
 
@@ -240,9 +242,9 @@ def run():
               'n_channels': 3,
               'shuffle': True}
 
-    EPOCHS = 6
+    EPOCHS = 3
     LR = 0.00025
-    NB_IV3_LAYERS_TO_FREEZE = 172 - 8
+    NB_IV3_LAYERS_TO_FREEZE = 172
 
     # Datasets
     X_train_img_paths = data_link_dict["X_train_1"]
@@ -272,7 +274,7 @@ def run():
 
     # mini-train 2
     # try to fine tune some of the InceptionV3 layers also
-    setup_to_finetune(model, NB_IV3_LAYERS_TO_FREEZE, lr=LR)
+    setup_to_finetune(model, NB_IV3_LAYERS_TO_FREEZE - 2, lr=LR / 2.0)
 
     # Run model
     history_t2 = model.fit_generator(generator=training_generator,
@@ -281,27 +283,27 @@ def run():
                                      use_multiprocessing=True,
                                      workers=6)
 
-    # # mini-train 3
-    # # try to fine tune some of the InceptionV3 layers also
-    # setup_to_finetune(model, NB_IV3_LAYERS_TO_FREEZE - 1, lr=LR)
-    #
-    # # Run model
-    # history_t3 = model.fit_generator(generator=training_generator,
-    #                                  validation_data=validation_generator,
-    #                                  epochs=EPOCHS,
-    #                                  use_multiprocessing=True,
-    #                                  workers=6)
+    # mini-train 3
+    # try to fine tune some of the InceptionV3 layers also
+    setup_to_finetune(model, NB_IV3_LAYERS_TO_FREEZE - 4, lr=LR / 4.0)
+
+    # Run model
+    history_t3 = model.fit_generator(generator=training_generator,
+                                     validation_data=validation_generator,
+                                     epochs=EPOCHS,
+                                     use_multiprocessing=True,
+                                     workers=6)
 
     # mini-train 4
-    # # try to fine tune some of the InceptionV3 layers also
-    # setup_to_finetune(model, NB_IV3_LAYERS_TO_FREEZE - 2, lr=LR)
+    # try to fine tune some of the InceptionV3 layers also
+    setup_to_finetune(model, NB_IV3_LAYERS_TO_FREEZE - 6, lr=LR / 8.0)
 
-    # # Run model
-    # history_t4 = model.fit_generator(generator=training_generator,
-    #                                  validation_data=validation_generator,
-    #                                  epochs=EPOCHS,
-    #                                  use_multiprocessing=True,
-    #                                  workers=6)
+    # Run model
+    history_t4 = model.fit_generator(generator=training_generator,
+                                     validation_data=validation_generator,
+                                     epochs=EPOCHS,
+                                     use_multiprocessing=True,
+                                     workers=6)
 
     history_tl = history_t1.history
     history_tl["acc"] += history_t2.history["acc"]
@@ -309,23 +311,23 @@ def run():
     history_tl["loss"] += history_t2.history["loss"]
     history_tl["val_loss"] += history_t2.history["val_loss"]
 
-    # history_tl = history_t1.history
-    # history_tl["acc"] += history_t3.history["acc"]
-    # history_tl["val_acc"] += history_t3.history["val_acc"]
-    # history_tl["loss"] += history_t3.history["loss"]
-    # history_tl["val_loss"] += history_t3.history["val_loss"]
+    history_tl = history_t1.history
+    history_tl["acc"] += history_t3.history["acc"]
+    history_tl["val_acc"] += history_t3.history["val_acc"]
+    history_tl["loss"] += history_t3.history["loss"]
+    history_tl["val_loss"] += history_t3.history["val_loss"]
 
-    # history_tl = history_t1.history
-    # history_tl["acc"] += history_t4.history["acc"]
-    # history_tl["val_acc"] += history_t4.history["val_acc"]
-    # history_tl["loss"] += history_t4.history["loss"]
-    # history_tl["val_loss"] += history_t4.history["val_loss"]
+    history_tl = history_t1.history
+    history_tl["acc"] += history_t4.history["acc"]
+    history_tl["val_acc"] += history_t4.history["val_acc"]
+    history_tl["loss"] += history_t4.history["loss"]
+    history_tl["val_loss"] += history_t4.history["val_loss"]
 
-    plot_hist(history_tl, "model_v1_7d.png", epochs=len(history_tl["acc"]))
+    plot_hist(history_tl, "model_v1_7e.png", epochs=len(history_tl["acc"]))
 
-    model.save("model_v1_7d_weights.h5")
+    model.save("model_v1_7e_weights.h5")
 
-    print("\n\n\n\nCompleted in {:6.2f} hrs".format((time.time() - start_time)) / 3600)  # convert to hours
+    print("\n\n\n\nCompleted in {:6.2f} hrs".format(((time.time() - start_time)) / 3600))  # convert to hours
 
 if __name__ == "__main__":
     run()
