@@ -28,11 +28,20 @@
 | 1.7b | 0.79 | 0.55 | 0.0001 | 25 | 360k | 9.3 | Made initial training of frozen model + addon for double epochs (10) then three stages of 5 epochs with more layers unfreezing per mini-train |
 | 1.7c | 0.80 | 0.55 | 0.00025 | 24 | 360k | 16.1 | Dropped mini-trains to 3 batches, made first train the same number of epochs as other mini-trains. Raised LR some and kept it stable. |
 | 1.7d | 0.80 | 0.55 | 0.00025 | 12 | 360k | 6.0 | Dropped mini-trains to 2 batches, only went 6 epochs per mini-train. Unthawing a ~6 layers at once didn't seem to help. |
-| 1.7e | ? | 0.55 | 0.00025 | 12 | 360k | 6.0 | Increased mini-batches to 4, only went 3 epochs per mini-train. Unthawing 2 layers per mini-train after the initial pretrain. Also went back to dividing LR by 2^(mini-train - 1) so mini-train 3 will be LR / 4.0 |
+| 1.7e | 0.82 | 0.55 | 0.00025 | 12 | 360k | 5.6 | Increased mini-batches to 4, only went 3 epochs per mini-train. Unthawing 2 layers per mini-train after the initial pretrain. Also went back to dividing LR by 2^(mini-train - 1) so mini-train 3 will be LR / 4.0 New record accuracy. |
+| 1.8 | ? | 0.55 | 0.0000625 | 24 | 360k | ? | Same as 1.7e but 6 epochs per mini-train. Drop starting LR to 0.0000625 |
 
+
+#### v1.9
+* _**/src/clean_images.py**_ - Try to shoot for 10x augmentation
 
 #### v1.8
-* _**/src/clean_images.py**_ - Try to shoot for 10x augmentation
+<img src="/imgs/model_v1_8a.png" alt="Model v1.8a" width="800" height="400">
+
+* _**`/src/model_hippogriff_v1_8.py`**_ - Modify model v1.8 slightly from model v1.7e:
+  * Very close to the 0.82 accuracy number.
+  * Taking 1.7 model and trying to slow it down some, double epochs, set starting LR to 1/4th of model 1_7e
+  * Model may not converge, but I suspect that once the later layers start to open up that it will be ok.
 
 #### v1.7e
 <img src="/imgs/model_v1_7e.png" alt="Model v1.7e" width="800" height="400">
@@ -40,6 +49,7 @@
 * _**`/src/model_goat_v1_7.py`**_ - Modify model v1.7e slightly from model v1.7d:
   * Struggling to see the 0.82 accuracy number again.
   * Going back to 1.6b/1.7a methodology as the more recent experiments haven't proven out.
+  * New record accuracy of 0.816
 
 #### v1.7d
 <img src="/imgs/model_v1_7d.png" alt="Model v1.7d" width="800" height="400">
