@@ -30,7 +30,8 @@
 | 1.7d | 0.80 | 0.55 | 0.00025 | 12 | 360k | 6.0 | Dropped mini-trains to 2 batches, only went 6 epochs per mini-train. Unthawing a ~6 layers at once didn't seem to help. |
 | 1.7e | 0.82 | 0.55 | 0.00025 | 12 | 360k | 5.6 | Increased mini-batches to 4, only went 3 epochs per mini-train. Unthawing 2 layers per mini-train after the initial pretrain. Also went back to dividing LR by 2^(mini-train - 1) so mini-train 3 will be LR / 4.0 New record accuracy. |
 | 1.8a | 0.81 | 0.55 | 0.0000625 | 24 | 360k | 11.6 | Same as 1.7e but 6 epochs per mini-train. Drop starting LR to 0.0000625 |
-| 1.8b | ? | 0.55 | 0.00025 | 12 | 360k | ? | Same as 1.7e but increase the amount of layers thawed per mini-train from 2 to 3 |
+| 1.8b | 0.817 | 0.55 | 0.00025 | 12 | 360k | 5.7 | Same as 1.7e but increase the amount of layers thawed per mini-train from 2 to 3 |
+| 1.8c | ? | 0.60 | 0.00025 | 12 | 360k | 5.7 | Same as 1.8b but increased dropout to 0.60 and using test/train 2 to validate on 1.8b before first submission attempt |
 
 
 #### v1.9
