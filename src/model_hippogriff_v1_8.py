@@ -170,7 +170,7 @@ def plot_hist(history, info_str, epochs=2):
     major_ticks = int(epochs / 10.0)
     minor_ticks = int(epochs / 20.0)
 
-    ACC = 0.815   # record accuracy
+    ACC = 0.817   # record accuracy
 
     if major_ticks < 2:
         major_ticks = 2
@@ -247,11 +247,11 @@ def run():
     NB_IV3_LAYERS_TO_FREEZE = 172
 
     # Datasets
-    X_train_img_paths = data_link_dict["X_train_2"]
-    y_train = data_link_dict["y_train_2"]
+    X_train_img_paths = data_link_dict["X_train_2"] + data_link_dict["X_test_2"]
+    y_train = data_link_dict["y_train_2"] + data_link_dict["y_test_2"]
 
-    X_test_img_paths = data_link_dict["X_test_2"]
-    y_test = data_link_dict["y_test_2"]
+    X_test_img_paths = data_link_dict["X_test_2"][:20]
+    y_test = data_link_dict["y_test_2"][:20]
 
     # Generators
     training_generator = LoaderBot(X_train_img_paths, y_train, **params)
@@ -323,9 +323,9 @@ def run():
     history_tl["loss"] += history_t4.history["loss"]
     history_tl["val_loss"] += history_t4.history["val_loss"]
 
-    plot_hist(history_tl, "model_v1_8c.png", epochs=len(history_tl["acc"]))
+    # plot_hist(history_tl, "model_v1_8c.png", epochs=len(history_tl["acc"]))
 
-    model.save("model_v1_8c_weights.h5")
+    model.save("model_v1_8_all_data_train_weights.h5")
 
     print("\n\n\n\nCompleted in {:6.2f} hrs".format(((time.time() - start_time)) / 3600))  # convert to hours
 
