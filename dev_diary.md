@@ -31,11 +31,19 @@
 | 1.7e | 0.82 | 0.55 | 0.00025 | 12 | 360k | 5.6 | Increased mini-batches to 4, only went 3 epochs per mini-train. Unthawing 2 layers per mini-train after the initial pretrain. Also went back to dividing LR by 2^(mini-train - 1) so mini-train 3 will be LR / 4.0 New record accuracy. |
 | 1.8a | 0.81 | 0.55 | 0.0000625 | 24 | 360k | 11.6 | Same as 1.7e but 6 epochs per mini-train. Drop starting LR to 0.0000625 |
 | 1.8b | 0.817 | 0.55 | 0.00025 | 12 | 360k | 5.7 | Same as 1.7e but increase the amount of layers thawed per mini-train from 2 to 3 |
-| 1.8c | ? | 0.60 | 0.00025 | 12 | 360k | 5.7 | Same as 1.8b but increased dropout to 0.60 and using test/train 2 to validate on 1.8b before first submission attempt |
 
+#### v2.0
+  * Figured out how to augment with loader_bot.py so going to make a new version of loader_bot that will augment on the fly.
+  * Will need to define how much augmentation per epoch to use, probably an optional init variable to pass in
+  * Then use the quick batch to train a model on a relatively small amount of images but with about 10x augmentation
+  * Also, the augmentation developed uses the larger edge to randomly select a zoomed subset of the image, potentially with some rotation. (ie if, as is typical, the width is bigger than the height) then the position of the square from the image will come from the width, this helps give the crop access to the sides of the image a bit better. (Although unclear if that will actually help.)
 
-#### v1.9
-* _**/src/clean_images.py**_ - Try to shoot for 10x augmentation
+# First official contest submissions from model trained off of model v1.8b
+  * Added FireBot class to loader_bot.py which loads items to be predicted, but not trained, in order to get predictions on test images.
+  * Fixed a bug in FireBot/LoaderBot in which the last batch was not run properly so not all items were predicted. (Need to report the bug/fix to the Stanford person who posted the original inspiration code.) 
+  * _**/src/oracle.py**_ - Made a script that loads model weights, loads the test images, and then gets predictions on those images.
+  * _**/notebooks/prediction_merging_for_submission.ipynb**_ - a note book to take the predictions from oracle.py and convert them to submitable form.
+  * Scored 0.79 accuracy on leaderboard and rank ~75/220
 
 #### v1.8b
 <img src="/imgs/model_v1_8b.png" alt="Model v1.8b" width="800" height="400">
