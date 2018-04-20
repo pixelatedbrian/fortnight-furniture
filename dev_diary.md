@@ -37,6 +37,7 @@
   * Will need to define how much augmentation per epoch to use, probably an optional init variable to pass in
   * Then use the quick batch to train a model on a relatively small amount of images but with about 10x augmentation
   * Also, the augmentation developed uses the larger edge to randomly select a zoomed subset of the image, potentially with some rotation. (ie if, as is typical, the width is bigger than the height) then the position of the square from the image will come from the width, this helps give the crop access to the sides of the image a bit better. (Although unclear if that will actually help.)
+  * Found that some training images are 1px by 1px, which is a big problem.  Determining just how many files are affected like this. May need to attempt to scrape these poison files in a more intelligent manner.
 
 # First official contest submissions from model trained off of model v1.8b
   * Added FireBot class to loader_bot.py which loads items to be predicted, but not trained, in order to get predictions on test images.
