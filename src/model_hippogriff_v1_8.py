@@ -259,7 +259,7 @@ def run():
 
     # setup model
     base_model = InceptionV3(weights='imagenet', include_top=False) #include_top=False excludes final FC layer
-    model = add_brian_layers(base_model, 128, 0.60)
+    model = add_brian_layers(base_model, 128, 0.55)
 
     # mini-train 1, like normal
     # transfer learning
@@ -305,6 +305,8 @@ def run():
                                      use_multiprocessing=True,
                                      workers=6)
 
+    model.save("model_v1_8_all_data_train_weights.h5")
+
     history_tl = history_t1.history
     history_tl["acc"] += history_t2.history["acc"]
     history_tl["val_acc"] += history_t2.history["val_acc"]
@@ -325,7 +327,7 @@ def run():
 
     # plot_hist(history_tl, "model_v1_8c.png", epochs=len(history_tl["acc"]))
 
-    model.save("model_v1_8_all_data_train_weights.h5")
+
 
     print("\n\n\n\nCompleted in {:6.2f} hrs".format(((time.time() - start_time)) / 3600))  # convert to hours
 

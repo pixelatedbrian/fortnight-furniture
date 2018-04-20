@@ -1,18 +1,27 @@
 
 
 #!/usr/bin/python3.5
-# -*- coding:utf-8 -*-
-# Created Time: Fri 02 Mar 2018 03:58:07 PM CST
-# Purpose: download image
-# Mail: tracyliang18@gmail.com
-# Adapted to python 3 by Aloisio Dourado in Sun Mar 11 2018
 
-# Note to Kagglers: This script will not run directly in Kaggle kernels. You
-# need to download it and run it on your local machine.
+# Process RAW downloaded images into 299x299 images ready for InceptionV3
+# Version 2.0+ adds extended image augmentation. The reason that augmentation
+# is being performed in a permanent manner here, as opposed to dynamic augmentation
+# on demand, is because images that have aspect ratios that are non-square have
+# additional information potential that is not available to a cropped square image.
 
-# Images that already exist will not be downloaded again, so the script can
-# resume a partially completed download. All images will be saved in the JPG
-# format with 90% compression quality.
+# Ie: If an image is 2x as wide as it is tall version 1.x will take the middle
+# square of that image and ignore the left 0.5 section of the image as well as
+# the right 0.5 part of the image.
+
+# Additionally, most of the source images are well above the 299x299 resolution
+# and so are downscaled. In my opinion this provides an opportunity to crop at
+# native resolution and then downsample to 299px square, effectively causing a
+# zoom but also maintaining higher detail and resolution for the model to learn
+# from. This being relative to an upsampled and slightly zoomed image from
+# typical augmentation.
+
+# Finally, dynamic image augmentation can then be applied to these native sourced
+# images to further extend the data augmentation. Although computationally, for
+# my resources, it's not clear how tenable that would be.
 
 ##################
 ### HOW TO USE ###
@@ -21,7 +30,22 @@
 # def clean_file_at_location(inpath, outpath="../data/stage2_imgs/"):
 #                                            ^^^^^^^^^^^^^^^^^^^^^^
 # THEN run in local directory like:
-# python clean_images.py ../data/imgs/
+# python clean_images.py ../data/imgs/ ../data/stage2_imgs/
+
+# 2.0
+# add 'aug_' leader to all augmented images
+# new augmentation pipeline: ten total images per original image, counting the original
+# 1: the image cropped and scaled to 299px square
+# 2: 75-95% of the square, randomly positioned
+# 3: same as 2 but new random selection
+# 4: rotate randomly -15 to 15 degrees, then random crop like 2
+# 5: repeat
+# 6: flip 1
+# 7-8: repeat #2 subselect alg on flipped image
+# 9-10: repeat #4 rotated subselect alg on flipped image
+
+# v 1.2
+# perform simple flip augmentation to all images
 
 # v1.1
 # crop images instead of weird scaling only
@@ -139,7 +163,7 @@ def process_image(path, out_path, flip=False, size=(299, 299)):
             return
 
 
-def clean_file_at_location(inpath, outpath="../data/stage3_imgs/"):
+def clean_file_at_location(inpath, outpath="../data/stage4_imgs/"):
     '''
     input:
     in_path: directory to look for files to fix

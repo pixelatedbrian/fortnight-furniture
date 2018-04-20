@@ -139,7 +139,7 @@ def process_image(path, out_path, flip=False, size=(299, 299)):
             return
 
 
-def clean_file_at_location(inpath, outpath="../data/stage3_imgs/"):
+def clean_file_at_location(inpath, outpath="../data/ready_test/"):
     '''
     input:
     in_path: directory to look for files to fix
@@ -156,7 +156,7 @@ def clean_file_at_location(inpath, outpath="../data/stage3_imgs/"):
     outpath = outpath + file_name
 
     # flip no images as of v1.1, flip all images in 1.2
-    process_image(inpath, outpath, flip=True)
+    process_image(inpath, outpath, flip=False)
 
     # # see if the file type is in an augmentation class
     # if int(file_name.split("_")[-1].split(".")[0]) in augment_labels:
