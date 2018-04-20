@@ -206,7 +206,7 @@ def run():
     # with open("../data/data_splits.json") as infile:
     #     data_link_dict = json.load(infile)
 
-    EPOCHS = 30
+    EPOCHS = 10
     AUGMENTATION = 1    # could do 3 epochs of 10 augmentation or 30 of 1 which
                         # provides more data for plots to work with
     LR = 0.00025
@@ -220,6 +220,15 @@ def run():
               'augmentation': AUGMENTATION,
               'shuffle': True}
 
+    # Parameters for Generators
+    test_params = {'dim': (299,299),
+                   'batch_size': 256,
+                   'n_classes': 128,
+                   'n_channels': 3,
+                   'augmentation': 1,
+                   'augment': False,
+                   'shuffle': True}
+
     # Datasets
     X_train_img_paths = data_link_dict["X_test_1"]
     y_train = data_link_dict["y_test_1"]
@@ -229,11 +238,11 @@ def run():
 
     # Generators
     training_generator = LoaderBot(X_train_img_paths, y_train, **params)
-    validation_generator = LoaderBot(X_test_img_paths, y_test, **params)
+    validation_generator = LoaderBot(X_test_img_paths, y_test, **test_params)
 
     # setup model
     base_model = InceptionV3(weights='imagenet', include_top=False) #include_top=False excludes final FC layer
-    model = add_brian_layers(base_model, 128, 0.55)
+    model = add_brian_layers(base_model, 128, 0.25)
 
     # mini-train 1, like normal
     # transfer learning
@@ -243,43 +252,39 @@ def run():
     history_t1 = model.fit_generator(generator=training_generator,
                                      validation_data=validation_generator,
                                      epochs=EPOCHS,
-                                     use_multiprocessing=False,
-                                     workers=6)
+                                     use_multiprocessing=False)
 
-    # # mini-train 2
-    # # try to fine tune some of the InceptionV3 layers also
-    # setup_to_finetune(model, NB_IV3_LAYERS_TO_FREEZE - 3, lr=LR / 2.0)
-    #
-    # # Run model
-    # history_t2 = model.fit_generator(generator=training_generator,
-    #                                  validation_data=validation_generator,
-    #                                  epochs=EPOCHS,
-    #                                  use_multiprocessing=True,
-    #                                  workers=6)
-    #
-    # # mini-train 3
-    # # try to fine tune some of the InceptionV3 layers also
-    # setup_to_finetune(model, NB_IV3_LAYERS_TO_FREEZE - 6, lr=LR / 4.0)
-    #
-    # # Run model
-    # history_t3 = model.fit_generator(generator=training_generator,
-    #                                  validation_data=validation_generator,
-    #                                  epochs=EPOCHS,
-    #                                  use_multiprocessing=True,
-    #                                  workers=6)
-    #
-    # # mini-train 4
-    # # try to fine tune some of the InceptionV3 layers also
-    # setup_to_finetune(model, NB_IV3_LAYERS_TO_FREEZE - 9, lr=LR / 8.0)
-    #
-    # # Run model
-    # history_t4 = model.fit_generator(generator=training_generator,
-    #                                  validation_data=validation_generator,
-    #                                  epochs=EPOCHS,
-    #                                  use_multiprocessing=True,
-    #                                  workers=6)
+    # mini-train 2
+    # try to fine tune some of the InceptionV3 layers also
+    setup_to_finetune(model, NB_IV3_LAYERS_TO_FREEZE - 3, lr=LR / 2.0)
 
-    model.save("model_v2_0a_weights.h5")
+    # Run model
+    history_t2 = model.fit_generator(generator=training_generator,
+                                     validation_data=validation_generator,
+                                     epochs=EPOCHS,
+                                     use_multiprocessing=False)
+
+    # mini-train 3
+    # try to fine tune some of the InceptionV3 layers also
+    setup_to_finetune(model, NB_IV3_LAYERS_TO_FREEZE - 6, lr=LR / 4.0)
+
+    # Run model
+    history_t3 = model.fit_generator(generator=training_generator,
+                                     validation_data=validation_generator,
+                                     epochs=EPOCHS,
+                                     use_multiprocessing=False)
+
+    # mini-train 4
+    # try to fine tune some of the InceptionV3 layers also
+    setup_to_finetune(model, NB_IV3_LAYERS_TO_FREEZE - 9, lr=LR / 8.0)
+
+    # Run model
+    history_t4 = model.fit_generator(generator=training_generator,
+                                     validation_data=validation_generator,
+                                     epochs=EPOCHS,
+                                     use_multiprocessing=False)
+
+    model.save("model_v2_0b_weights.h5")
 
     history_tl = history_t1.history
     history_tl["acc"] += history_t2.history["acc"]
@@ -287,19 +292,19 @@ def run():
     history_tl["loss"] += history_t2.history["loss"]
     history_tl["val_loss"] += history_t2.history["val_loss"]
     #
-    # history_tl = history_t1.history
-    # history_tl["acc"] += history_t3.history["acc"]
-    # history_tl["val_acc"] += history_t3.history["val_acc"]
-    # history_tl["loss"] += history_t3.history["loss"]
-    # history_tl["val_loss"] += history_t3.history["val_loss"]
-    #
-    # history_tl = history_t1.history
-    # history_tl["acc"] += history_t4.history["acc"]
-    # history_tl["val_acc"] += history_t4.history["val_acc"]
-    # history_tl["loss"] += history_t4.history["loss"]
-    # history_tl["val_loss"] += history_t4.history["val_loss"]
+    history_tl = history_t1.history
+    history_tl["acc"] += history_t3.history["acc"]
+    history_tl["val_acc"] += history_t3.history["val_acc"]
+    history_tl["loss"] += history_t3.history["loss"]
+    history_tl["val_loss"] += history_t3.history["val_loss"]
 
-    plot_hist(history_tl, "model_v2_0a.png", epochs=len(history_tl["acc"]))
+    history_tl = history_t1.history
+    history_tl["acc"] += history_t4.history["acc"]
+    history_tl["val_acc"] += history_t4.history["val_acc"]
+    history_tl["loss"] += history_t4.history["loss"]
+    history_tl["val_loss"] += history_t4.history["val_loss"]
+
+    plot_hist(history_tl, "model_v2_0b.png", epochs=len(history_tl["acc"]))
 
 
 

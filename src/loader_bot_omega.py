@@ -3,6 +3,46 @@ import keras
 import cv2
 
 
+def crop_image(img):
+    '''
+    Inputs:
+    img: a numpy array that is an image that has a relatively non-square StratifiedKFold
+
+    returns:
+    crop_image, square crop from the middle of the image
+    '''
+
+    if img.shape[0] < img.shape[1]:
+        # height is smaller than width
+        temp_size = int(img.shape[0] / 2)
+
+        # find the midpoint of the long end
+        mid_point = int(img.shape[1] / 2)
+
+        start = mid_point - temp_size
+        end = mid_point + temp_size
+
+        # actually do the slicing
+        crop_image = img[:, start:end, :]
+        # print("normal ratio", crop_image.shape)
+
+    elif img.shape[1] <= img.shape[0]:
+        # width is smaller than height (weird)
+        temp_size = int(img.shape[1] / 2)
+
+        # find the midpoint of the long end
+        mid_point = int(img.shape[0] / 2)
+
+        start = mid_point - temp_size
+        end = mid_point + temp_size
+
+        # actually do the slicing
+        crop_image = img[start:end, ...]
+        # print("weird aspect ratio", crop_image.shape)
+
+    return crop_image
+
+
 def image_sub_select(img, min_size=None, max_size=0.99):
     '''
     Inputs:
@@ -183,7 +223,7 @@ def rotate_bound(image, angle):
 class LoaderBot(keras.utils.Sequence):
     'Generates data for Keras'
     def __init__(self, list_IDs, labels, batch_size=32, dim=(299, 299), n_channels=3,
-                 n_classes=128, shuffle=False, augmentation=1):
+                 n_classes=128, shuffle=False, augmentation=1, augment=True):
         '''
         Initialization
         Already shuffled by get_skfold_indicies so no need to shuffle again
@@ -197,6 +237,7 @@ class LoaderBot(keras.utils.Sequence):
         self.shuffle = shuffle
         self.len = None
         self.augmentation = augmentation
+        self.augment = augment
         self.on_epoch_end()
 
     def __len__(self):
@@ -208,7 +249,7 @@ class LoaderBot(keras.utils.Sequence):
         'Generate one batch of data'
 
         # make sure that it's not the last batch:
-        if index < self.len - 1:
+        if index < self.len:
             # Generate indexes of the batch
             indexes = self.indexes[index * self.batch_size:(index + 1) * self.batch_size]
         else:   # it's the last batch, return all leftovers
@@ -217,6 +258,8 @@ class LoaderBot(keras.utils.Sequence):
 
         # Find list of IDs
         list_IDs_temp = [self.list_IDs[k] for k in indexes]
+
+        # print("len list_IDs_temp", len(list_IDs_temp))
 
         # Generate data
         X, y = self.__data_generation(list_IDs_temp)
@@ -251,12 +294,16 @@ class LoaderBot(keras.utils.Sequence):
 
             # do some error checking because some files suck
             # for example some files are shape(1, 1, 3)
-            if temp.shape[0] is 1 or temp.shape[1] is 1:
-                pass    # skip this one
-            else:
+            # if temp.shape[0] is 1 or temp.shape[1] is 1:
+            #     print("shape", temp.shape)
+            #     pass    # skip this one
+            # else:
 
-                b, g, r = cv2.split(temp)         # get b,g,r
-                temp_img = cv2.merge([r, g, b])    # switch it to rgb
+            b, g, r = cv2.split(temp)         # get b,g,r
+            temp_img = cv2.merge([r, g, b])    # switch it to rgb
+
+            # for normal training with augmentation
+            if self.augment is True:
 
                 # roll the dice on augmentation, 2 because not inclusive like lists
                 _flip = np.random.randint(0, 2)
@@ -285,21 +332,25 @@ class LoaderBot(keras.utils.Sequence):
                 # get the sub-crop of the bigger image
                 temp_img = image_sub_select(temp_img)
 
-                try:
-                    # image is just a square but not necessarily 299px x 299px
-                    resized = cv2.resize(temp_img, (299, 299), interpolation=cv2.INTER_AREA)
-                except:
-                    print("something went horribly wrong in LoaderBot _generate_data", ID, "shape", temp.shape)
-                    print("pre_flip", pre_flip.shape)
-                    print("pre_rot", pre_rot.shape)
-                    print("pre_crop", pre_crop.shape)
-                    print("new size:", temp_img.shape)
+            else:
+                # just get the middle of the image, resized to 299^2
+                temp_img = crop_image(temp_img)
 
-                X[i, ] = resized
+            try:
+                # image is just a square but not necessarily 299px x 299px
+                resized = cv2.resize(temp_img, (299, 299), interpolation=cv2.INTER_AREA)
+            except:
+                print("something went horribly wrong in LoaderBot _generate_data", ID, "shape", temp.shape)
+                print("pre_flip", pre_flip.shape)
+                print("pre_rot", pre_rot.shape)
+                print("pre_crop", pre_crop.shape)
+                print("new size:", temp_img.shape)
 
-                # Store class
-                # y[i] = self.labels[ID]
-                y[i] = int(ID.split("/")[-1].split(".")[0].split("_")[-1]) - 1
+            X[i, ] = resized
+
+            # Store class
+            # y[i] = self.labels[ID]
+            y[i] = int(ID.split("/")[-1].split(".")[0].split("_")[-1]) - 1
 
         # Inceptionv3 was trained on images that were processed so that color
         # values varied between [-1, 1] therefore we need to do the same:
