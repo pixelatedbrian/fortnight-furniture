@@ -72,11 +72,11 @@ def get_skfold_data(path="../data/stage3_imgs/*.jpg"):
         # from the test sets
 
         # going to have to keep referencing these names so just make temp vars
-        x_t = "X_test_" + str(idx)
-        y_t = "y_test_" + str(idx)
+        # x_t = "X_test_" + str(idx)
+        # y_t = "y_test_" + str(idx)
 
         # Len BEFORE
-        print("splitter.py -> get_skfold_data -> Before len(X_test_{:}) = {:}".format(idx, len(temp_x)))
+        # print("splitter.py -> get_skfold_data -> Before len(X_test_{:}) = {:}".format(idx, len(temp_x)))
 
         end = len(temp_x)
         idy = 0  # basically like for loop
@@ -100,7 +100,7 @@ def get_skfold_data(path="../data/stage3_imgs/*.jpg"):
                 break
 
         # Len AFTER
-        print("splitter.py -> get_skfold_data -> AFTER len(X_test_{:}) = {:}".format(idx, len(temp_x)))
+        # print("splitter.py -> get_skfold_data -> AFTER len(X_test_{:}) = {:}".format(idx, len(temp_x)))
 
         index_dict["X_test_" + str(idx)] = np.array(temp_x)
         index_dict["y_test_" + str(idx)] = np.array(temp_y)

@@ -4,10 +4,15 @@ import cv2
 import sys, os, multiprocessing
 
 
+
+
 class LoaderBot(keras.utils.Sequence):
-    'Generates data for Keras'
+    '''
+    Generates data for Keras
+    Version 2 includes image augmentation
+    '''
     def __init__(self, list_IDs, labels, batch_size=32, dim=(299, 299), n_channels=3,
-                 n_classes=128, shuffle=False):
+                 n_classes=128, shuffle=False, augmentation=10):
         '''
         Initialization
         Already shuffled by get_skfold_indicies so no need to shuffle again
@@ -19,11 +24,12 @@ class LoaderBot(keras.utils.Sequence):
         self.n_channels = n_channels
         self.n_classes = n_classes
         self.shuffle = shuffle
-        self.on_epoch_end()
+        self.augmentation = int(augmentation)  # augmentation should be an int but make sure
+        self.on_epoch_end()     # generate indices to be used by __getitem__
 
     def __len__(self):
         'Denotes the number of batches per epoch'
-        return int(np.floor(len(self.list_IDs) / self.batch_size))
+        return int(np.floor(len(self.list_IDs) / self.batch_size)) * self.augmentation
 
     def __getitem__(self, index):
         'Generate one batch of data'
@@ -40,8 +46,8 @@ class LoaderBot(keras.utils.Sequence):
 
     def on_epoch_end(self):
         'Updates indexes after each epoch'
-        self.indexes = np.arange(len(self.list_IDs))
-        if self.shuffle == True:
+        self.indexes = np.hstack([np.arange(len(self.list_IDs)) for i in range(self.augmentation)])
+        if self.shuffle is True:
             np.random.shuffle(self.indexes)
 
     def load_instance(self, ID):
@@ -54,23 +60,40 @@ class LoaderBot(keras.utils.Sequence):
         X is the numpy array of the image
         y is the integer class label of the image
         '''
-        # Store sample
-        # X[i,] = np.load(ID)
+        X = np.empty((self.batch_size, *self.dim, self.n_channels))
+        y = np.empty((self.batch_size), dtype=int)
 
         # ID:
         # ../data/stage1_imgs/flip_116297_85.jpg
 
-        # For some reason CV2 loads as BGR instead of RGB
-        temp = cv2.imread(ID)
+        # Generate data
+        for i, ID in enumerate(list_IDs_temp):
+            # For some reason CV2 loads as BGR instead of RGB
+            temp = cv2.imread(ID)
 
-        b,g,r = cv2.split(temp)         # get b,g,r
-        rgb_img = cv2.merge([r,g,b])    # switch it to rgb
+            b, g, r = cv2.split(temp)         # get b,g,r
+            temp_img = cv2.merge([r, g, b])    # switch it to rgb
 
-        X[i,] = rgb_img
+            # roll the dice on augmentation
+            _flip = np.random.randint(0, 1)
 
-        # Store class
-        # y[i] = self.labels[ID]
-        y[i] = int(ID.split("/")[-1].split(".")[0].split("_")[-1]) - 1
+            if _flip is 1:
+                temp_img = temp_img[:, ::-1, :]  # flip image over vertical axis
+
+            # rotation
+            _rot = np.random.randint(0, 1)
+
+            if _rot is 1:
+                _rotation = np.random.normal() * 5 - 2.5
+                temp_img = rotate_bound(temp_img, _rotation)
+
+            temp_img = image_sub_select(temp_img)
+
+            X[i, ] = temp_img
+
+            # Store class
+            # y[i] = self.labels[ID]
+            y[i] = int(ID.split("/")[-1].split(".")[0].split("_")[-1]) - 1
 
         return X, y
 
@@ -79,8 +102,6 @@ class LoaderBot(keras.utils.Sequence):
         # Initialization
         X = np.empty((self.batch_size, *self.dim, self.n_channels))
         y = np.empty((self.batch_size), dtype=int)
-
-        pool = multiprocessing.Pool(processes=10)
 
         # for _ in pool.imap_unordered(clean_file_at_location, list_IDs_temp):
         #     pass

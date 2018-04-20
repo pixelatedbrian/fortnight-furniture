@@ -61,10 +61,10 @@ class LoaderBot(keras.utils.Sequence):
             # For some reason CV2 loads as BGR instead of RGB
             temp = cv2.imread(ID)
 
-            b,g,r = cv2.split(temp)         # get b,g,r
-            rgb_img = cv2.merge([r,g,b])    # switch it to rgb
+            b, g, r = cv2.split(temp)         # get b,g,r
+            rgb_img = cv2.merge([r, g, b])    # switch it to rgb
 
-            X[i,] = rgb_img
+            X[i, ] = rgb_img
 
             # Store class
             # y[i] = self.labels[ID]
