@@ -31,9 +31,21 @@
 | 1.7e | 0.82 | 0.55 | 0.00025 | 12 | 360k | 5.6 | Increased mini-batches to 4, only went 3 epochs per mini-train. Unthawing 2 layers per mini-train after the initial pretrain. Also went back to dividing LR by 2^(mini-train - 1) so mini-train 3 will be LR / 4.0 New record accuracy. |
 | 1.8a | 0.81 | 0.55 | 0.0000625 | 24 | 360k | 11.6 | Same as 1.7e but 6 epochs per mini-train. Drop starting LR to 0.0000625 |
 | 1.8b | 0.817 | 0.55 | 0.00025 | 12 | 360k | 5.7 | Same as 1.7e but increase the amount of layers thawed per mini-train from 2 to 3 |
-| 2.0 | 0.603 | 0.25 | 0.00075 | 20 | 18k | 1.5 | model 1_6 core with sprint training but using augmentation of zooming and rotation. Proof of concept, finally debugged |
+| 2.0a | 0.603 | 0.25 | 0.00075 | 20 | 18k | 1.5 | model 1_6 core with sprint training but using augmentation of zooming and rotation. Proof of concept, finally debugged |
+| 2.0b | 0.738 | 0.25 | 0.00025 | 40 | 18k | 5.6 | model 2_0a with unfrozen layers like 1.6b and revised learning rate |
+| 2.0c | ? | 0.55 | 0.00025 | 80 | 18k | 11.2? | model 2_0b with more dropout and double epochs |
 
-#### v2.0a
+
+#### v2.0c (sprint)
+<img src="/imgs/model_v2_0c.png" alt="Model v2_0c" width="800" height="400">
+  * Model v2.0b but with increased dropout (from 0.25 to 0.55) and double total epochs (from 40 to 80 total)
+
+#### v2.0b (sprint)
+<img src="/imgs/model_v2_0b.png" alt="Model v2_0b" width="800" height="400">
+  * Model v2.0a but with layer unfreezing
+  * Relatively low dropout of 0.25 still
+  
+#### v2.0a (sprint)
 <img src="/imgs/model_v2_0a.png" alt="Model v2_0a" width="800" height="400">
   * Figured out how to augment with loader_bot.py so going to make a new version of loader_bot that will augment on the fly.
   * Will need to define how much augmentation per epoch to use, probably an optional init variable to pass in
