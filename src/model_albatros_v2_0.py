@@ -256,7 +256,7 @@ def run():
 
     # mini-train 2
     # try to fine tune some of the InceptionV3 layers also
-    setup_to_finetune(model, NB_IV3_LAYERS_TO_FREEZE - 3, lr=LR / 2.0)
+    setup_to_finetune(model, NB_IV3_LAYERS_TO_FREEZE - 3, lr=LR / 10.0)
 
     # Run model
     history_t2 = model.fit_generator(generator=training_generator,
@@ -266,7 +266,7 @@ def run():
 
     # mini-train 3
     # try to fine tune some of the InceptionV3 layers also
-    setup_to_finetune(model, NB_IV3_LAYERS_TO_FREEZE - 6, lr=LR / 4.0)
+    setup_to_finetune(model, NB_IV3_LAYERS_TO_FREEZE - 6, lr=LR / 10.0)
 
     # Run model
     history_t3 = model.fit_generator(generator=training_generator,
@@ -276,7 +276,7 @@ def run():
 
     # mini-train 4
     # try to fine tune some of the InceptionV3 layers also
-    setup_to_finetune(model, NB_IV3_LAYERS_TO_FREEZE - 9, lr=LR / 8.0)
+    setup_to_finetune(model, NB_IV3_LAYERS_TO_FREEZE - 9, lr=LR / 20.0)
 
     # Run model
     history_t4 = model.fit_generator(generator=training_generator,
@@ -284,7 +284,7 @@ def run():
                                      epochs=EPOCHS,
                                      use_multiprocessing=False)
 
-    model.save("model_v2_0b_weights.h5")
+    model.save("model_v2_0c_weights.h5")
 
     history_tl = history_t1.history
     history_tl["acc"] += history_t2.history["acc"]
@@ -304,7 +304,7 @@ def run():
     history_tl["loss"] += history_t4.history["loss"]
     history_tl["val_loss"] += history_t4.history["val_loss"]
 
-    plot_hist(history_tl, "model_v2_0b.png", epochs=len(history_tl["acc"]))
+    plot_hist(history_tl, "model_v2_0c.png", epochs=len(history_tl["acc"]))
 
 
 
