@@ -206,7 +206,7 @@ def run():
     # with open("../data/data_splits.json") as infile:
     #     data_link_dict = json.load(infile)
 
-    EPOCHS = 10
+    EPOCHS = 20
     AUGMENTATION = 1    # could do 3 epochs of 10 augmentation or 30 of 1 which
                         # provides more data for plots to work with
     LR = 0.00025
@@ -242,7 +242,7 @@ def run():
 
     # setup model
     base_model = InceptionV3(weights='imagenet', include_top=False) #include_top=False excludes final FC layer
-    model = add_brian_layers(base_model, 128, 0.25)
+    model = add_brian_layers(base_model, 128, 0.55)
 
     # mini-train 1, like normal
     # transfer learning
