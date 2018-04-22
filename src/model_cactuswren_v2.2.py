@@ -14,7 +14,8 @@ from keras.layers.convolutional import Conv2D, MaxPooling2D
 # import glob
 import json
 
-from loader_bot_omega import LoaderBot   # dynamic full image augmentation
+# from loader_bot_omega import LoaderBot   # dynamic full image augmentation
+from loader_bot import LoaderBot
 
 import time
 from splitter import get_skfold_data
@@ -30,37 +31,34 @@ from matplotlib.ticker import MultipleLocator, FormatStrFormatter
 
 # https://github.com/DeepLearningSandbox/DeepLearningSandbox/blob/master/transfer_learning/fine-tune.py
 
-def setup_to_transfer_learn(model, base_model, lr=0.0001):
+def setup_to_transfer_learn(model, base_model, optimizer):
     """Freeze all layers and compile the model"""
 
     for layer in base_model.layers:
         layer.trainable = False
 
-    adam = Adam(lr=lr)
-    sgd = SGD(lr=lr, momentum=0.9)
-
-    model.compile(optimizer=sgd, loss='categorical_crossentropy', metrics=['accuracy'])
+    model.compile(optimizer=optimizer, loss='categorical_crossentropy', metrics=['accuracy'])
 
 
-def add_brian_light_layers(base_model, num_classes, dropout=0.2):
-    """Add last layer to the convnet
-    Args:
-    base_model: keras model excluding top
-    nb_classes: # of classes
-    Returns:
-    new keras model with last layer
-    """
-    x = base_model.output
-    x = GlobalAveragePooling2D()(x)
-    x = Dense(140, activation='relu')(x) #new FC layer, random init
-    # x = Dense(1024, activation='relu')(x)
-    x = Dropout(dropout)(x)
-
-    predictions = Dense(num_classes, activation='softmax')(x) #new softmax layer
-
-    model = Model(inputs=base_model.input, outputs=predictions)
-
-    return model
+# def add_brian_light_layers(base_model, num_classes, dropout=0.2):
+#     """Add last layer to the convnet
+#     Args:
+#     base_model: keras model excluding top
+#     nb_classes: # of classes
+#     Returns:
+#     new keras model with last layer
+#     """
+#     x = base_model.output
+#     x = GlobalAveragePooling2D()(x)
+#     x = Dense(140, activation='relu')(x) #new FC layer, random init
+#     # x = Dense(1024, activation='relu')(x)
+#     x = Dropout(dropout)(x)
+#
+#     predictions = Dense(num_classes, activation='softmax')(x) #new softmax layer
+#
+#     model = Model(inputs=base_model.input, outputs=predictions)
+#
+#     return model
 
 
 def add_brian_layers(base_model, num_classes, dropout=0.2):
@@ -111,7 +109,7 @@ def add_new_last_layer(base_model, nb_classes):
     return model
 
 
-def setup_to_finetune(model, freeze, lr=0.001):
+def setup_to_finetune(model, freeze, optimizer):
     """Freeze the bottom NB_IV3_LAYERS and retrain the remaining top layers.
     note: NB_IV3_LAYERS corresponds to the top 2 inception blocks in the inceptionv3 arch
     Args:
@@ -123,7 +121,10 @@ def setup_to_finetune(model, freeze, lr=0.001):
     for layer in model.layers[freeze:]:
         layer.trainable = True
 
-    model.compile(optimizer=Adam(lr=lr), loss='categorical_crossentropy', metrics=['accuracy'])
+    # adam = Adam(lr=lr)
+    # sgd = SGD(lr=lr, momentum=0.9)
+
+    model.compile(optimizer=optimizer, loss='categorical_crossentropy', metrics=['accuracy'])
 
 
 def plot_hist(history, info_str, epochs=2, augmentation=1):
@@ -220,57 +221,77 @@ def plot_hist(history, info_str, epochs=2, augmentation=1):
 
 
 def run():
-    data_link_dict = get_skfold_data(path="../data/imgs/*.jpg")
+    # data_link_dict = get_skfold_data(path="../data/imgs/*.jpg")
     start_time = time.time()
 
     # decommisioned because inflight data augmentation solves a lot of these
     # problems
 
-    # # Use json to load the permanent dictionary that has been Created
-    # with open("../data/data_splits.json") as infile:
-    #     data_link_dict = json.load(infile)
+    # Use json to load the permanent dictionary that has been Created
+    with open("../data/data_splits.json") as infile:
+        data_link_dict = json.load(infile)
 
-    EPOCHS = 20
+    EPOCHS = 1 # dry run test
     AUGMENTATION = 1    # could do 3 epochs of 10 augmentation or 30 of 1 which
                         # provides more data for plots to work with
-    LR = 0.001
-    NB_IV3_LAYERS_TO_FREEZE = 172
 
+    # for Adam inital LR of 0.0001 is a good starting point
+    # for SGD initial LR of 0.001 is a good starting point
+    LR = 0.0001
+    OPTIMIZER = Adam(lr=LR)
+    # OPTIMIZER = SGD(lr=lr, momentum=0.9)
+
+    NB_IV3_LAYERS_TO_FREEZE = 172
+    MODEL_ID = 'v2_2a'
+
+    plot_file = "model_{:}.png".format(MODEL_ID)
+    weights_file = "/weights/model_{:}_weights.h5".format(MODEL_ID)
+    history_file = "/histories/history_{:}.json".format(MODEL_ID)
+
+    # user parameters for LoaderBot v1.0
     # Parameters for Generators
-    params = {'dim': (299,299),
+    params = {'dim': (299, 299),
               'batch_size': 256,
               'n_classes': 128,
               'n_channels': 3,
-              'augmentation': AUGMENTATION,
-              'shuffle': True}
+              'shuffle': False}
 
-    # Parameters for Generators
-    test_params = {'dim': (299,299),
-                   'batch_size': 256,
-                   'n_classes': 128,
-                   'n_channels': 3,
-                   'augmentation': 1,
-                   'augment': False,
-                   'shuffle': True}
+    # These parameters are for LoaderBot v2.0
+    # # Parameters for Generators
+    # params = {'dim': (299, 299),
+    #           'batch_size': 256,
+    #           'n_classes': 128,
+    #           'n_channels': 3,
+    #           'augmentation': AUGMENTATION,
+    #           'shuffle': True}
+    #
+    # # Parameters for Generators
+    # test_params = {'dim': (299, 299),
+    #                'batch_size': 256,
+    #                'n_classes': 128,
+    #                'n_channels': 3,
+    #                'augmentation': 1,
+    #                'augment': False,
+    #                'shuffle': True}
 
     # Datasets
-    X_train_img_paths = data_link_dict["X_test_1"]
-    y_train = data_link_dict["y_test_1"]
+    X_train_img_paths = data_link_dict["X_test_2"]
+    y_train = data_link_dict["y_test_2"]
 
-    X_test_img_paths = data_link_dict["X_test_2"]
-    y_test = data_link_dict["y_test_2"]
+    X_test_img_paths = data_link_dict["X_test_3"]
+    y_test = data_link_dict["y_test_3"]
 
     # Generators
     training_generator = LoaderBot(X_train_img_paths, y_train, **params)
-    validation_generator = LoaderBot(X_test_img_paths, y_test, **test_params)
+    validation_generator = LoaderBot(X_test_img_paths, y_test, **params)
 
     # setup model
     base_model = InceptionV3(weights='imagenet', include_top=False) #include_top=False excludes final FC layer
-    model = add_brian_light_layers(base_model, 128, 0.55)
+    model = add_brian_layers(base_model, 128, 0.55)
 
     # mini-train 1, like normal
     # transfer learning
-    setup_to_transfer_learn(model, base_model, lr=LR)
+    setup_to_transfer_learn(model, base_model, OPTIMIZER)
 
     # Run model
     history_t1 = model.fit_generator(generator=training_generator,
@@ -278,61 +299,69 @@ def run():
                                      epochs=EPOCHS,
                                      use_multiprocessing=False)
 
-    # mini-train 2
-    # try to fine tune some of the InceptionV3 layers also
-    setup_to_finetune(model, NB_IV3_LAYERS_TO_FREEZE - 3, lr=LR / 2.0)
-
-    # Run model
-    history_t2 = model.fit_generator(generator=training_generator,
-                                     validation_data=validation_generator,
-                                     epochs=EPOCHS,
-                                     use_multiprocessing=False)
-
-    # mini-train 3
-    # try to fine tune some of the InceptionV3 layers also
-    setup_to_finetune(model, NB_IV3_LAYERS_TO_FREEZE - 6, lr=LR / 4.0)
-
-    # Run model
-    history_t3 = model.fit_generator(generator=training_generator,
-                                     validation_data=validation_generator,
-                                     epochs=EPOCHS,
-                                     use_multiprocessing=False)
-
-    # mini-train 4
-    # try to fine tune some of the InceptionV3 layers also
-    setup_to_finetune(model, NB_IV3_LAYERS_TO_FREEZE - 9, lr=LR / 8.0)
-
-    # Run model
-    history_t4 = model.fit_generator(generator=training_generator,
-                                     validation_data=validation_generator,
-                                     epochs=EPOCHS,
-                                     use_multiprocessing=False)
-
-    model.save("model_v2_1c_weights.h5")
-
-    history_tl = history_t1.history
-    history_tl["acc"] += history_t2.history["acc"]
-    history_tl["val_acc"] += history_t2.history["val_acc"]
-    history_tl["loss"] += history_t2.history["loss"]
-    history_tl["val_loss"] += history_t2.history["val_loss"]
+    # # mini-train 2
+    # OPTIMIZER = Adam(lr=LR / 2.0)
+    # # try to fine tune some of the InceptionV3 layers also
+    # setup_to_finetune(model, NB_IV3_LAYERS_TO_FREEZE - 2, OPTIMIZER)
     #
-    history_tl = history_t1.history
-    history_tl["acc"] += history_t3.history["acc"]
-    history_tl["val_acc"] += history_t3.history["val_acc"]
-    history_tl["loss"] += history_t3.history["loss"]
-    history_tl["val_loss"] += history_t3.history["val_loss"]
+    # # Run model
+    # history_t2 = model.fit_generator(generator=training_generator,
+    #                                  validation_data=validation_generator,
+    #                                  epochs=EPOCHS,
+    #                                  use_multiprocessing=False)
+    #
+    # # mini-train 3
+    # OPTIMIZER = Adam(lr=LR / 4.0)
+    # # try to fine tune some of the InceptionV3 layers also
+    # setup_to_finetune(model, NB_IV3_LAYERS_TO_FREEZE - 4, OPTIMIZER)
+    #
+    # # Run model
+    # history_t3 = model.fit_generator(generator=training_generator,
+    #                                  validation_data=validation_generator,
+    #                                  epochs=EPOCHS,
+    #                                  use_multiprocessing=False)
+    #
+    # # mini-train 4
+    # OPTIMIZER = Adam(lr=LR / .0)
+    # # try to fine tune some of the InceptionV3 layers also
+    # setup_to_finetune(model, NB_IV3_LAYERS_TO_FREEZE - 6, OPTIMIZER)
+    #
+    # # Run model
+    # history_t4 = model.fit_generator(generator=training_generator,
+    #                                  validation_data=validation_generator,
+    #                                  epochs=EPOCHS,
+    #                                  use_multiprocessing=False)
+
+    # save the weights in case we want to predict on them later
+    model.save(weights_file)
 
     history_tl = history_t1.history
-    history_tl["acc"] += history_t4.history["acc"]
-    history_tl["val_acc"] += history_t4.history["val_acc"]
-    history_tl["loss"] += history_t4.history["loss"]
-    history_tl["val_loss"] += history_t4.history["val_loss"]
+    # history_tl["acc"] += history_t2.history["acc"]
+    # history_tl["val_acc"] += history_t2.history["val_acc"]
+    # history_tl["loss"] += history_t2.history["loss"]
+    # history_tl["val_loss"] += history_t2.history["val_loss"]
+    # #
+    # history_tl = history_t1.history
+    # history_tl["acc"] += history_t3.history["acc"]
+    # history_tl["val_acc"] += history_t3.history["val_acc"]
+    # history_tl["loss"] += history_t3.history["loss"]
+    # history_tl["val_loss"] += history_t3.history["val_loss"]
+    #
+    # history_tl = history_t1.history
+    # history_tl["acc"] += history_t4.history["acc"]
+    # history_tl["val_acc"] += history_t4.history["val_acc"]
+    # history_tl["loss"] += history_t4.history["loss"]
+    # history_tl["val_loss"] += history_t4.history["val_loss"]
 
-    plot_hist(history_tl, "model_v2_1c.png", epochs=len(history_tl["acc"]))
+    plot_hist(history_tl, plot_file, epochs=len(history_tl["acc"]))
 
-
+    # try to save the history so models can be more easily compared and Also
+    # to better log results if going back is needed
+    with open(history_file, "w") as outfile:
+        json.dump(history_tl, outfile)
 
     print("\n\n\n\nCompleted in {:6.2f} hrs".format(((time.time() - start_time)) / 3600))  # convert to hours
+
 
 if __name__ == "__main__":
     run()
