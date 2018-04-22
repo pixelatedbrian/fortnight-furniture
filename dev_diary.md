@@ -36,8 +36,22 @@
 | 2.0c | 0.73 | 0.55 | 0.00025 | 80 | 18k | 11.1 | model 2_0b with more dropout and double epochs |
 | 2.1a | 0.74 | 0.55 | 0.0005 | 40 | 18k | 5.6 | went to lighter NN, only 1024 FC layer |
 | 2.1b | 0.730 | 0.55 | 0.0005 | 40 | 18k | 5.6 | model 2_1b with 512 FC layer only |
-| 2.1c | ? | 0.55 | 0.001 | 80 | 18k | 11.1? | model 2_1b with 140 FC layer only, SGD optimizer, lower LR, double epochs |
+| 2.1c | 0.72 | 0.55 | 0.001 | 80 | 18k | 11.1 | model 2_1b with 140 FC layer only, SGD optimizer, lower LR, double epochs |
 
+#### v2.2a (sprint)
+<img src="/imgs/model_v2_2a.png" alt="Model v2_2a" width="800" height="400">
+
+* `/src/model_cactuswren_v2_2.py`  
+* Back to 1024FC -> 512FC -> 256FC -> 128 softmax 'brian net'
+* Roll everything back to model v1.6b
+  * Adam optimizer
+  * LoaderBot v1.0
+  * Loading files from drive, no augmentation
+  * 4 sets of 10 epochs with 2 layers thawed and LR / 2^mini-train
+* Now logging history data of model to make comparisons easier (JSON files in /src/histories/)
+* Refactored model methods to have optimizer as a parameter so it's easier to modify that
+* Refactored save files stuff so now only need to modify one model info parameter instead of multiple strings for saving
+  
 ## Having problems
 * Currently it's unclear that image augmentation is helping at all. Despite different attempts on sprint models still have not exceeded the past sprint validation accuracy of ~74%.
 * But augmented models are taking 2-3x as long to train so currently augmentation is increasing computation expense massively with no discernable gain.
