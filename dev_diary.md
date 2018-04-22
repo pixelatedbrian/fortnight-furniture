@@ -34,8 +34,9 @@
 | 2.0a | 0.603 | 0.25 | 0.00075 | 20 | 18k | 1.5 | model 1_6 core with sprint training but using augmentation of zooming and rotation. Proof of concept, finally debugged |
 | 2.0b | 0.738 | 0.25 | 0.00025 | 40 | 18k | 5.6 | model 2_0a with unfrozen layers like 1.6b and revised learning rate |
 | 2.0c | 0.73 | 0.55 | 0.00025 | 80 | 18k | 11.1 | model 2_0b with more dropout and double epochs |
-| 2.1a | 0.74 | 0.55 | 0.0005 | 80 | 18k | 5.6 | went to lighter NN, only 1024 FC layer |
-| 2.1b | ? | 0.55 | 0.0005 | 80 | 18k | ? | model 2_1b with 512 FC layer only |
+| 2.1a | 0.74 | 0.55 | 0.0005 | 40 | 18k | 5.6 | went to lighter NN, only 1024 FC layer |
+| 2.1b | 0.730 | 0.55 | 0.0005 | 40 | 18k | 5.6 | model 2_1b with 512 FC layer only |
+| 2.1c | ? | 0.55 | 0.0001 | 80 | 18k | 11.1? | model 2_1b with 256 FC layer only, SGD optimizer, lower LR, double epochs |
 
 #### v2.0d (sprint)
 <img src="/imgs/model_v2_0d.png" alt="Model v2_0d" width="800" height="400">
