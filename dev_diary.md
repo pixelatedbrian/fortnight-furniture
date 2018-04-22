@@ -23,7 +23,7 @@
 | 1.5b | 0.15 | 0.55 | 0.005 | 40 | 18k | 3.7 | Adam optimizer increased learning rate and model never converged |
 | 1.5c | 0.57 | 0.55 | 0.0005 | 40 | 18k | 3.7 | Adam optimizer decreased learning rate and... did the best of these models  |
 | 1.6 | 0.72 | 0.55 | 0.00025 | 40 | 18k | 3.7 | Two stage, use frozen Iv3 model for 20 epochs then unfreeze top 7 layers (172 frozen to 165 frozen) New record accuracy 0.72  |
-| 1.6b | 0.74 | 0.55 | 0.00025 | 40 | 18k | 3.7 | Four stage, use frozen Iv3 model for 5 epochs then unfreeze top 2 layers for each of remaining 3 rounds. Also decrease learning rate by LR/2^round New record accuracy 0.72  |
+| 1.6b | 0.74 | 0.55 | 0.00025 | 40 | 18k | 3.7 | Four stage, use frozen Iv3 model for 5 epochs then unfreeze top 2 layers for each of remaining 3 rounds. Also decrease learning rate by LR/2^round New record accuracy 0.74  |
 | 1.7a | 0.80 | 0.55 | 0.0001 | 20 | 360k | 9.3 | Defrosting on fuller data pipeline, all non-split pics with 2x augmentation from flip over vertical axis. New record 0.80 accuracy. |
 | 1.7b | 0.79 | 0.55 | 0.0001 | 25 | 360k | 9.3 | Made initial training of frozen model + addon for double epochs (10) then three stages of 5 epochs with more layers unfreezing per mini-train |
 | 1.7c | 0.80 | 0.55 | 0.00025 | 24 | 360k | 16.1 | Dropped mini-trains to 3 batches, made first train the same number of epochs as other mini-trains. Raised LR some and kept it stable. |
@@ -36,23 +36,70 @@
 | 2.0c | 0.73 | 0.55 | 0.00025 | 80 | 18k | 11.1 | model 2_0b with more dropout and double epochs |
 | 2.1a | 0.74 | 0.55 | 0.0005 | 40 | 18k | 5.6 | went to lighter NN, only 1024 FC layer |
 | 2.1b | 0.730 | 0.55 | 0.0005 | 40 | 18k | 5.6 | model 2_1b with 512 FC layer only |
-| 2.1c | ? | 0.55 | 0.0001 | 80 | 18k | 11.1? | model 2_1b with 256 FC layer only, SGD optimizer, lower LR, double epochs |
+| 2.1c | ? | 0.55 | 0.001 | 80 | 18k | 11.1? | model 2_1b with 140 FC layer only, SGD optimizer, lower LR, double epochs |
 
-#### v2.0d (sprint)
-<img src="/imgs/model_v2_0d.png" alt="Model v2_0d" width="800" height="400">
-  * Model v2.0b but with increased dropout (from 0.25 to 0.55) and increased learning rate
+## Having problems
+* Currently it's unclear that image augmentation is helping at all. Despite different attempts on sprint models still have not exceeded the past sprint validation accuracy of ~74%.
+* But augmented models are taking 2-3x as long to train so currently augmentation is increasing computation expense massively with no discernable gain.
+* Trying to revise network structure hasn't been helping, either. (2.1x models)
+* Haven't yet tried evaluating a network on the full set but if the sprints aren't improving then I'm unconvinced that it would be worth spending that much time trying to evaluate that.
+
+### Going forward (Immediate):
+* Roll back to 1.6 for speed, as model v2.2x
+  * 2.2a: Test with non-augmented data, get a baseline for 2.2
+  * 2.2b: Evaluate weight decay for SGD and see how it compares to baseline
+  * 2.2c: Taking better of 2.2a/b feed in current state of augmented images
+  * 2.2d: Disable rotation in augmentation and evaluate
+  
+### Going forward (week+ time range):
+* Reading about Yelp image classification winner they mentioned that dropping the last layer only was problematic because Inception v3 weights were overfitted to the 1000 class Iv3 predictors. So that person picked up features from the last Average Pooling and then worked from there.
+* In that case the person used an ensemble of image models (vgg, Inception, and ResNet iirc) and also used PCA on the features that came out of the models.
+* Should definitely evaluate other models, just to see how they perform on this problem.
+  * So prob try like VGG16 and ResNet
+  * Try dropping a few of the last layers and then using my own layers for the final predictions
+  * I've thought about augmenting (crop) test images a bit and then finding the average class prediction and using that as the final prediction. This seems to have been part of the winning Yelp image classification solution.  Appealing that it's not as computationally intensive during train.
+  * Can try to ensemble predictions from other models but then that also creates computational complexity problems as well as just being a pain in pipeline.
+  
+
+#### v2.1c (sprint)
+<img src="/imgs/model_v2_1c.png" alt="Model v2_1c" width="800" height="400">
+
+  * 140 neuron FC and still overfitting, esp after unfreezing some layers.
+  * Reading literature it seems like SGD optimizer is thought to perform better for image classification
+  * Doubled epochs and decreased LR to 0.001
+
+#### v2.1b (sprint)
+<img src="/imgs/model_v2_1b.png" alt="Model v2_1b" width="800" height="400">
+
+  * Go down to 512FC
+  * Still didn't help with overfitting, mainly because unfreezing allows it to overfit rapidly.
+  * Reading some people's opinions online after unfreezing dropping LR by an order of magnitude is suggested
+  * have tried that but still overfitting even though dropout is at 0.55 too
+  * Augmentation still doesn't seem to be helping, also
+
+#### v2.1a (sprint)
+<img src="/imgs/model_v2_1a.png" alt="Model v2_1a" width="800" height="400">
+
+  * Previous models used Inception v3 and dropped the softmax.  Then added a new fully connected backend of 1024FC -> 512FC -> 256FC -> 128 Softmax
+  * Right now a large concern is how much the model ends up overfitting as far as the train set relative to the test set.
+  * So try reducing the network in front of the softmax to try to reduce the overfitting.
+  * For model 2.1 only use a 1024FC layer before 128 class softmax
+  * Didn't seem to help, error on sprint is still 0.74 and still overfitting like crazy later in higher epochs
 
 #### v2.0c (sprint)
 <img src="/imgs/model_v2_0c.png" alt="Model v2_0c" width="800" height="400">
+
   * Model v2.0b but with increased dropout (from 0.25 to 0.55) and double total epochs (from 40 to 80 total)
 
 #### v2.0b (sprint)
 <img src="/imgs/model_v2_0b.png" alt="Model v2_0b" width="800" height="400">
+
   * Model v2.0a but with layer unfreezing
   * Relatively low dropout of 0.25 still
   
 #### v2.0a (sprint)
 <img src="/imgs/model_v2_0a.png" alt="Model v2_0a" width="800" height="400">
+
   * Figured out how to augment with loader_bot.py so going to make a new version of loader_bot that will augment on the fly.
   * Will need to define how much augmentation per epoch to use, probably an optional init variable to pass in
   * Then use the quick batch to train a model on a relatively small amount of images but with about 10x augmentation
