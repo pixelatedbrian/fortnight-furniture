@@ -37,6 +37,7 @@
 | 2.1a | 0.74 | 0.55 | 0.0005 | 40 | 18k | 5.6 | went to lighter NN, only 1024 FC layer |
 | 2.1b | 0.730 | 0.55 | 0.0005 | 40 | 18k | 5.6 | model 2_1b with 512 FC layer only |
 | 2.1c | 0.72 | 0.55 | 0.001 | 80 | 18k | 11.1 | model 2_1b with 140 FC layer only, SGD optimizer, lower LR, double epochs |
+| 2.2a | 0.740? | 0.55 | 0.00025 | 40 | 18k | 3.7? | trying to reproduce v1.6b and establish new baseline |
 
 #### v2.2a (sprint)
 <img src="/imgs/model_v2_2a.png" alt="Model v2_2a" width="800" height="400">
