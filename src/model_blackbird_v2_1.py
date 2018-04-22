@@ -49,7 +49,7 @@ def add_brian_light_layers(base_model, num_classes, dropout=0.2):
     """
     x = base_model.output
     x = GlobalAveragePooling2D()(x)
-    x = Dense(1024, activation='relu')(x) #new FC layer, random init
+    x = Dense(512, activation='relu')(x) #new FC layer, random init
     # x = Dense(1024, activation='relu')(x)
     x = Dropout(dropout)(x)
 
