@@ -36,7 +36,10 @@ def setup_to_transfer_learn(model, base_model, lr=0.0001):
     for layer in base_model.layers:
         layer.trainable = False
 
-    model.compile(optimizer=Adam(lr=lr), loss='categorical_crossentropy', metrics=['accuracy'])
+    adam = Adam(lr=lr)
+    sgd = SGD(lr=lr, momentum=0.9)
+
+    model.compile(optimizer=sgd, loss='categorical_crossentropy', metrics=['accuracy'])
 
 
 def add_brian_light_layers(base_model, num_classes, dropout=0.2):
@@ -49,7 +52,7 @@ def add_brian_light_layers(base_model, num_classes, dropout=0.2):
     """
     x = base_model.output
     x = GlobalAveragePooling2D()(x)
-    x = Dense(512, activation='relu')(x) #new FC layer, random init
+    x = Dense(140, activation='relu')(x) #new FC layer, random init
     # x = Dense(1024, activation='relu')(x)
     x = Dropout(dropout)(x)
 
@@ -227,10 +230,10 @@ def run():
     # with open("../data/data_splits.json") as infile:
     #     data_link_dict = json.load(infile)
 
-    EPOCHS = 10
+    EPOCHS = 20
     AUGMENTATION = 1    # could do 3 epochs of 10 augmentation or 30 of 1 which
                         # provides more data for plots to work with
-    LR = 0.0005
+    LR = 0.0001
     NB_IV3_LAYERS_TO_FREEZE = 172
 
     # Parameters for Generators
@@ -305,7 +308,7 @@ def run():
                                      epochs=EPOCHS,
                                      use_multiprocessing=False)
 
-    model.save("model_v2_0d_weights.h5")
+    model.save("model_v2_1c_weights.h5")
 
     history_tl = history_t1.history
     history_tl["acc"] += history_t2.history["acc"]
@@ -325,7 +328,7 @@ def run():
     history_tl["loss"] += history_t4.history["loss"]
     history_tl["val_loss"] += history_t4.history["val_loss"]
 
-    plot_hist(history_tl, "model_v2_0d.png", epochs=len(history_tl["acc"]))
+    plot_hist(history_tl, "model_v2_1c.png", epochs=len(history_tl["acc"]))
 
 
 
