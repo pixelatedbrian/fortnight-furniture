@@ -127,7 +127,7 @@ def setup_to_finetune(model, freeze, optimizer):
     model.compile(optimizer=optimizer, loss='categorical_crossentropy', metrics=['accuracy'])
 
 
-def plot_hist(history, info_str, epochs=2, augmentation=1):
+def plot_hist(history, info_str, epochs=2, augmentation=1, sprint=False):
     '''
     Make a plot of the rate of error as well as the accuracy of the model
     during training.  Also include a line at error 0.20 which was the original
@@ -153,7 +153,11 @@ def plot_hist(history, info_str, epochs=2, augmentation=1):
     major_ticks = int(epochs / 10.0)
     minor_ticks = int(epochs / 20.0)
 
+    title_text = "Homewares and Furniture Image Identification\n Train Set and Dev Set"
     ACC = 0.817   # record accuracy
+    if sprint is True:
+        ACC = 0.740
+        title_text = "SPRINT: Homewares and Furniture Image Identification\n Train Set and Dev Set"
 
     if major_ticks < 2:
         major_ticks = 2
@@ -174,7 +178,7 @@ def plot_hist(history, info_str, epochs=2, augmentation=1):
     x_line = [ACC] * (epochs + 1)  # this line is now for accuracy of test set
 
     # stuff for the loss chart
-    axs[0].set_title("Homewares and Furniture Image Identification\n Train Set and Dev Set")
+    axs[0].set_title(title_text)
 
     if augmentation > 1:
         axs[0].set_xlabel('Epochs\nAugmentation of {:3d}'.format(augmentation))
@@ -195,7 +199,7 @@ def plot_hist(history, info_str, epochs=2, augmentation=1):
     axs[0].xaxis.set_minor_locator(minorLocator)
 
     # stuff for the accuracy chart
-    axs[1].set_title("Homewares and Furniture Image Identification\n Train Set and Dev Set")
+    axs[1].set_title(title_text)
 
     if augmentation > 1:
         axs[0].set_xlabel('Epochs\nAugmentation of {:3d}'.format(augmentation))
@@ -231,13 +235,15 @@ def run():
     with open("../data/data_splits.json") as infile:
         data_link_dict = json.load(infile)
 
-    EPOCHS = 1 # dry run test
+    EPOCHS = 10
     AUGMENTATION = 1    # could do 3 epochs of 10 augmentation or 30 of 1 which
                         # provides more data for plots to work with
 
+    DR = 0.55  # drop out
+
     # for Adam inital LR of 0.0001 is a good starting point
     # for SGD initial LR of 0.001 is a good starting point
-    LR = 0.0001
+    LR = 0.00025
     OPTIMIZER = Adam(lr=LR)
     # OPTIMIZER = SGD(lr=lr, momentum=0.9)
 
@@ -245,8 +251,8 @@ def run():
     MODEL_ID = 'v2_2a'
 
     plot_file = "model_{:}.png".format(MODEL_ID)
-    weights_file = "/weights/model_{:}_weights.h5".format(MODEL_ID)
-    history_file = "/histories/history_{:}.json".format(MODEL_ID)
+    weights_file = "weights/model_{:}_weights.h5".format(MODEL_ID)
+    history_file = "histories/history_{:}.json".format(MODEL_ID)
 
     # user parameters for LoaderBot v1.0
     # Parameters for Generators
@@ -287,7 +293,7 @@ def run():
 
     # setup model
     base_model = InceptionV3(weights='imagenet', include_top=False) #include_top=False excludes final FC layer
-    model = add_brian_layers(base_model, 128, 0.55)
+    model = add_brian_layers(base_model, 128, DR)
 
     # mini-train 1, like normal
     # transfer learning
@@ -299,61 +305,61 @@ def run():
                                      epochs=EPOCHS,
                                      use_multiprocessing=False)
 
-    # # mini-train 2
-    # OPTIMIZER = Adam(lr=LR / 2.0)
-    # # try to fine tune some of the InceptionV3 layers also
-    # setup_to_finetune(model, NB_IV3_LAYERS_TO_FREEZE - 2, OPTIMIZER)
-    #
-    # # Run model
-    # history_t2 = model.fit_generator(generator=training_generator,
-    #                                  validation_data=validation_generator,
-    #                                  epochs=EPOCHS,
-    #                                  use_multiprocessing=False)
-    #
-    # # mini-train 3
-    # OPTIMIZER = Adam(lr=LR / 4.0)
-    # # try to fine tune some of the InceptionV3 layers also
-    # setup_to_finetune(model, NB_IV3_LAYERS_TO_FREEZE - 4, OPTIMIZER)
-    #
-    # # Run model
-    # history_t3 = model.fit_generator(generator=training_generator,
-    #                                  validation_data=validation_generator,
-    #                                  epochs=EPOCHS,
-    #                                  use_multiprocessing=False)
-    #
-    # # mini-train 4
-    # OPTIMIZER = Adam(lr=LR / .0)
-    # # try to fine tune some of the InceptionV3 layers also
-    # setup_to_finetune(model, NB_IV3_LAYERS_TO_FREEZE - 6, OPTIMIZER)
-    #
-    # # Run model
-    # history_t4 = model.fit_generator(generator=training_generator,
-    #                                  validation_data=validation_generator,
-    #                                  epochs=EPOCHS,
-    #                                  use_multiprocessing=False)
+    # mini-train 2
+    OPTIMIZER = Adam(lr=LR / 2.0)
+    # try to fine tune some of the InceptionV3 layers also
+    setup_to_finetune(model, NB_IV3_LAYERS_TO_FREEZE - 2, OPTIMIZER)
+
+    # Run model
+    history_t2 = model.fit_generator(generator=training_generator,
+                                     validation_data=validation_generator,
+                                     epochs=EPOCHS,
+                                     use_multiprocessing=False)
+
+    # mini-train 3
+    OPTIMIZER = Adam(lr=LR / 4.0)
+    # try to fine tune some of the InceptionV3 layers also
+    setup_to_finetune(model, NB_IV3_LAYERS_TO_FREEZE - 4, OPTIMIZER)
+
+    # Run model
+    history_t3 = model.fit_generator(generator=training_generator,
+                                     validation_data=validation_generator,
+                                     epochs=EPOCHS,
+                                     use_multiprocessing=False)
+
+    # mini-train 4
+    OPTIMIZER = Adam(lr=LR / 8.0)
+    # try to fine tune some of the InceptionV3 layers also
+    setup_to_finetune(model, NB_IV3_LAYERS_TO_FREEZE - 6, OPTIMIZER)
+
+    # Run model
+    history_t4 = model.fit_generator(generator=training_generator,
+                                     validation_data=validation_generator,
+                                     epochs=EPOCHS,
+                                     use_multiprocessing=False)
 
     # save the weights in case we want to predict on them later
     model.save(weights_file)
 
     history_tl = history_t1.history
-    # history_tl["acc"] += history_t2.history["acc"]
-    # history_tl["val_acc"] += history_t2.history["val_acc"]
-    # history_tl["loss"] += history_t2.history["loss"]
-    # history_tl["val_loss"] += history_t2.history["val_loss"]
-    # #
-    # history_tl = history_t1.history
-    # history_tl["acc"] += history_t3.history["acc"]
-    # history_tl["val_acc"] += history_t3.history["val_acc"]
-    # history_tl["loss"] += history_t3.history["loss"]
-    # history_tl["val_loss"] += history_t3.history["val_loss"]
+    history_tl["acc"] += history_t2.history["acc"]
+    history_tl["val_acc"] += history_t2.history["val_acc"]
+    history_tl["loss"] += history_t2.history["loss"]
+    history_tl["val_loss"] += history_t2.history["val_loss"]
     #
-    # history_tl = history_t1.history
-    # history_tl["acc"] += history_t4.history["acc"]
-    # history_tl["val_acc"] += history_t4.history["val_acc"]
-    # history_tl["loss"] += history_t4.history["loss"]
-    # history_tl["val_loss"] += history_t4.history["val_loss"]
+    history_tl = history_t1.history
+    history_tl["acc"] += history_t3.history["acc"]
+    history_tl["val_acc"] += history_t3.history["val_acc"]
+    history_tl["loss"] += history_t3.history["loss"]
+    history_tl["val_loss"] += history_t3.history["val_loss"]
 
-    plot_hist(history_tl, plot_file, epochs=len(history_tl["acc"]))
+    history_tl = history_t1.history
+    history_tl["acc"] += history_t4.history["acc"]
+    history_tl["val_acc"] += history_t4.history["val_acc"]
+    history_tl["loss"] += history_t4.history["loss"]
+    history_tl["val_loss"] += history_t4.history["val_loss"]
+
+    plot_hist(history_tl, plot_file, epochs=len(history_tl["acc"]), sprint=True)
 
     # try to save the history so models can be more easily compared and Also
     # to better log results if going back is needed
