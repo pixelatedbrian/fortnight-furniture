@@ -314,7 +314,9 @@ class LoaderBot(keras.utils.Sequence):
                     temp_img = temp_img[:, ::-1, :]  # flip image over vertical axis
 
                 # rotate?
-                _rot = np.random.randint(0, 2)
+                # _rot = np.random.randint(0, 2)
+                # trying to measure how changes to augmentation... change things
+                _rot = 0
 
                 pre_rot = temp_img.copy()
 
