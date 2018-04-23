@@ -45,14 +45,26 @@
 | 2.2f | 0.719 | 0.60 | 0.02 | 40 | 18k | 1.7 | 2.2e with LR increased to 0.02 |
 | 2.2g | 0.716 | 0.50 | 0.02 | 40 | 18k | 1.7 | SGD with nesterov=True |
 | 2.2h | 0.712 | 0.50 | 0.0001 | 40 | 18k | 1.7 | Back to Adam |
-| 2.2i | ? | 0.55 | 0.00025 | 40 | 18k | 1.7 | Back to 1.6b, Re-enable image augmentation with rotation |
+| 2.2i | 0.736 | 0.55 | 0.00025 | 40 | 18k | 3.1 | Back to 1.6b |
+| 2.2j | 0.741 | 0.55 | 0.00025 | 40 | 18k | 3.1 | Enable augmentation without rotation, statistically insignificant sprint record accuracy |
+| 2.2k |  | 0.55 | 0.00025 | 40 | 18k | 3.2 | With rotation augmentation enabled also |
 
+#### v2.2j (sprint)
+<img src="/imgs/model_v2_2j.png" alt="Model v2_2j" width="800" height="400">
+
+* `/src/model_cactuswren_v2_2.py`  
+* enable current rotation with augmentation, of est range +-15degrees and rotation occurs 50% of the time
+
+#### v2.2j (sprint)
+<img src="/imgs/model_v2_2j.png" alt="Model v2_2j" width="800" height="400">
+
+* `/src/model_cactuswren_v2_2.py`  
+* image augmenation enabled without rotation
 
 #### v2.2i (sprint)
 <img src="/imgs/model_v2_2i.png" alt="Model v2_2i" width="800" height="400">
 
 * `/src/model_cactuswren_v2_2.py`  
-* image augmenation enabled
 * go back to model 1.6b, lr=0.0025, dropout=0.55
 
 
