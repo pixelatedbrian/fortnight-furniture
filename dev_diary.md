@@ -39,8 +39,38 @@
 | 2.1c | 0.72 | 0.55 | 0.001 | 80 | 18k | 11.1 | model 2_1b with 140 FC layer only, SGD optimizer, lower LR, double epochs |
 | 2.2a | 0.734 | 0.55 | 0.00025 | 40 | 18k | 1.7 | trying to reproduce v1.6b and establish new baseline |
 | 2.2b | 0.711 | 0.55 | 0.0125 | 40 | 18k | 1.7 | swap back to SGD momentum 0.9 |
-| 2.2c | ? | 0.35 | 0.0125 | 40 | 18k | 1.7 | lower dropout to 0.35 to see if it gets closer to 0.74 |
+| 2.2c | 0.711 | 0.35 | 0.0125 | 40 | 18k | 1.7 | lower dropout to 0.35 to see if it gets closer to 0.74 |
+| 2.2d | 0.701 | 0.45 | 0.0075 | 40 | 18k | 1.7 | raise dropout to 0.45 and lower LR to 0.0075 to see if it gets closer to 0.74 |
+| 2.2e | 0.685 | 0.60 | 0.01 | 40 | 18k | 1.7 | 2.2d with ridiculously high dropout |
+| 2.2f | 0.719 | 0.60 | 0.02 | 40 | 18k | 1.7 | 2.2e with LR increased to 0.02 |
 
+
+#### v2.2g (sprint)
+<img src="/imgs/model_v2_2g.png" alt="Model v2_2g" width="800" height="400">
+
+* `/src/model_cactuswren_v2_2.py`  
+* enable nesterov momentum
+* going back to Adam if this doesn't help
+
+#### v2.2f (sprint)
+<img src="/imgs/model_v2_2f.png" alt="Model v2_2f" width="800" height="400">
+
+* `/src/model_cactuswren_v2_2.py`  
+* double learning rate to 0.02
+
+#### v2.2d (sprint)
+<img src="/imgs/model_v2_2d.png" alt="Model v2_2d" width="800" height="400">
+
+* `/src/model_cactuswren_v2_2.py`  
+* raise dropout again
+* decrease learning rate
+
+#### v2.2d (sprint)
+<img src="/imgs/model_v2_2d.png" alt="Model v2_2d" width="800" height="400">
+
+* `/src/model_cactuswren_v2_2.py`  
+* raise dropout again
+* decrease learning rate
 
 #### v2.2c (sprint)
 <img src="/imgs/model_v2_2b.png" alt="Model v2_2b" width="800" height="400">
