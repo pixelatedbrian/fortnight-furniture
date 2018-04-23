@@ -14,8 +14,8 @@ from keras.layers.convolutional import Conv2D, MaxPooling2D
 # import glob
 import json
 
-# from loader_bot_omega import LoaderBot   # dynamic full image augmentation
-from loader_bot import LoaderBot
+from loader_bot_omega import LoaderBot   # dynamic full image augmentation
+# from loader_bot import LoaderBot
 
 import time
 from splitter import get_skfold_data
@@ -38,27 +38,6 @@ def setup_to_transfer_learn(model, base_model, optimizer):
         layer.trainable = False
 
     model.compile(optimizer=optimizer, loss='categorical_crossentropy', metrics=['accuracy'])
-
-
-# def add_brian_light_layers(base_model, num_classes, dropout=0.2):
-#     """Add last layer to the convnet
-#     Args:
-#     base_model: keras model excluding top
-#     nb_classes: # of classes
-#     Returns:
-#     new keras model with last layer
-#     """
-#     x = base_model.output
-#     x = GlobalAveragePooling2D()(x)
-#     x = Dense(140, activation='relu')(x) #new FC layer, random init
-#     # x = Dense(1024, activation='relu')(x)
-#     x = Dropout(dropout)(x)
-#
-#     predictions = Dense(num_classes, activation='softmax')(x) #new softmax layer
-#
-#     model = Model(inputs=base_model.input, outputs=predictions)
-#
-#     return model
 
 
 def add_brian_layers(base_model, num_classes, dropout=0.2):
@@ -239,37 +218,38 @@ def run():
     AUGMENTATION = 1    # could do 3 epochs of 10 augmentation or 30 of 1 which
                         # provides more data for plots to work with
 
-    DO = 0.60  # drop out
+    DO = 0.55  # drop out
 
     # for Adam inital LR of 0.0001 is a good starting point
     # for SGD initial LR of 0.001 is a good starting point
-    LR = 0.020
-    # OPTIMIZER = Adam(lr=LR)
-    OPTIMIZER = SGD(lr=LR, momentum=0.9)
+    LR = 0.00025
+    DECAY = 0.5e-6
+    OPTIMIZER = Adam(lr=LR, decay=DECAY)
+    # OPTIMIZER = SGD(lr=LR, momentum=0.9, nesterov=True)
 
     NB_IV3_LAYERS_TO_FREEZE = 172
-    MODEL_ID = 'v2_2f'
+    MODEL_ID = 'v2_2i'
 
     plot_file = "model_{:}.png".format(MODEL_ID)
     weights_file = "weights/model_{:}_weights.h5".format(MODEL_ID)
     history_file = "histories/history_{:}.json".format(MODEL_ID)
 
-    # user parameters for LoaderBot v1.0
-    # Parameters for Generators
-    params = {'dim': (299, 299),
-              'batch_size': 256,
-              'n_classes': 128,
-              'n_channels': 3,
-              'shuffle': False}
-
-    # These parameters are for LoaderBot v2.0
+    # # user parameters for LoaderBot v1.0
     # # Parameters for Generators
     # params = {'dim': (299, 299),
     #           'batch_size': 256,
     #           'n_classes': 128,
     #           'n_channels': 3,
-    #           'augmentation': AUGMENTATION,
-    #           'shuffle': True}
+    #           'shuffle': False}
+
+    # These parameters are for LoaderBot v2.0
+    # Parameters for Generators
+    params = {'dim': (299, 299),
+              'batch_size': 256,
+              'n_classes': 128,
+              'n_channels': 3,
+              'augmentation': AUGMENTATION,
+              'shuffle': True}
     #
     # # Parameters for Generators
     # test_params = {'dim': (299, 299),
@@ -306,7 +286,7 @@ def run():
                                      use_multiprocessing=False)
 
     # mini-train 2
-    OPTIMIZER = SGD(lr=LR / 2.0, momentum=0.9)
+    OPTIMIZER = Adam(lr=LR / 2.0, decay=DECAY)
     # try to fine tune some of the InceptionV3 layers also
     setup_to_finetune(model, NB_IV3_LAYERS_TO_FREEZE - 2, OPTIMIZER)
 
@@ -317,7 +297,7 @@ def run():
                                      use_multiprocessing=False)
 
     # mini-train 3
-    OPTIMIZER = SGD(lr=LR / 4.0, momentum=0.9)
+    OPTIMIZER = Adam(lr=LR / 4.0, decay=DECAY)
     # try to fine tune some of the InceptionV3 layers also
     setup_to_finetune(model, NB_IV3_LAYERS_TO_FREEZE - 4, OPTIMIZER)
 
@@ -328,7 +308,7 @@ def run():
                                      use_multiprocessing=False)
 
     # mini-train 4
-    OPTIMIZER = SGD(lr=LR / 8.0, momentum=0.9)
+    OPTIMIZER = Adam(lr=LR / 8.0, decay=DECAY)
     # try to fine tune some of the InceptionV3 layers also
     setup_to_finetune(model, NB_IV3_LAYERS_TO_FREEZE - 6, OPTIMIZER)
 
