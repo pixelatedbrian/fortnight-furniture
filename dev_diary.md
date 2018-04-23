@@ -49,7 +49,7 @@
 * not doing weight decay yet
 
 #### v2.2a (sprint)
-<img src="/imgs/model_v2_2a.png" alt="Model v2_2a" width="800" height="400">
+<img src="/imgs/o_model_v2_2a.png" alt="Model v2_2a" width="800" height="400">
 
 * `/src/model_cactuswren_v2_2.py`  
 * Back to 1024FC -> 512FC -> 256FC -> 128 softmax 'brian net'
