@@ -239,7 +239,7 @@ def run():
     AUGMENTATION = 1    # could do 3 epochs of 10 augmentation or 30 of 1 which
                         # provides more data for plots to work with
 
-    DR = 0.55  # drop out
+    DR = 0.35  # drop out
 
     # for Adam inital LR of 0.0001 is a good starting point
     # for SGD initial LR of 0.001 is a good starting point
@@ -248,7 +248,7 @@ def run():
     OPTIMIZER = SGD(lr=LR, momentum=0.9)
 
     NB_IV3_LAYERS_TO_FREEZE = 172
-    MODEL_ID = 'v2_2b'
+    MODEL_ID = 'v2_2c'
 
     plot_file = "model_{:}.png".format(MODEL_ID)
     weights_file = "weights/model_{:}_weights.h5".format(MODEL_ID)
