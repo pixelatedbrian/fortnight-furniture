@@ -49,8 +49,8 @@
 | 2.2j | 0.741 | 0.55 | 0.00025 | 40 | 18k | 3.1 | Enable augmentation without rotation, statistically insignificant sprint record accuracy |
 | 2.2k |  | 0.55 | 0.00025 | 40 | 18k | 3.2 | With rotation augmentation enabled also |
 
-#### v2.2j (sprint)
-<img src="/imgs/model_v2_2j.png" alt="Model v2_2j" width="800" height="400">
+#### v2.2k (sprint)
+<img src="/imgs/model_v2_2k.png" alt="Model v2_2k" width="800" height="400">
 
 * `/src/model_cactuswren_v2_2.py`  
 * enable current rotation with augmentation, of est range +-15degrees and rotation occurs 50% of the time
