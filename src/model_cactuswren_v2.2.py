@@ -239,16 +239,16 @@ def run():
     AUGMENTATION = 1    # could do 3 epochs of 10 augmentation or 30 of 1 which
                         # provides more data for plots to work with
 
-    DR = 0.35  # drop out
+    DO = 0.60  # drop out
 
     # for Adam inital LR of 0.0001 is a good starting point
     # for SGD initial LR of 0.001 is a good starting point
-    LR = 0.0125
+    LR = 0.020
     # OPTIMIZER = Adam(lr=LR)
     OPTIMIZER = SGD(lr=LR, momentum=0.9)
 
     NB_IV3_LAYERS_TO_FREEZE = 172
-    MODEL_ID = 'v2_2c'
+    MODEL_ID = 'v2_2f'
 
     plot_file = "model_{:}.png".format(MODEL_ID)
     weights_file = "weights/model_{:}_weights.h5".format(MODEL_ID)
@@ -293,7 +293,7 @@ def run():
 
     # setup model
     base_model = InceptionV3(weights='imagenet', include_top=False) #include_top=False excludes final FC layer
-    model = add_brian_layers(base_model, 128, DR)
+    model = add_brian_layers(base_model, 128, DO)
 
     # mini-train 1, like normal
     # transfer learning
