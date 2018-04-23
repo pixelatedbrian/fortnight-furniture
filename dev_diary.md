@@ -37,7 +37,16 @@
 | 2.1a | 0.74 | 0.55 | 0.0005 | 40 | 18k | 5.6 | went to lighter NN, only 1024 FC layer |
 | 2.1b | 0.730 | 0.55 | 0.0005 | 40 | 18k | 5.6 | model 2_1b with 512 FC layer only |
 | 2.1c | 0.72 | 0.55 | 0.001 | 80 | 18k | 11.1 | model 2_1b with 140 FC layer only, SGD optimizer, lower LR, double epochs |
-| 2.2a | 0.740? | 0.55 | 0.00025 | 40 | 18k | 3.7? | trying to reproduce v1.6b and establish new baseline |
+| 2.2a | 0.7340 | 0.55 | 0.00025 | 40 | 18k | 1.7 | trying to reproduce v1.6b and establish new baseline |
+| 2.2b | 0.7340 | 0.55 | 0.0125 | 40 | 18k | 1.7 | swap back to SGD momentum 0.9 |
+
+
+#### v2.2b (sprint)
+<img src="/imgs/model_v2_2b.png" alt="Model v2_2b" width="800" height="400">
+
+* `/src/model_cactuswren_v2_2.py`  
+* change optimizer to SGD learning rate (from models 1.3-1.4) of 0.0125, re-use momentum of 0.9
+* not doing weight decay yet
 
 #### v2.2a (sprint)
 <img src="/imgs/model_v2_2a.png" alt="Model v2_2a" width="800" height="400">
@@ -62,9 +71,10 @@
 ### Going forward (Immediate):
 * Roll back to 1.6 for speed, as model v2.2x
   * 2.2a: Test with non-augmented data, get a baseline for 2.2
-  * 2.2b: Evaluate weight decay for SGD and see how it compares to baseline
-  * 2.2c: Taking better of 2.2a/b feed in current state of augmented images
-  * 2.2d: Disable rotation in augmentation and evaluate
+  * 2.2b: Evaluate SGD and see how it compares to baseline
+  * 2.2c: Evaluate weight decay for SGD and see how it compares to baseline
+  * 2.2d: Taking better of 2.2a/b feed in current state of augmented images
+  * 2.2e: Disable rotation in augmentation and evaluate
   
 ### Going forward (week+ time range):
 * Reading about Yelp image classification winner they mentioned that dropping the last layer only was problematic because Inception v3 weights were overfitted to the 1000 class Iv3 predictors. So that person picked up features from the last Average Pooling and then worked from there.
