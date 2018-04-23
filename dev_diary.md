@@ -43,6 +43,24 @@
 | 2.2d | 0.701 | 0.45 | 0.0075 | 40 | 18k | 1.7 | raise dropout to 0.45 and lower LR to 0.0075 to see if it gets closer to 0.74 |
 | 2.2e | 0.685 | 0.60 | 0.01 | 40 | 18k | 1.7 | 2.2d with ridiculously high dropout |
 | 2.2f | 0.719 | 0.60 | 0.02 | 40 | 18k | 1.7 | 2.2e with LR increased to 0.02 |
+| 2.2g | 0.716 | 0.50 | 0.02 | 40 | 18k | 1.7 | SGD with nesterov=True |
+| 2.2h | 0.712 | 0.50 | 0.0001 | 40 | 18k | 1.7 | Back to Adam |
+| 2.2i | ? | 0.55 | 0.00025 | 40 | 18k | 1.7 | Back to 1.6b, Re-enable image augmentation with rotation |
+
+
+#### v2.2i (sprint)
+<img src="/imgs/model_v2_2i.png" alt="Model v2_2i" width="800" height="400">
+
+* `/src/model_cactuswren_v2_2.py`  
+* image augmenation enabled
+* go back to model 1.6b, lr=0.0025, dropout=0.55
+
+
+#### v2.2h (sprint)
+<img src="/imgs/model_v2_2h.png" alt="Model v2_2h" width="800" height="400">
+
+* `/src/model_cactuswren_v2_2.py`  
+* back to Adam
 
 
 #### v2.2g (sprint)
