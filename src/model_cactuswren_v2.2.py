@@ -243,12 +243,12 @@ def run():
 
     # for Adam inital LR of 0.0001 is a good starting point
     # for SGD initial LR of 0.001 is a good starting point
-    LR = 0.00025
-    OPTIMIZER = Adam(lr=LR)
-    # OPTIMIZER = SGD(lr=lr, momentum=0.9)
+    LR = 0.0125
+    # OPTIMIZER = Adam(lr=LR)
+    OPTIMIZER = SGD(lr=LR, momentum=0.9)
 
     NB_IV3_LAYERS_TO_FREEZE = 172
-    MODEL_ID = 'v2_2a'
+    MODEL_ID = 'v2_2b'
 
     plot_file = "model_{:}.png".format(MODEL_ID)
     weights_file = "weights/model_{:}_weights.h5".format(MODEL_ID)
@@ -306,7 +306,7 @@ def run():
                                      use_multiprocessing=False)
 
     # mini-train 2
-    OPTIMIZER = Adam(lr=LR / 2.0)
+    OPTIMIZER = SGD(lr=LR / 2.0, momentum=0.9)
     # try to fine tune some of the InceptionV3 layers also
     setup_to_finetune(model, NB_IV3_LAYERS_TO_FREEZE - 2, OPTIMIZER)
 
@@ -317,7 +317,7 @@ def run():
                                      use_multiprocessing=False)
 
     # mini-train 3
-    OPTIMIZER = Adam(lr=LR / 4.0)
+    OPTIMIZER = SGD(lr=LR / 4.0, momentum=0.9)
     # try to fine tune some of the InceptionV3 layers also
     setup_to_finetune(model, NB_IV3_LAYERS_TO_FREEZE - 4, OPTIMIZER)
 
@@ -328,7 +328,7 @@ def run():
                                      use_multiprocessing=False)
 
     # mini-train 4
-    OPTIMIZER = Adam(lr=LR / 8.0)
+    OPTIMIZER = SGD(lr=LR / 8.0, momentum=0.9)
     # try to fine tune some of the InceptionV3 layers also
     setup_to_finetune(model, NB_IV3_LAYERS_TO_FREEZE - 6, OPTIMIZER)
 
