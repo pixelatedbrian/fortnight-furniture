@@ -10,6 +10,8 @@ Identify which of 128 classes an image belongs to.  The source and test images a
 
 The training set provides links and labels for about 180k images. The scoring test set contains about 100k images.
 
+I am keeping a detailed development diary [here](https://github.com/pixelatedbrian/fortnight-furniture/blob/master/dev_diary.md_)
+
 ### Overview of the modeling process for my solution.
 
 1. **Get Data**
