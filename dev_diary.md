@@ -47,8 +47,15 @@
 | 2.2h | 0.712 | 0.50 | 0.0001 | 40 | 18k | 1.7 | Back to Adam |
 | 2.2i | 0.736 | 0.55 | 0.00025 | 40 | 18k | 3.1 | Back to 1.6b |
 | 2.2j | 0.741 | 0.55 | 0.00025 | 40 | 18k | 3.1 | Enable augmentation without rotation, statistically insignificant sprint record accuracy |
-| 2.2k | 0.734 | 0.55 | 0.00025 | 40 | 18k | 3.2 | With rotation augmentation enabled also |
-| 2.2l |  | 0.55 | 0.00025 | 40 | 18k | 3.2 | With rotation augmentation nerfed to +-3 degrees |
+| 2.2k | 0.734 | 0.55 | 0.00025 | 40 | 18k | 3.2 | With rotation augmentation nerfed to +-15 degrees |
+| 2.2l | 0.738 | 0.55 | 0.00025 | 40 | 18k | 3.2 | With rotation augmentation nerfed to +-3 degrees |
+| 2.2m | ? | 0.50 | 0.0005 | 40 | 18k | 3.2 | speed up initial learning then slow down thawed learning |
+
+#### v2.2m(sprint)
+<img src="/imgs/model_v2_2m.png" alt="Model v2_2m" width="800" height="400">
+
+* `/src/model_cactuswren_v2_2.py`  
+* speed up initial learning but slow down later epochs, last one before dropping some upper layers and see if it doesn't overfit as much
 
 #### v2.2l(sprint)
 <img src="/imgs/model_v2_2l.png" alt="Model v2_2l" width="800" height="400">
