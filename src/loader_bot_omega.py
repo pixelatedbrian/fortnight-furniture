@@ -179,6 +179,12 @@ def random_rotation(img, min_angle=-15, max_angle=15):
     return rotate_bound(img, angle)   # returns a rotated, cropped img np array
 
 
+def gamma_augment(img):
+    '''
+
+    '''
+
+
 def rotate_bound(image, angle):
     # resource found here:
     # https://www.pyimagesearch.com/2017/01/02/rotate-images-correctly-with-opencv-and-python/
@@ -323,7 +329,7 @@ class LoaderBot(keras.utils.Sequence):
                 if _rot is 1:
                     # figure out how much rotation (should be about -15 to 15 degrees
                     # but a normal distribution centered on 0)
-                    _rotation = np.random.normal() * 5 - 2.5
+                    _rotation = np.random.normal() * 1 - 0.5
 
                     # rotate and THEN also crop so there's not a lot of black on the
                     # edges
