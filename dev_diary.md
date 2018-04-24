@@ -51,6 +51,13 @@
 | 2.2l | 0.738 | 0.55 | 0.00025 | 40 | 18k | 3.2 | With rotation augmentation nerfed to +-3 degrees |
 | 2.2m | 0.713 | 0.50 | 0.0005 | 40 | 18k | 3.2 | speed up initial learning then slow down thawed learning |
 | 2.2n | 0.743 | 0.55 | 0.00025 | 40 | 18k | 5.1 | Go back to 2.2l but turn on fancy_pca in image augmentation |
+| 2.2o | ? | 0.55 | 0.00025 | 40 | 18k | 5.1 | Lower image std to 0.1 for fancy_pca |
+
+#### v2.2o(sprint)
+<img src="/imgs/model_v2_2o.png" alt="Model v2_2o" width="800" height="400">
+
+* `/src/model_cactuswren_v2_2.py`  
+* Lower color perturbation of fancy_pca
 
 #### v2.2n(sprint)
 <img src="/imgs/model_v2_2n.png" alt="Model v2_2n" width="800" height="400">
