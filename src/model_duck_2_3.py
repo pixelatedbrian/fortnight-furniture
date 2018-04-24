@@ -1,7 +1,10 @@
-from keras.applications import InceptionV3
-# from keras.applications.inception_v3 import preprocess_input
-# from keras.preprocessing.image import img_to_array
-# from keras.preprocessing.image import load_img
+# from keras.applications import InceptionV3
+from keras.applications.vgg16 import VGG16
+
+# REFERENCES:
+
+# VGG16
+# https://arxiv.org/abs/1409.1556
 
 from keras.optimizers import Adam, SGD
 
@@ -40,7 +43,7 @@ def setup_to_transfer_learn(model, base_model, optimizer):
     model.compile(optimizer=optimizer, loss='categorical_crossentropy', metrics=['accuracy'])
 
 
-def add_brian_layers(base_model, num_classes, dropout=0.2):
+def add_brian_layers(base_model, num_classes, dropout=0.5):
     """Add last layer to the convnet
     Args:
     base_model: keras model excluding top
@@ -63,25 +66,6 @@ def add_brian_layers(base_model, num_classes, dropout=0.2):
     x = Dropout(dropout)(x)
 
     predictions = Dense(num_classes, activation='softmax')(x) #new softmax layer
-
-    model = Model(inputs=base_model.input, outputs=predictions)
-
-    return model
-
-
-def add_new_last_layer(base_model, nb_classes):
-    """Add last layer to the convnet
-    Args:
-    base_model: keras model excluding top
-    nb_classes: # of classes
-    Returns:
-    new keras model with last layer
-    """
-    x = base_model.output
-    x = GlobalAveragePooling2D()(x)
-    x = Dense(FC_SIZE, activation='relu')(x) #new FC layer, random init
-
-    predictions = Dense(nb_classes, activation='softmax')(x) #new softmax layer
 
     model = Model(inputs=base_model.input, outputs=predictions)
 
@@ -218,17 +202,17 @@ def run():
     AUGMENTATION = 1    # could do 3 epochs of 10 augmentation or 30 of 1 which
                         # provides more data for plots to work with
 
-    DO = 0.55  # drop out
+    DO = 0.50  # drop out
 
     # for Adam inital LR of 0.0001 is a good starting point
     # for SGD initial LR of 0.001 is a good starting point
-    LR = 0.00025
+    LR = 0.0005
     DECAY = 0.5e-6
     OPTIMIZER = Adam(lr=LR, decay=DECAY)
     # OPTIMIZER = SGD(lr=LR, momentum=0.9, nesterov=True)
 
     NB_IV3_LAYERS_TO_FREEZE = 172
-    MODEL_ID = 'v2_2n'
+    MODEL_ID = 'v2_3a'
 
     plot_file = "model_{:}.png".format(MODEL_ID)
     weights_file = "weights/model_{:}_weights.h5".format(MODEL_ID)
@@ -244,7 +228,7 @@ def run():
 
     # These parameters are for LoaderBot v2.0
     # Parameters for Generators
-    params = {'dim': (299, 299),
+    params = {'dim': (224, 224),
               'batch_size': 256,
               'n_classes': 128,
               'n_channels': 3,
@@ -272,7 +256,20 @@ def run():
     validation_generator = LoaderBot(X_test_img_paths, y_test, **params)
 
     # setup model
-    base_model = InceptionV3(weights='imagenet', include_top=False) #include_top=False excludes final FC layer
+    # base_model = InceptionV3(weights='imagenet', include_top=False) #include_top=False excludes final FC layer
+    base_model = VGG16(include_top=False, weights='imagenet')
+
+    base_model.summary()
+
+    # seems like in Keras not including the top will exclude the FC layers at the
+    # top, not just the softmax categories
+    # # try to pop some layers to get to the top 'maxpool' then rebuild from there
+    # base_model.pop()
+    # base_model.pop()
+    # base_model.pop()
+    #
+    # base_model.summary()
+
     model = add_brian_layers(base_model, 128, DO)
 
     # mini-train 1, like normal
@@ -286,7 +283,7 @@ def run():
                                      use_multiprocessing=False)
 
     # mini-train 2
-    OPTIMIZER = Adam(lr=LR / 2.0, decay=DECAY)
+    OPTIMIZER = Adam(lr=LR / 10.0, decay=DECAY)
     # try to fine tune some of the InceptionV3 layers also
     setup_to_finetune(model, NB_IV3_LAYERS_TO_FREEZE - 2, OPTIMIZER)
 
@@ -297,7 +294,7 @@ def run():
                                      use_multiprocessing=False)
 
     # mini-train 3
-    OPTIMIZER = Adam(lr=LR / 4.0, decay=DECAY)
+    OPTIMIZER = Adam(lr=LR / 10.0, decay=DECAY)
     # try to fine tune some of the InceptionV3 layers also
     setup_to_finetune(model, NB_IV3_LAYERS_TO_FREEZE - 4, OPTIMIZER)
 
@@ -308,7 +305,7 @@ def run():
                                      use_multiprocessing=False)
 
     # mini-train 4
-    OPTIMIZER = Adam(lr=LR / 8.0, decay=DECAY)
+    OPTIMIZER = Adam(lr=LR / 10.0, decay=DECAY)
     # try to fine tune some of the InceptionV3 layers also
     setup_to_finetune(model, NB_IV3_LAYERS_TO_FREEZE - 6, OPTIMIZER)
 
