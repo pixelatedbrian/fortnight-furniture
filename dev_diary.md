@@ -53,7 +53,8 @@
 | 2.2n | 0.743 | 0.55 | 0.00025 | 40 | 18k | 5.1 | Go back to 2.2l but turn on fancy_pca in image augmentation |
 | 2.3a | 0.662 | 0.50 | 0.0005 | 40 | 18k | 4.0 | VGG16 model |
 | 2.3b | 0.692 | 0.30 | 0.0005 | 40 | 18k | 2.7 | VGG16 model Freeze 18 layers, non-augmented |
-| 2.3c | ? | 0.40 | 0.00025 | 80 | 18k | ? | VGG16 model Freeze 18 layers, non-augmented |
+| 2.3c | 0.680 | 0.40 | 0.00025 | 80 | 18k | 8.0 | VGG16 model Freeze 18 layers, augmented night run, increased dropout to 0.40 |
+| 2.3b | 0.692 | 0.55 | 0.0005 | 40 | 18k | 2.7 | VGG16 model Freeze 18 layers, non-augmented |
 
 #### v2.2o(sprint)
 <img src="/imgs/model_v2_2o.png" alt="Model v2_2o" width="800" height="400">
