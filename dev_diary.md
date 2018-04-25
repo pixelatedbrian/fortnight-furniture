@@ -54,7 +54,47 @@
 | 2.3a | 0.662 | 0.50 | 0.0005 | 40 | 18k | 4.0 | VGG16 model |
 | 2.3b | 0.692 | 0.30 | 0.0005 | 40 | 18k | 2.7 | VGG16 model Freeze 18 layers, non-augmented |
 | 2.3c | 0.680 | 0.40 | 0.00025 | 80 | 18k | 8.0 | VGG16 model Freeze 18 layers, augmented night run, increased dropout to 0.40 |
-| 2.3b | 0.692 | 0.55 | 0.0005 | 40 | 18k | 2.7 | VGG16 model Freeze 18 layers, non-augmented |
+| 2.3d | 0.677 | 0.55 | 0.0005 | 40 | 18k | 2.7 | VGG16 model Freeze 18 layers, non-augmented |
+| 2.3e | ? | 0.55 | 0.0005 | 40 | 18k | 2.7 | VGG16 model Freeze 18 layers, non-augmented, double addon neurons |
+
+
+#### v2.3e(sprint)
+<img src="/imgs/model_v2_3e.png" alt="Model v2_3e" width="800" height="400">
+
+* `/src/model_duck_v2_3.py`  
+* seems to be having difficulty generalizing and real VGG FC layers are quite large (4096 iirc)
+* so increasing my FC layers to 2048 -> 1024 -> 512 to see if it helps
+* running non-augmented to save some time
+
+#### v2.3d(sprint)
+<img src="/imgs/model_v2_3d.png" alt="Model v2_3d" width="800" height="400">
+
+* `/src/model_duck_v2_3.py`  
+* no augmentation
+* 40 epochs
+* increased dropout back to 0.55
+
+#### v2.3c(sprint)
+<img src="/imgs/model_v2_3c.png" alt="Model v2_3c" width="800" height="400">
+
+* `/src/model_duck_v2_3.py`  
+* enabled augmentation
+* double epochs
+* increased dropout
+
+#### v2.3b(sprint)
+<img src="/imgs/model_v2_3b.png" alt="Model v2_3b" width="800" height="400">
+
+* `/src/model_duck_v2_3.py`  
+* disabled augmentation
+* decreased dropout
+
+#### v2.3a(sprint)
+<img src="/imgs/model_v2_3a.png" alt="Model v2_3a" width="800" height="400">
+
+* `/src/model_duck_v2_3.py`  
+* VGG16 model first run
+* Try to start unfreezing layers after mini-train 1, starting with 18th layer
 
 #### v2.2o(sprint)
 <img src="/imgs/model_v2_2o.png" alt="Model v2_2o" width="800" height="400">
