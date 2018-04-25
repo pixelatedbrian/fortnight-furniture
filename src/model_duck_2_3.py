@@ -72,6 +72,35 @@ def add_brian_layers(base_model, num_classes, dropout=0.5):
     return model
 
 
+def add_double_brian_layers(base_model, num_classes, dropout=0.5):
+    """Add last layer to the convnet
+    Args:
+    base_model: keras model excluding top
+    nb_classes: # of classes
+    Returns:
+    new keras model with last layer
+    """
+    x = base_model.output
+    x = GlobalAveragePooling2D()(x)
+    x = Dense(2048, activation='relu', kernel_initializer='he_normal')(x) #new FC layer, random init
+    # x = Dense(1024, activation='relu')(x)
+    x = Dropout(dropout)(x)
+
+    x = Dense(1024, activation='relu', kernel_initializer='he_normal')(x) #new FC layer, random init
+    # x = Dense(512, activation='relu')(x) #new FC layer, random init
+    x = Dropout(dropout)(x)
+
+    x = Dense(512, activation='relu', kernel_initializer='he_normal')(x) #new FC layer, random init
+    # x = Dense(256, activation='relu')(x) #new FC layer, random init
+    x = Dropout(dropout)(x)
+
+    predictions = Dense(num_classes, activation='softmax')(x) #new softmax layer
+
+    model = Model(inputs=base_model.input, outputs=predictions)
+
+    return model
+
+
 def setup_to_finetune(model, freeze, optimizer):
     """Freeze the bottom NB_IV3_LAYERS and retrain the remaining top layers.
     note: NB_IV3_LAYERS corresponds to the top 2 inception blocks in the inceptionv3 arch
@@ -198,11 +227,11 @@ def run():
     with open("../data/data_splits.json") as infile:
         data_link_dict = json.load(infile)
 
-    EPOCHS = 20
+    EPOCHS = 10
     AUGMENTATION = 1    # could do 3 epochs of 10 augmentation or 30 of 1 which
                         # provides more data for plots to work with
 
-    DO = 0.40  # drop out
+    DO = 0.55  # drop out
 
     # for Adam inital LR of 0.0001 is a good starting point
     # for SGD initial LR of 0.001 is a good starting point
@@ -213,37 +242,37 @@ def run():
 
     # NB_IV3_LAYERS_TO_FREEZE = 172
     NB_IV3_LAYERS_TO_FREEZE = 18
-    MODEL_ID = 'v2_3c'
+    MODEL_ID = 'v2_3e'
 
     plot_file = "model_{:}.png".format(MODEL_ID)
     weights_file = "weights/model_{:}_weights.h5".format(MODEL_ID)
     history_file = "histories/history_{:}.json".format(MODEL_ID)
 
-    # # user parameters for LoaderBot v1.0
-    # # Parameters for Generators
-    # params = {'dim': (299, 299),
-    #           'batch_size': 64,
-    #           'n_classes': 128,
-    #           'n_channels': 3,
-    #           'shuffle': False}
-
-    # These parameters are for LoaderBot v2.0
+    # user parameters for LoaderBot v1.0
     # Parameters for Generators
-    params = {'dim': (224, 224),
+    params = {'dim': (299, 299),
               'batch_size': 64,
               'n_classes': 128,
               'n_channels': 3,
-              'augmentation': AUGMENTATION,
-              'shuffle': True}
+              'shuffle': False}
 
-    # Parameters for Generators
-    test_params = {'dim': (299, 299),
-                   'batch_size': 64,
-                   'n_classes': 128,
-                   'n_channels': 3,
-                   'augmentation': 1,
-                   'augment': False,
-                   'shuffle': True}
+    # # These parameters are for LoaderBot v2.0
+    # # Parameters for Generators
+    # params = {'dim': (224, 224),
+    #           'batch_size': 64,
+    #           'n_classes': 128,
+    #           'n_channels': 3,
+    #           'augmentation': AUGMENTATION,
+    #           'shuffle': True}
+    #
+    # # Parameters for Generators
+    # test_params = {'dim': (299, 299),
+    #                'batch_size': 64,
+    #                'n_classes': 128,
+    #                'n_channels': 3,
+    #                'augmentation': 1,
+    #                'augment': False,
+    #                'shuffle': True}
 
     # Datasets
     X_train_img_paths = data_link_dict["X_test_2"]
@@ -254,7 +283,7 @@ def run():
 
     # Generators
     training_generator = LoaderBot(X_train_img_paths, y_train, **params)
-    validation_generator = LoaderBot(X_test_img_paths, y_test, **test_params)
+    validation_generator = LoaderBot(X_test_img_paths, y_test, **params)
 
     # setup model
     # base_model = InceptionV3(weights='imagenet', include_top=False) #include_top=False excludes final FC layer
@@ -269,7 +298,7 @@ def run():
     #
     # base_model.summary()
 
-    model = add_brian_layers(base_model, 128, DO)
+    model = add_double_brian_layers(base_model, 128, DO)
 
     # mini-train 1, like normal
     # transfer learning
@@ -284,8 +313,7 @@ def run():
     history_t1 = model.fit_generator(generator=training_generator,
                                      validation_data=validation_generator,
                                      epochs=EPOCHS,
-                                     use_multiprocessing=True,
-                                     workers=6)
+                                     use_multiprocessing=False)
 
     # mini-train 2
     OPTIMIZER = Adam(lr=LR / 2.0, decay=DECAY)
