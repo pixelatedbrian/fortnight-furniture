@@ -139,6 +139,9 @@ def fancy_pca(img, alpha_std=100):
     orig_img /= 255.0
     orig_img = np.clip(orig_img, 0.0, 1.0)
 
+    orig_img = (orig_img * 255)
+    orig_img = orig_img.astype(int)
+
     # about 100x faster after vectorizing the numpy, it will be even faster later
     # since currently it's working on full size images and not small, square
     # images that will be fed in later as part of the post processing before being
@@ -460,7 +463,7 @@ class LoaderBot(keras.utils.Sequence):
                 print("new size:", temp_img.shape)
 
             # do fancy PCA color augmentation
-            completed_img = fancy_pca(resized, alpha_std=10)
+            completed_img = fancy_pca(resized, alpha_std=0.1)
 
             X[i, ] = completed_img
 

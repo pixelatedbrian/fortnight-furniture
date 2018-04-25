@@ -228,7 +228,7 @@ def run():
     # OPTIMIZER = SGD(lr=LR, momentum=0.9, nesterov=True)
 
     NB_IV3_LAYERS_TO_FREEZE = 172
-    MODEL_ID = 'v2_2n'
+    MODEL_ID = 'v2_2o'
 
     plot_file = "model_{:}.png".format(MODEL_ID)
     weights_file = "weights/model_{:}_weights.h5".format(MODEL_ID)
@@ -251,14 +251,14 @@ def run():
               'augmentation': AUGMENTATION,
               'shuffle': True}
     #
-    # # Parameters for Generators
-    # test_params = {'dim': (299, 299),
-    #                'batch_size': 256,
-    #                'n_classes': 128,
-    #                'n_channels': 3,
-    #                'augmentation': 1,
-    #                'augment': False,
-    #                'shuffle': True}
+    # Parameters for Generators
+    test_params = {'dim': (299, 299),
+                   'batch_size': 256,
+                   'n_classes': 128,
+                   'n_channels': 3,
+                   'augmentation': 1,
+                   'augment': False,
+                   'shuffle': True}
 
     # Datasets
     X_train_img_paths = data_link_dict["X_test_2"]
@@ -269,11 +269,13 @@ def run():
 
     # Generators
     training_generator = LoaderBot(X_train_img_paths, y_train, **params)
-    validation_generator = LoaderBot(X_test_img_paths, y_test, **params)
+    validation_generator = LoaderBot(X_test_img_paths, y_test, **test_params)
 
     # setup model
     base_model = InceptionV3(weights='imagenet', include_top=False) #include_top=False excludes final FC layer
     model = add_brian_layers(base_model, 128, DO)
+
+    print(model.summary())
 
     # mini-train 1, like normal
     # transfer learning
@@ -290,6 +292,8 @@ def run():
     # try to fine tune some of the InceptionV3 layers also
     setup_to_finetune(model, NB_IV3_LAYERS_TO_FREEZE - 2, OPTIMIZER)
 
+    print("\n\n        Starting epoch {:}\n\n".format(EPOCHS + 1))
+
     # Run model
     history_t2 = model.fit_generator(generator=training_generator,
                                      validation_data=validation_generator,
@@ -301,6 +305,8 @@ def run():
     # try to fine tune some of the InceptionV3 layers also
     setup_to_finetune(model, NB_IV3_LAYERS_TO_FREEZE - 4, OPTIMIZER)
 
+    print("\n\n        Starting epoch {:}\n\n".format(EPOCHS * 2 + 1))
+
     # Run model
     history_t3 = model.fit_generator(generator=training_generator,
                                      validation_data=validation_generator,
@@ -311,6 +317,8 @@ def run():
     OPTIMIZER = Adam(lr=LR / 8.0, decay=DECAY)
     # try to fine tune some of the InceptionV3 layers also
     setup_to_finetune(model, NB_IV3_LAYERS_TO_FREEZE - 6, OPTIMIZER)
+
+    print("\n\n        Starting epoch {:}\n\n".format(EPOCHS * 3 + 1))
 
     # Run model
     history_t4 = model.fit_generator(generator=training_generator,

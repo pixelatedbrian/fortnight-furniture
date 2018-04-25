@@ -211,7 +211,8 @@ def run():
     OPTIMIZER = Adam(lr=LR, decay=DECAY)
     # OPTIMIZER = SGD(lr=LR, momentum=0.9, nesterov=True)
 
-    NB_IV3_LAYERS_TO_FREEZE = 172
+    # NB_IV3_LAYERS_TO_FREEZE = 172
+    NB_IV3_LAYERS_TO_FREEZE = 19
     MODEL_ID = 'v2_3a'
 
     plot_file = "model_{:}.png".format(MODEL_ID)
@@ -229,20 +230,20 @@ def run():
     # These parameters are for LoaderBot v2.0
     # Parameters for Generators
     params = {'dim': (224, 224),
-              'batch_size': 256,
+              'batch_size': 64,
               'n_classes': 128,
               'n_channels': 3,
               'augmentation': AUGMENTATION,
               'shuffle': True}
-    #
-    # # Parameters for Generators
-    # test_params = {'dim': (299, 299),
-    #                'batch_size': 256,
-    #                'n_classes': 128,
-    #                'n_channels': 3,
-    #                'augmentation': 1,
-    #                'augment': False,
-    #                'shuffle': True}
+
+    # Parameters for Generators
+    test_params = {'dim': (299, 299),
+                   'batch_size': 64,
+                   'n_classes': 128,
+                   'n_channels': 3,
+                   'augmentation': 1,
+                   'augment': False,
+                   'shuffle': True}
 
     # Datasets
     X_train_img_paths = data_link_dict["X_test_2"]
@@ -253,13 +254,11 @@ def run():
 
     # Generators
     training_generator = LoaderBot(X_train_img_paths, y_train, **params)
-    validation_generator = LoaderBot(X_test_img_paths, y_test, **params)
+    validation_generator = LoaderBot(X_test_img_paths, y_test, **test_params)
 
     # setup model
     # base_model = InceptionV3(weights='imagenet', include_top=False) #include_top=False excludes final FC layer
     base_model = VGG16(include_top=False, weights='imagenet')
-
-    base_model.summary()
 
     # seems like in Keras not including the top will exclude the FC layers at the
     # top, not just the softmax categories
@@ -276,6 +275,8 @@ def run():
     # transfer learning
     setup_to_transfer_learn(model, base_model, OPTIMIZER)
 
+    base_model.summary()
+
     # Run model
     history_t1 = model.fit_generator(generator=training_generator,
                                      validation_data=validation_generator,
@@ -283,9 +284,11 @@ def run():
                                      use_multiprocessing=False)
 
     # mini-train 2
-    OPTIMIZER = Adam(lr=LR / 10.0, decay=DECAY)
+    OPTIMIZER = Adam(lr=LR / 2.0, decay=DECAY)
     # try to fine tune some of the InceptionV3 layers also
-    setup_to_finetune(model, NB_IV3_LAYERS_TO_FREEZE - 2, OPTIMIZER)
+    setup_to_finetune(model, NB_IV3_LAYERS_TO_FREEZE - 1, OPTIMIZER)
+
+    print("\n\n        Starting epoch {:}\n\n".format(EPOCHS + 1))
 
     # Run model
     history_t2 = model.fit_generator(generator=training_generator,
@@ -294,9 +297,11 @@ def run():
                                      use_multiprocessing=False)
 
     # mini-train 3
-    OPTIMIZER = Adam(lr=LR / 10.0, decay=DECAY)
+    OPTIMIZER = Adam(lr=LR / 4.0, decay=DECAY)
     # try to fine tune some of the InceptionV3 layers also
-    setup_to_finetune(model, NB_IV3_LAYERS_TO_FREEZE - 4, OPTIMIZER)
+    setup_to_finetune(model, NB_IV3_LAYERS_TO_FREEZE - 2, OPTIMIZER)
+
+    print("\n\n        Starting epoch {:}\n\n".format(EPOCHS * 2 + 1))
 
     # Run model
     history_t3 = model.fit_generator(generator=training_generator,
@@ -305,9 +310,11 @@ def run():
                                      use_multiprocessing=False)
 
     # mini-train 4
-    OPTIMIZER = Adam(lr=LR / 10.0, decay=DECAY)
+    OPTIMIZER = Adam(lr=LR / 8.0, decay=DECAY)
     # try to fine tune some of the InceptionV3 layers also
-    setup_to_finetune(model, NB_IV3_LAYERS_TO_FREEZE - 6, OPTIMIZER)
+    setup_to_finetune(model, NB_IV3_LAYERS_TO_FREEZE - 3, OPTIMIZER)
+
+    print("\n\n        Starting epoch {:}\n\n".format(EPOCHS * 3 + 1))
 
     # Run model
     history_t4 = model.fit_generator(generator=training_generator,
