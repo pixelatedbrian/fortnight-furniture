@@ -17,8 +17,8 @@ from keras.layers.convolutional import Conv2D, MaxPooling2D
 # import glob
 import json
 
-from loader_bot_omega import LoaderBot   # dynamic full image augmentation
-# from loader_bot import LoaderBot
+# from loader_bot_omega import LoaderBot   # dynamic full image augmentation
+from loader_bot import LoaderBot
 
 import time
 from splitter import get_skfold_data
@@ -198,22 +198,22 @@ def run():
     with open("../data/data_splits.json") as infile:
         data_link_dict = json.load(infile)
 
-    EPOCHS = 10
+    EPOCHS = 20
     AUGMENTATION = 1    # could do 3 epochs of 10 augmentation or 30 of 1 which
                         # provides more data for plots to work with
 
-    DO = 0.50  # drop out
+    DO = 0.40  # drop out
 
     # for Adam inital LR of 0.0001 is a good starting point
     # for SGD initial LR of 0.001 is a good starting point
-    LR = 0.0005
+    LR = 0.00025
     DECAY = 0.5e-6
     OPTIMIZER = Adam(lr=LR, decay=DECAY)
     # OPTIMIZER = SGD(lr=LR, momentum=0.9, nesterov=True)
 
     # NB_IV3_LAYERS_TO_FREEZE = 172
-    NB_IV3_LAYERS_TO_FREEZE = 19
-    MODEL_ID = 'v2_3a'
+    NB_IV3_LAYERS_TO_FREEZE = 18
+    MODEL_ID = 'v2_3c'
 
     plot_file = "model_{:}.png".format(MODEL_ID)
     weights_file = "weights/model_{:}_weights.h5".format(MODEL_ID)
@@ -222,7 +222,7 @@ def run():
     # # user parameters for LoaderBot v1.0
     # # Parameters for Generators
     # params = {'dim': (299, 299),
-    #           'batch_size': 256,
+    #           'batch_size': 64,
     #           'n_classes': 128,
     #           'n_channels': 3,
     #           'shuffle': False}
@@ -275,13 +275,17 @@ def run():
     # transfer learning
     setup_to_transfer_learn(model, base_model, OPTIMIZER)
 
-    base_model.summary()
+    # model.summary()
+
+    print("model layers:", model.layers)
+    print("len model layers:", len(model.layers))
 
     # Run model
     history_t1 = model.fit_generator(generator=training_generator,
                                      validation_data=validation_generator,
                                      epochs=EPOCHS,
-                                     use_multiprocessing=False)
+                                     use_multiprocessing=True,
+                                     workers=6)
 
     # mini-train 2
     OPTIMIZER = Adam(lr=LR / 2.0, decay=DECAY)
