@@ -55,8 +55,14 @@
 | 2.3b | 0.692 | 0.30 | 0.0005 | 40 | 18k | 2.7 | VGG16 model Freeze 18 layers, non-augmented |
 | 2.3c | 0.680 | 0.40 | 0.00025 | 80 | 18k | 8.0 | VGG16 model Freeze 18 layers, augmented night run, increased dropout to 0.40 |
 | 2.3d | 0.677 | 0.55 | 0.0005 | 40 | 18k | 2.7 | VGG16 model Freeze 18 layers, non-augmented |
-| 2.3e | ? | 0.55 | 0.0005 | 40 | 18k | 2.7 | VGG16 model Freeze 18 layers, non-augmented, double addon neurons |
+| 2.3e | 0.695 | 0.55 | 0.0005 | 40 | 18k | 2.6 | VGG16 model Freeze 18 layers, non-augmented, double addon neurons |
+| 2.3f | ? | 0.55 | 0.0005 | 40 | 18k | 2.7 | Augmented |
 
+#### v2.3f(sprint)
+<img src="/imgs/model_v2_3f.png" alt="Model v2_3f" width="800" height="400">
+
+* `/src/model_duck_v2_3.py`  
+* 2.3e with augmentation
 
 #### v2.3e(sprint)
 <img src="/imgs/model_v2_3e.png" alt="Model v2_3e" width="800" height="400">
