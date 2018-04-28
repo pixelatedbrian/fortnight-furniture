@@ -51,12 +51,37 @@
 | 2.2l | 0.738 | 0.55 | 0.00025 | 40 | 18k | 3.2 | With rotation augmentation nerfed to +-3 degrees |
 | 2.2m | 0.713 | 0.50 | 0.0005 | 40 | 18k | 3.2 | speed up initial learning then slow down thawed learning |
 | 2.2n | 0.743 | 0.55 | 0.00025 | 40 | 18k | 5.1 | Go back to 2.2l but turn on fancy_pca in image augmentation |
+| 2.2n | 0.744 | 0.55 | 0.00025 | 40 | 18k | 5.1 | 2.2n with imagenet averages subtracted out of images |
+| 2.2o | ? | 0.55 | 0.00025 | 40 | 18k | 5.1 | Go back to 2.2o but turn on fancy_pca in image augmentation |
 | 2.3a | 0.662 | 0.50 | 0.0005 | 40 | 18k | 4.0 | VGG16 model |
 | 2.3b | 0.692 | 0.30 | 0.0005 | 40 | 18k | 2.7 | VGG16 model Freeze 18 layers, non-augmented |
 | 2.3c | 0.680 | 0.40 | 0.00025 | 80 | 18k | 8.0 | VGG16 model Freeze 18 layers, augmented night run, increased dropout to 0.40 |
 | 2.3d | 0.677 | 0.55 | 0.0005 | 40 | 18k | 2.7 | VGG16 model Freeze 18 layers, non-augmented |
 | 2.3e | 0.695 | 0.55 | 0.0005 | 40 | 18k | 2.6 | VGG16 model Freeze 18 layers, non-augmented, double addon neurons |
-| 2.3f | ? | 0.55 | 0.0005 | 40 | 18k | 2.7 | Augmented |
+| 2.3f | 0.680 | 0.55 | 0.0005 | 40 | 18k | 2.7 | Augmented |
+| 2.4a | 0.019 | 0.55 | 0.0005 | 40 | 18k | 2.7 | ResNet 50, for some reason train and test are diverging ridiculously |
+| 2.4b | 0.018 | 0.55 | 0.0005 | 40 | 18k | 2.7 | Experimented a lot, still happening |
+
+#### v2.4c(print)
+<img src="/imgs/model_v2_4c.png" alt="Model v2_4c" width="800" height="400">
+
+* `/src/model_eagle_v2_4.py`  
+* Going to fit a model for ~5 epochs, then use FireBot to make predictions on the same data that was used to train.  The error should be similar, if not the same. If the accuracy is still ~1% then almost certainly something is wrong with the predictions coming out of the model.
+
+#### v2.4b(sprint)
+<img src="/imgs/model_v2_4b.png" alt="Model v2_4b" width="800" height="400">
+
+* `/src/model_eagle_v2_4.py`  
+* Pretty convinced that something is going very wrong with the predict part of this model.
+* Next run I will try to predict on the train data and evaluate the error of the predictions
+
+#### v2.4a(sprint)
+<img src="/imgs/model_v2_4a.png" alt="Model v2_4a" width="800" height="400">
+
+* `/src/model_eagle_v2_4.py`  
+* Implemented ResNet 50 but it is going horribly wrong and for some reason predictions are essentially random
+* I don't think that it is an over fitting problem because it's consistent even when train accuracy is very low too
+* Model seems like it would have more potential than VGG16 but predictions are totally messed up
 
 #### v2.3f(sprint)
 <img src="/imgs/model_v2_3f.png" alt="Model v2_3f" width="800" height="400">
@@ -102,11 +127,17 @@
 * VGG16 model first run
 * Try to start unfreezing layers after mini-train 1, starting with 18th layer
 
+#### v2.2p(sprint)
+<img src="/imgs/model_v2_2o.png" alt="Model v2_2o" width="800" height="400">
+
+* `/src/model_cactuswren_v2_2.py`  
+* Re-enable fancy_pca after working through some LoaderBot improvements.
+
 #### v2.2o(sprint)
 <img src="/imgs/model_v2_2o.png" alt="Model v2_2o" width="800" height="400">
 
 * `/src/model_cactuswren_v2_2.py`  
-* Lower color perturbation of fancy_pca
+* Subtract imagenet averages from images
 
 #### v2.2n(sprint)
 <img src="/imgs/model_v2_2n.png" alt="Model v2_2n" width="800" height="400">
