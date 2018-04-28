@@ -17,8 +17,8 @@ from keras.layers.convolutional import Conv2D, MaxPooling2D
 # import glob
 import json
 
-# from loader_bot_omega import LoaderBot   # dynamic full image augmentation
-from loader_bot import LoaderBot
+from loader_bot_omega import LoaderBot   # dynamic full image augmentation
+# from loader_bot import LoaderBot
 
 import time
 from splitter import get_skfold_data
@@ -242,7 +242,7 @@ def run():
 
     # NB_IV3_LAYERS_TO_FREEZE = 172
     NB_IV3_LAYERS_TO_FREEZE = 18
-    MODEL_ID = 'v2_3e'
+    MODEL_ID = 'v2_3g'
 
     plot_file = "model_{:}.png".format(MODEL_ID)
     weights_file = "weights/model_{:}_weights.h5".format(MODEL_ID)
@@ -256,23 +256,23 @@ def run():
               'n_channels': 3,
               'shuffle': False}
 
-    # # These parameters are for LoaderBot v2.0
-    # # Parameters for Generators
-    # params = {'dim': (224, 224),
-    #           'batch_size': 64,
-    #           'n_classes': 128,
-    #           'n_channels': 3,
-    #           'augmentation': AUGMENTATION,
-    #           'shuffle': True}
-    #
-    # # Parameters for Generators
-    # test_params = {'dim': (299, 299),
-    #                'batch_size': 64,
-    #                'n_classes': 128,
-    #                'n_channels': 3,
-    #                'augmentation': 1,
-    #                'augment': False,
-    #                'shuffle': True}
+    # These parameters are for LoaderBot v2.0
+    # Parameters for Generators
+    params = {'dim': (224, 224),
+              'batch_size': 64,
+              'n_classes': 128,
+              'n_channels': 3,
+              'augmentation': AUGMENTATION,
+              'shuffle': True}
+
+    # Parameters for Generators
+    test_params = {'dim': (224, 224),
+                   'batch_size': 64,
+                   'n_classes': 128,
+                   'n_channels': 3,
+                   'augmentation': 1,
+                   'augment': False,
+                   'shuffle': True}
 
     # Datasets
     X_train_img_paths = data_link_dict["X_test_2"]
@@ -283,7 +283,7 @@ def run():
 
     # Generators
     training_generator = LoaderBot(X_train_img_paths, y_train, **params)
-    validation_generator = LoaderBot(X_test_img_paths, y_test, **params)
+    validation_generator = LoaderBot(X_test_img_paths, y_test, **test_params)
 
     # setup model
     # base_model = InceptionV3(weights='imagenet', include_top=False) #include_top=False excludes final FC layer
@@ -318,7 +318,7 @@ def run():
     # mini-train 2
     OPTIMIZER = Adam(lr=LR / 2.0, decay=DECAY)
     # try to fine tune some of the InceptionV3 layers also
-    setup_to_finetune(model, NB_IV3_LAYERS_TO_FREEZE - 1, OPTIMIZER)
+    setup_to_finetune(model, NB_IV3_LAYERS_TO_FREEZE - 2, OPTIMIZER)
 
     print("\n\n        Starting epoch {:}\n\n".format(EPOCHS + 1))
 
@@ -331,7 +331,7 @@ def run():
     # mini-train 3
     OPTIMIZER = Adam(lr=LR / 4.0, decay=DECAY)
     # try to fine tune some of the InceptionV3 layers also
-    setup_to_finetune(model, NB_IV3_LAYERS_TO_FREEZE - 2, OPTIMIZER)
+    setup_to_finetune(model, NB_IV3_LAYERS_TO_FREEZE - 4, OPTIMIZER)
 
     print("\n\n        Starting epoch {:}\n\n".format(EPOCHS * 2 + 1))
 
@@ -344,7 +344,7 @@ def run():
     # mini-train 4
     OPTIMIZER = Adam(lr=LR / 8.0, decay=DECAY)
     # try to fine tune some of the InceptionV3 layers also
-    setup_to_finetune(model, NB_IV3_LAYERS_TO_FREEZE - 3, OPTIMIZER)
+    setup_to_finetune(model, NB_IV3_LAYERS_TO_FREEZE - 6, OPTIMIZER)
 
     print("\n\n        Starting epoch {:}\n\n".format(EPOCHS * 3 + 1))
 

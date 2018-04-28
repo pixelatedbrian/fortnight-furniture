@@ -78,14 +78,14 @@ def fancy_pca(img, alpha_std=100):
     # https://gist.github.com/akemisetti/ecf156af292cd2a0e4eb330757f415d2
 
     Inputs:
-    img:  numpy array with (h, w, rgb) shape
+    img:  numpy array with (h, w, rgb) shape, as ints between 0-255)
     alpha_std:  how much to perturb/scale the eigen vecs and vals
                 the paper used std=0.1 but having cranked it up to 100 I see some color
                 and hue anomolies which honestly I've seen during EDA as well.
                 However this is effectively a hyperparameter that needs to be tuned some.
 
     Returns:
-    numpy image-like array
+    numpy image-like array as float range(0, 1)
     '''
 
     orig_img = img.astype(float).copy()
@@ -121,7 +121,7 @@ def fancy_pca(img, alpha_std=100):
 
     # get 3x1 matrix of eigen values multiplied by random variable draw from normal
     # distribution with mean of 0 and standard deviation of 0.1
-    m2 = np.zeros((3,1))
+    m2 = np.zeros((3, 1))
     # according to the paper alpha should only be draw once per augmentation (not once per channel)
     alpha = np.random.normal(0, alpha_std)
 
@@ -136,11 +136,11 @@ def fancy_pca(img, alpha_std=100):
 
     # for image processing it was found that working with float 0.0 to 1.0
     # was easier than integers between 0-255
-    orig_img /= 255.0
-    orig_img = np.clip(orig_img, 0.0, 1.0)
+    # orig_img /= 255.0
+    orig_img = np.clip(orig_img, 0.0, 255.0)
 
-    orig_img = (orig_img * 255)
-    orig_img = orig_img.astype(int)
+    # orig_img *= 255
+    orig_img = orig_img.astype(np.uint8)
 
     # about 100x faster after vectorizing the numpy, it will be even faster later
     # since currently it's working on full size images and not small, square
@@ -405,6 +405,10 @@ class LoaderBot(keras.utils.Sequence):
             # For some reason CV2 loads as BGR instead of RGB
             temp = cv2.imread(ID)
 
+            # Store class
+            # y[i] = self.labels[ID]
+            y[i] = int(ID.split("/")[-1].split(".")[0].split("_")[-1]) - 1
+
             # do some error checking because some files suck
             # for example some files are shape(1, 1, 3)
             # if temp.shape[0] is 1 or temp.shape[1] is 1:
@@ -436,7 +440,7 @@ class LoaderBot(keras.utils.Sequence):
                 if _rot is 1:
                     # figure out how much rotation (should be about -15 to 15 degrees
                     # but a normal distribution centered on 0)
-                    _rotation = np.random.normal() * 1 - 0.5
+                    _rotation = np.random.normal(0, 0.5)
 
                     # rotate and THEN also crop so there's not a lot of black on the
                     # edges
@@ -447,9 +451,13 @@ class LoaderBot(keras.utils.Sequence):
                 # get the sub-crop of the bigger image
                 temp_img = image_sub_select(temp_img)
 
+                # do fancy PCA color augmentation
+                # temp_img = fancy_pca(temp_img, alpha_std=0.1)
+
             else:
                 # just get the middle of the image, resized to 299^2
                 temp_img = crop_image(temp_img)
+                # print("ID:", ID, "Label:", y[i])
 
             try:
                 # image is just a square but not necessarily 299px x 299px
@@ -462,21 +470,21 @@ class LoaderBot(keras.utils.Sequence):
                 print("pre_crop", pre_crop.shape)
                 print("new size:", temp_img.shape)
 
-            # do fancy PCA color augmentation
-            completed_img = fancy_pca(resized, alpha_std=0.1)
+            resized = resized / 255.0   # convert to float
 
-            X[i, ] = completed_img
+            # remove imagenet means from values
+            resized[..., 0] -= (103.939 / 255.0)    # red
+            resized[..., 1] -= (116.779 / 255.0)    # green
+            resized[..., 2] -= (123.68 / 255.0)     # blue
 
-            # Store class
-            # y[i] = self.labels[ID]
-            y[i] = int(ID.split("/")[-1].split(".")[0].split("_")[-1]) - 1
+            X[i, ] = resized
 
         # Inceptionv3 was trained on images that were processed so that color
         # values varied between [-1, 1] therefore we need to do the same:
 
-        X /= 255.0
-        X -= 0.5
-        X *= 2.0
+        # X /= 255.0
+        # X -= 0.5   # can probably remove this since we subtracted the imagenet means
+        # X *= 2.0
 
         return X, keras.utils.to_categorical(y, num_classes=self.n_classes)
 

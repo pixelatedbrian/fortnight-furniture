@@ -1,7 +1,11 @@
-from keras.applications import InceptionV3
-# from keras.applications.inception_v3 import preprocess_input
-# from keras.preprocessing.image import img_to_array
-# from keras.preprocessing.image import load_img
+# from keras.applications import InceptionV3
+# from keras.applications.vgg16 import VGG16
+from keras.applications.resnet50 import ResNet50
+
+# REFERENCES:
+
+# VGG16
+# https://arxiv.org/abs/1409.1556
 
 from keras.optimizers import Adam, SGD
 
@@ -40,7 +44,7 @@ def setup_to_transfer_learn(model, base_model, optimizer):
     model.compile(optimizer=optimizer, loss='categorical_crossentropy', metrics=['accuracy'])
 
 
-def add_brian_layers(base_model, num_classes, dropout=0.2):
+def add_brian_layers(base_model, num_classes, dropout=0.5):
     """Add last layer to the convnet
     Args:
     base_model: keras model excluding top
@@ -69,7 +73,7 @@ def add_brian_layers(base_model, num_classes, dropout=0.2):
     return model
 
 
-def add_new_last_layer(base_model, nb_classes):
+def add_double_brian_layers(base_model, num_classes, dropout=0.5):
     """Add last layer to the convnet
     Args:
     base_model: keras model excluding top
@@ -79,9 +83,19 @@ def add_new_last_layer(base_model, nb_classes):
     """
     x = base_model.output
     x = GlobalAveragePooling2D()(x)
-    x = Dense(FC_SIZE, activation='relu')(x) #new FC layer, random init
+    x = Dense(2048, activation='relu', kernel_initializer='he_normal')(x) #new FC layer, random init
+    # x = Dense(1024, activation='relu')(x)
+    x = Dropout(dropout)(x)
 
-    predictions = Dense(nb_classes, activation='softmax')(x) #new softmax layer
+    x = Dense(1024, activation='relu', kernel_initializer='he_normal')(x) #new FC layer, random init
+    # x = Dense(512, activation='relu')(x) #new FC layer, random init
+    x = Dropout(dropout)(x)
+
+    x = Dense(512, activation='relu', kernel_initializer='he_normal')(x) #new FC layer, random init
+    # x = Dense(256, activation='relu')(x) #new FC layer, random init
+    x = Dropout(dropout)(x)
+
+    predictions = Dense(num_classes, activation='softmax')(x) #new softmax layer
 
     model = Model(inputs=base_model.input, outputs=predictions)
 
@@ -204,15 +218,15 @@ def plot_hist(history, info_str, epochs=2, augmentation=1, sprint=False):
 
 
 def run():
-    # data_link_dict = get_skfold_data(path="../data/imgs/*.jpg")
+    data_link_dict = get_skfold_data(path="../data/imgs/*.jpg")
     start_time = time.time()
 
     # decommisioned because inflight data augmentation solves a lot of these
     # problems
 
     # Use json to load the permanent dictionary that has been Created
-    with open("../data/data_splits.json") as infile:
-        data_link_dict = json.load(infile)
+    # with open("../data/data_splits.json") as infile:
+    #     data_link_dict = json.load(infile)
 
     EPOCHS = 10
     AUGMENTATION = 1    # could do 3 epochs of 10 augmentation or 30 of 1 which
@@ -222,13 +236,14 @@ def run():
 
     # for Adam inital LR of 0.0001 is a good starting point
     # for SGD initial LR of 0.001 is a good starting point
-    LR = 0.00025
+    LR = 0.000025
     DECAY = 0.5e-6
     OPTIMIZER = Adam(lr=LR, decay=DECAY)
     # OPTIMIZER = SGD(lr=LR, momentum=0.9, nesterov=True)
 
-    NB_IV3_LAYERS_TO_FREEZE = 172
-    MODEL_ID = 'v2_2p'
+    # NB_IV3_LAYERS_TO_FREEZE = 172
+    NB_IV3_LAYERS_TO_FREEZE = 178
+    MODEL_ID = 'v2_4b'
 
     plot_file = "model_{:}.png".format(MODEL_ID)
     weights_file = "weights/model_{:}_weights.h5".format(MODEL_ID)
@@ -236,29 +251,24 @@ def run():
 
     # # user parameters for LoaderBot v1.0
     # # Parameters for Generators
-    # params = {'dim': (299, 299),
-    #           'batch_size': 256,
+    # params = {'dim': (224, 224),
+    #           'batch_size': 64,
     #           'n_classes': 128,
     #           'n_channels': 3,
     #           'shuffle': False}
 
     # These parameters are for LoaderBot v2.0
     # Parameters for Generators
-    params = {'dim': (299, 299),
-              'batch_size': 256,
-              'n_classes': 128,
-              'n_channels': 3,
+    params = {'dim': (224, 224),
+              'batch_size': 64,
               'augmentation': AUGMENTATION,
+              'augment':False,
               'shuffle': True}
-    #
+
     # Parameters for Generators
-    test_params = {'dim': (299, 299),
-                   'batch_size': 256,
-                   'n_classes': 128,
-                   'n_channels': 3,
-                   'augmentation': 1,
-                   'augment': False,
-                   'shuffle': True}
+    test_params = {'dim': (224, 224),
+                   'batch_size': 64,
+                   'augment': False}
 
     # Datasets
     X_train_img_paths = data_link_dict["X_test_2"]
@@ -272,14 +282,28 @@ def run():
     validation_generator = LoaderBot(X_test_img_paths, y_test, **test_params)
 
     # setup model
-    base_model = InceptionV3(weights='imagenet', include_top=False) #include_top=False excludes final FC layer
-    model = add_brian_layers(base_model, 128, DO)
+    # base_model = InceptionV3(weights='imagenet', include_top=False) #include_top=False excludes final FC layer
+    base_model = ResNet50(include_top=False, weights='imagenet')
 
-    print(model.summary())
+    # seems like in Keras not including the top will exclude the FC layers at the
+    # top, not just the softmax categories
+    # # try to pop some layers to get to the top 'maxpool' then rebuild from there
+    # base_model.pop()
+    # base_model.pop()
+    # base_model.pop()
+    #
+    # base_model.summary()
+
+    model = add_double_brian_layers(base_model, 128, DO)
 
     # mini-train 1, like normal
     # transfer learning
     setup_to_transfer_learn(model, base_model, OPTIMIZER)
+
+    model.summary()
+
+    # print("model layers:", model.layers)
+    print("len model layers:", len(model.layers))
 
     # Run model
     history_t1 = model.fit_generator(generator=training_generator,
