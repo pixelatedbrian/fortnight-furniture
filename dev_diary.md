@@ -52,7 +52,7 @@
 | 2.2m | 0.713 | 0.50 | 0.0005 | 40 | 18k | 3.2 | speed up initial learning then slow down thawed learning |
 | 2.2n | 0.743 | 0.55 | 0.00025 | 40 | 18k | 5.1 | Go back to 2.2l but turn on fancy_pca in image augmentation |
 | 2.2n | 0.744 | 0.55 | 0.00025 | 40 | 18k | 5.1 | 2.2n with imagenet averages subtracted out of images |
-| 2.2o | ? | 0.55 | 0.00025 | 40 | 18k | 5.1 | Go back to 2.2o but turn on fancy_pca in image augmentation |
+| 2.2o | 0.710 | 0.55 | 0.00025 | 40 | 18k | 5.1 | Go back to 2.2o but turn on fancy_pca in image augmentation |
 | 2.3a | 0.662 | 0.50 | 0.0005 | 40 | 18k | 4.0 | VGG16 model |
 | 2.3b | 0.692 | 0.30 | 0.0005 | 40 | 18k | 2.7 | VGG16 model Freeze 18 layers, non-augmented |
 | 2.3c | 0.680 | 0.40 | 0.00025 | 80 | 18k | 8.0 | VGG16 model Freeze 18 layers, augmented night run, increased dropout to 0.40 |
@@ -61,6 +61,7 @@
 | 2.3f | 0.680 | 0.55 | 0.0005 | 40 | 18k | 2.7 | Augmented |
 | 2.4a | 0.019 | 0.55 | 0.0005 | 40 | 18k | 2.7 | ResNet 50, for some reason train and test are diverging ridiculously |
 | 2.4b | 0.018 | 0.55 | 0.0005 | 40 | 18k | 2.7 | Experimented a lot, still happening |
+| 2.2p | ? | 0.55 | 0.00025 | 40 | 18k | 5.1 | try L1 regularization |
 
 #### v2.4c(print)
 <img src="/imgs/model_v2_4c.png" alt="Model v2_4c" width="800" height="400">
