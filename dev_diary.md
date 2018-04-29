@@ -61,7 +61,8 @@
 | 2.3f | 0.680 | 0.55 | 0.0005 | 40 | 18k | 2.7 | Augmented |
 | 2.4a | 0.019 | 0.55 | 0.0005 | 40 | 18k | 2.7 | ResNet 50, for some reason train and test are diverging ridiculously |
 | 2.4b | 0.018 | 0.55 | 0.0005 | 40 | 18k | 2.7 | Experimented a lot, still happening |
-| 2.2p | ? | 0.55 | 0.00025 | 40 | 18k | 5.1 | try L1 regularization |
+| 2.2p | 0.746 | 0.55 | 0.00025 | 40 | 18k | 3.3 | try L1 regularization 0.00001|
+| 2.2q | ? | 0.55 | 0.00025 | 40 | 18k | 3.3 | try L1 regularization 0.0001|
 
 #### v2.4c(print)
 <img src="/imgs/model_v2_4c.png" alt="Model v2_4c" width="800" height="400">
