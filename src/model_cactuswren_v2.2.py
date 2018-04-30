@@ -10,6 +10,7 @@ from keras.models import  Sequential, Model
 from keras.layers import Dense, Dropout, Flatten, Activation, GlobalAveragePooling2D
 from keras.layers.convolutional import Conv2D, MaxPooling2D
 # from keras.callbacks import EarlyStopping
+from keras import regularizers
 
 # import glob
 import json
@@ -38,6 +39,80 @@ def setup_to_transfer_learn(model, base_model, optimizer):
         layer.trainable = False
 
     model.compile(optimizer=optimizer, loss='categorical_crossentropy', metrics=['accuracy'])
+
+
+def regular_brian_layers(base_model, num_classes, dropout=0.2, l1_reg=0.01):
+    """Add last layer to the convnet
+    Args:
+    base_model: keras model excluding top
+    nb_classes: # of classes
+    Returns:
+    new keras model with last layer
+    """
+    x = base_model.output
+    x = GlobalAveragePooling2D()(x)
+    x = Dense(1024,
+              activation='relu',
+              kernel_initializer='he_normal',
+              kernel_regularizer=regularizers.l1(l1_reg))(x) #new FC layer, random init
+    # x = Dense(1024, activation='relu')(x)
+    x = Dropout(dropout)(x)
+
+    x = Dense(512,
+              activation='relu',
+              kernel_initializer='he_normal',
+              kernel_regularizer=regularizers.l1(l1_reg))(x) #new FC layer, random init
+    # x = Dense(512, activation='relu')(x) #new FC layer, random init
+    x = Dropout(dropout)(x)
+
+    x = Dense(256,
+              activation='relu',
+              kernel_initializer='he_normal',
+              kernel_regularizer=regularizers.l1(l1_reg))(x) #new FC layer, random init    # x = Dense(256, activation='relu')(x) #new FC layer, random init
+    x = Dropout(dropout)(x)
+
+    predictions = Dense(num_classes, activation='softmax')(x) #new softmax layer
+
+    model = Model(inputs=base_model.input, outputs=predictions)
+
+    return model
+
+
+def double_regular_brian_layers(base_model, num_classes, dropout=0.2, l1_reg=0.01):
+    """Add last layer to the convnet
+    Args:
+    base_model: keras model excluding top
+    nb_classes: # of classes
+    Returns:
+    new keras model with last layer
+    """
+    x = base_model.output
+    x = GlobalAveragePooling2D()(x)
+    x = Dense(2048,
+              activation='relu',
+              kernel_initializer='he_normal',
+              kernel_regularizer=regularizers.l1(l1_reg))(x) #new FC layer, random init
+    # x = Dense(1024, activation='relu')(x)
+    x = Dropout(dropout)(x)
+
+    x = Dense(1024,
+              activation='relu',
+              kernel_initializer='he_normal',
+              kernel_regularizer=regularizers.l1(l1_reg))(x) #new FC layer, random init
+    # x = Dense(512, activation='relu')(x) #new FC layer, random init
+    x = Dropout(dropout)(x)
+
+    x = Dense(512,
+              activation='relu',
+              kernel_initializer='he_normal',
+              kernel_regularizer=regularizers.l1(l1_reg))(x) #new FC layer, random init    # x = Dense(256, activation='relu')(x) #new FC layer, random init
+    x = Dropout(dropout)(x)
+
+    predictions = Dense(num_classes, activation='softmax')(x) #new softmax layer
+
+    model = Model(inputs=base_model.input, outputs=predictions)
+
+    return model
 
 
 def add_brian_layers(base_model, num_classes, dropout=0.2):
@@ -228,7 +303,7 @@ def run():
     # OPTIMIZER = SGD(lr=LR, momentum=0.9, nesterov=True)
 
     NB_IV3_LAYERS_TO_FREEZE = 172
-    MODEL_ID = 'v2_2p'
+    MODEL_ID = 'v2_2s'
 
     plot_file = "model_{:}.png".format(MODEL_ID)
     weights_file = "weights/model_{:}_weights.h5".format(MODEL_ID)
@@ -273,7 +348,7 @@ def run():
 
     # setup model
     base_model = InceptionV3(weights='imagenet', include_top=False) #include_top=False excludes final FC layer
-    model = add_brian_layers(base_model, 128, DO)
+    model = regular_brian_layers(base_model, 128, DO, l1_reg=0.0001)
 
     print(model.summary())
 
@@ -284,7 +359,7 @@ def run():
     # Run model
     history_t1 = model.fit_generator(generator=training_generator,
                                      validation_data=validation_generator,
-                                     epochs=EPOCHS,
+                                     epochs=EPOCHS * 3,
                                      use_multiprocessing=False)
 
     # mini-train 2
@@ -299,32 +374,32 @@ def run():
                                      validation_data=validation_generator,
                                      epochs=EPOCHS,
                                      use_multiprocessing=False)
-
-    # mini-train 3
-    OPTIMIZER = Adam(lr=LR / 4.0, decay=DECAY)
-    # try to fine tune some of the InceptionV3 layers also
-    setup_to_finetune(model, NB_IV3_LAYERS_TO_FREEZE - 4, OPTIMIZER)
-
-    print("\n\n        Starting epoch {:}\n\n".format(EPOCHS * 2 + 1))
-
-    # Run model
-    history_t3 = model.fit_generator(generator=training_generator,
-                                     validation_data=validation_generator,
-                                     epochs=EPOCHS,
-                                     use_multiprocessing=False)
-
-    # mini-train 4
-    OPTIMIZER = Adam(lr=LR / 8.0, decay=DECAY)
-    # try to fine tune some of the InceptionV3 layers also
-    setup_to_finetune(model, NB_IV3_LAYERS_TO_FREEZE - 6, OPTIMIZER)
-
-    print("\n\n        Starting epoch {:}\n\n".format(EPOCHS * 3 + 1))
-
-    # Run model
-    history_t4 = model.fit_generator(generator=training_generator,
-                                     validation_data=validation_generator,
-                                     epochs=EPOCHS,
-                                     use_multiprocessing=False)
+    #
+    # # mini-train 3
+    # OPTIMIZER = Adam(lr=LR / 4.0, decay=DECAY)
+    # # try to fine tune some of the InceptionV3 layers also
+    # setup_to_finetune(model, NB_IV3_LAYERS_TO_FREEZE - 4, OPTIMIZER)
+    #
+    # print("\n\n        Starting epoch {:}\n\n".format(EPOCHS * 2 + 1))
+    #
+    # # Run model
+    # history_t3 = model.fit_generator(generator=training_generator,
+    #                                  validation_data=validation_generator,
+    #                                  epochs=EPOCHS,
+    #                                  use_multiprocessing=False)
+    #
+    # # mini-train 4
+    # OPTIMIZER = Adam(lr=LR / 8.0, decay=DECAY)
+    # # try to fine tune some of the InceptionV3 layers also
+    # setup_to_finetune(model, NB_IV3_LAYERS_TO_FREEZE - 6, OPTIMIZER)
+    #
+    # print("\n\n        Starting epoch {:}\n\n".format(EPOCHS * 3 + 1))
+    #
+    # # Run model
+    # history_t4 = model.fit_generator(generator=training_generator,
+    #                                  validation_data=validation_generator,
+    #                                  epochs=EPOCHS,
+    #                                  use_multiprocessing=False)
 
     # save the weights in case we want to predict on them later
     model.save(weights_file)
@@ -335,17 +410,17 @@ def run():
     history_tl["loss"] += history_t2.history["loss"]
     history_tl["val_loss"] += history_t2.history["val_loss"]
     #
-    history_tl = history_t1.history
-    history_tl["acc"] += history_t3.history["acc"]
-    history_tl["val_acc"] += history_t3.history["val_acc"]
-    history_tl["loss"] += history_t3.history["loss"]
-    history_tl["val_loss"] += history_t3.history["val_loss"]
-
-    history_tl = history_t1.history
-    history_tl["acc"] += history_t4.history["acc"]
-    history_tl["val_acc"] += history_t4.history["val_acc"]
-    history_tl["loss"] += history_t4.history["loss"]
-    history_tl["val_loss"] += history_t4.history["val_loss"]
+    # history_tl = history_t1.history
+    # history_tl["acc"] += history_t3.history["acc"]
+    # history_tl["val_acc"] += history_t3.history["val_acc"]
+    # history_tl["loss"] += history_t3.history["loss"]
+    # history_tl["val_loss"] += history_t3.history["val_loss"]
+    #
+    # history_tl = history_t1.history
+    # history_tl["acc"] += history_t4.history["acc"]
+    # history_tl["val_acc"] += history_t4.history["val_acc"]
+    # history_tl["loss"] += history_t4.history["loss"]
+    # history_tl["val_loss"] += history_t4.history["val_loss"]
 
     plot_hist(history_tl, plot_file, epochs=len(history_tl["acc"]), sprint=True)
 

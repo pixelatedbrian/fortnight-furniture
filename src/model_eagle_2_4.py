@@ -1,6 +1,9 @@
 # from keras.applications import InceptionV3
 # from keras.applications.vgg16 import VGG16
-from keras.applications.resnet50 import ResNet50
+from keras.applications.resnet50 import ResNet50    # keras stand-alone?
+# from tensorflow.contrib.keras.applications import ResNet50
+
+# import tensorflow.contrib.keras.applications.ResNet50
 
 # REFERENCES:
 
@@ -243,7 +246,7 @@ def run():
 
     # NB_IV3_LAYERS_TO_FREEZE = 172
     NB_IV3_LAYERS_TO_FREEZE = 178
-    MODEL_ID = 'v2_4b'
+    MODEL_ID = 'v2_4c'
 
     plot_file = "model_{:}.png".format(MODEL_ID)
     weights_file = "weights/model_{:}_weights.h5".format(MODEL_ID)
@@ -262,7 +265,7 @@ def run():
     params = {'dim': (224, 224),
               'batch_size': 64,
               'augmentation': AUGMENTATION,
-              'augment':False,
+              'augment': False,
               'shuffle': True}
 
     # Parameters for Generators

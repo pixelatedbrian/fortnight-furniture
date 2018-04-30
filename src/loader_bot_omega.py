@@ -440,7 +440,7 @@ class LoaderBot(keras.utils.Sequence):
                 if _rot is 1:
                     # figure out how much rotation (should be about -15 to 15 degrees
                     # but a normal distribution centered on 0)
-                    _rotation = np.random.normal(0, 0.5)
+                    _rotation = np.random.normal(0, 1.0)
 
                     # rotate and THEN also crop so there's not a lot of black on the
                     # edges
@@ -452,7 +452,7 @@ class LoaderBot(keras.utils.Sequence):
                 temp_img = image_sub_select(temp_img)
 
                 # do fancy PCA color augmentation
-                # temp_img = fancy_pca(temp_img, alpha_std=0.1)
+                temp_img = fancy_pca(temp_img, alpha_std=1.0)
 
             else:
                 # just get the middle of the image, resized to 299^2
