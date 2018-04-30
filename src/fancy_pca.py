@@ -1,10 +1,26 @@
 import numpy as np
 
 
-def fancy_pca(img, alpha_std=100):
+def fancy_pca(img, alpha_std=0.1):
     '''
-    take in an image and does PCA to augment the colors while maintaing the structure of
-    the image.
+    INPUTS:
+    img:  numpy array with (h, w, rgb) shape, as ints between 0-255)
+    alpha_std:  how much to perturb/scale the eigen vecs and vals
+                the paper used std=0.1
+
+    RETURNS:
+    numpy image-like array as float range(0, 1)
+
+    NOTE: Depending on what is originating the image data and what is receiving
+    the image data returning the values in the expected form is very important
+    in having this work correctly. If you receive the image values as UINT 0-255
+    then it's probably best to return in the same format. (As this
+    implementation does). If the image comes in as float values ranging from
+    0.0 to 1.0 then this function should be modified to return the same.
+
+    Otherwise this can lead to very frustrating and difficult to troubleshoot
+    problems in the image processing pipeline.
+
 
     This is 'Fancy PCA' from:
     # http://papers.nips.cc/paper/4824-imagenet-classification-with-deep-convolutional-neural-networks.pdf
@@ -34,16 +50,6 @@ def fancy_pca(img, alpha_std=100):
     Other useful resources for getting this working:
     # https://groups.google.com/forum/#!topic/lasagne-users/meCDNeA9Ud4
     # https://gist.github.com/akemisetti/ecf156af292cd2a0e4eb330757f415d2
-
-    Inputs:
-    img:  numpy array with (h, w, rgb) shape, as ints between 0-255)
-    alpha_std:  how much to perturb/scale the eigen vecs and vals
-                the paper used std=0.1 but having cranked it up to 100 I see some color
-                and hue anomolies which honestly I've seen during EDA as well.
-                However this is effectively a hyperparameter that needs to be tuned some.
-
-    Returns:
-    numpy image-like array as float range(0, 1)
     '''
 
     orig_img = img.astype(float).copy()
