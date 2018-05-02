@@ -67,7 +67,9 @@
 | 2.2s | 0.710 | 0.55 | 0.00025 | 40 | 18k | 3.3 | try regularized double brian layers of 30 epochs, then 10 epochs unfrozen 2 |
 | 2.2t | 0.735 | 0.55 | 0.00025 | 40 | 18k | 11.7 | increase first rounds (L1 regularized) epochs to 100 |
 | 2.2u | 0.750 | 0.55 | 0.00025 | 40 | 18k | 6.6 | increase first rounds epochs to 30, run 2nd minibatch 30, then last 2 bathes 10 epochs each. New record for Sprints |
-| 2.2v | 0.743 | 0.55 | 0.00025 | 40 | 18k | ? | image augmentation engine v3 rewrite, 4 minibatch of 10 |
+| 2.2v | 0.743 | 0.55 | 0.00025 | 40 | 18k | 3.2 | image augmentation engine v3 rewrite, 4 minibatch of 10 |
+| 2.2w | 0.822 | 0.55 | 0.00025 | 40 | 18k | 24.7 | normal 4 minibatch of 10 epochs with aug v3... on full 80% data |
+| 2.2v | ? | 0.55 | 0.00025 | 40 | 18k | 3? | aug v3 4x minibatch, decreased fancy_pca STD from 1.0 to 0.1 like paper advises |
 
 #### v2.4c(print)
 <img src="/imgs/model_v2_4c.png" alt="Model v2_4c" width="800" height="400">
