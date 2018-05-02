@@ -303,7 +303,7 @@ def run():
     # OPTIMIZER = SGD(lr=LR, momentum=0.9, nesterov=True)
 
     NB_IV3_LAYERS_TO_FREEZE = 172
-    MODEL_ID = 'v2_2t'
+    MODEL_ID = 'v2_2y'
 
     plot_file = "model_{:}.png".format(MODEL_ID)
     weights_file = "weights/model_{:}_weights.h5".format(MODEL_ID)
@@ -336,11 +336,11 @@ def run():
                    'shuffle': True}
 
     # Datasets
-    X_train_img_paths = data_link_dict["X_test_2"]
-    y_train = data_link_dict["y_test_2"]
+    X_train_img_paths = data_link_dict["X_test_1"]
+    y_train = data_link_dict["y_test_1"]
 
-    X_test_img_paths = data_link_dict["X_test_3"]
-    y_test = data_link_dict["y_test_3"]
+    X_test_img_paths = data_link_dict["X_test_2"]
+    y_test = data_link_dict["y_test_2"]
 
     # Generators
     training_generator = LoaderBot(X_train_img_paths, y_train, **params)
@@ -350,7 +350,7 @@ def run():
     base_model = InceptionV3(weights='imagenet', include_top=False) #include_top=False excludes final FC layer
     model = regular_brian_layers(base_model, 128, DO, l1_reg=0.0001)
 
-    print(model.summary())
+    # print(model.summary())
 
     # mini-train 1, like normal
     # transfer learning
@@ -359,11 +359,11 @@ def run():
     # Run model
     history_t1 = model.fit_generator(generator=training_generator,
                                      validation_data=validation_generator,
-                                     epochs=EPOCHS * 10,
+                                     epochs=EPOCHS * 2,
                                      use_multiprocessing=False)
 
     # mini-train 2
-    OPTIMIZER = Adam(lr=LR / 2.0, decay=DECAY)
+    OPTIMIZER = Adam(lr=LR / 8.0, decay=DECAY)
     # try to fine tune some of the InceptionV3 layers also
     setup_to_finetune(model, NB_IV3_LAYERS_TO_FREEZE - 2, OPTIMIZER)
 
@@ -372,11 +372,11 @@ def run():
     # Run model
     history_t2 = model.fit_generator(generator=training_generator,
                                      validation_data=validation_generator,
-                                     epochs=EPOCHS,
+                                     epochs=EPOCHS * 3,
                                      use_multiprocessing=False)
 
     # mini-train 3
-    OPTIMIZER = Adam(lr=LR / 4.0, decay=DECAY)
+    OPTIMIZER = Adam(lr=LR / 8.0, decay=DECAY)
     # try to fine tune some of the InceptionV3 layers also
     setup_to_finetune(model, NB_IV3_LAYERS_TO_FREEZE - 4, OPTIMIZER)
 
