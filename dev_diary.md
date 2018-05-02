@@ -70,7 +70,113 @@
 | 2.2v | 0.743 | 0.55 | 0.00025 | 40 | 18k | 3.2 | image augmentation engine v3 rewrite, 4 minibatch of 10 |
 | 2.2w | 0.822 | 0.55 | 0.00025 | 40 | 180k | 24.7 | normal 4 minibatch of 10 epochs with aug v3... on full 90% data |
 | 2.2x | 0.744 | 0.55 | 0.00025 | 40 | 18k | 1.8 | aug v3 4x minibatch, decreased fancy_pca STD from 1.0 to 0.1 like paper advises |
-| 2.2y | ? | 0.55 | 0.00025 | 70 | 18k | 3.2 | aug v3 4x minibatch but R1: 20 epochs, R2: 30E, R3: 10E, R4: 10E, reduced R2-4 LR to lr/8 |
+| 2.2y | 0.731 | 0.55 | 0.00025 | 70 | 18k | 3.2 | aug v3 4x minibatch but R1: 20 epochs, R2: 30E, R3: 10E, R4: 10E, reduced R2-4 LR to lr/8 |
+| 2.5a | 0.742 | 0.55 | 0.00025 | 40 | 18K | 1.8 | Back to normal 4 mini-batch of 10 epochs, unfreezing 2 layers after 1st mini-train. Added L2 weight decay to unfrozen layers in mini-train 2+ | 
+| 2.5b | ? | 0.55 | 0.00025 | 40 | 18k | 1.8 | try L2 regularization 0.0001|
+
+#### v2.5b (sprint)
+<img src="/imgs/model_v2_5b.png" alt="Model v2_5b" width="800" height="400">
+
+* `/src/model_falcon_v2_5.py`
+* Increased L2 regularization value of 0.0001
+* ?
+
+#### v2.5a (sprint)
+<img src="/imgs/model_v2_5a.png" alt="Model v2_5a" width="800" height="400">
+
+* `/src/model_falcon_v2_5.py`
+* Started out by adding L2 regularization to the thawed layers
+* Initial L2 regularization value of 0.00001 used
+* Didn't do much
+
+### Looking at the charts the main problem is still overfitting
+ * The regularization on the 'brian layers' seems to have helped with the early mini-train overfitting issues
+ * There are still really bad divergences of train/test when the Inception layers start to get thawed.
+ * Searched for, and found, a way to add regularization to existing layers
+ * new version is model v2.5 which has regularization in the thawed layers as well
+ * starting out trying L2 regularization and then may try L1 since it helped on my added layers
+
+#### v2.2y (sprint)
+<img src="/imgs/model_v2_2y.png" alt="Model v2_2y" width="800" height="400">
+
+* `/src/model_cactuswren_v2_2.py`  
+* modified epochs for each training
+* mini-train 1: 20 epochs, mini-train 2: 30 epochs, mini-train 3: 10 epochs, mini-train 4: 10 epochs
+* reduced Learning Rate on all unfrozen mini-trains (2-4) to constant LR / 8 instead of LR / 2 -> LR / 4 -> LR / 8
+* Seems worse
+
+#### v2.2x (sprint)
+<img src="/imgs/model_v2_2x.png" alt="Model v2_2x" width="800" height="400">
+
+* `/src/model_cactuswren_v2_2.py`  
+* sprint with 4x mini-train
+* decreased fancy_pca standard deviation from 1.0 to 0.1 which is what the paper suggests
+* eh, still about the same
+
+#### v2.2w (FULL)
+<img src="/imgs/model_v2_2w.png" alt="Model v2_2w" width="800" height="400">
+
+* `/src/model_cactuswren_v2_2.py`  
+* Tried augmentation v3 on full data
+* Used typical mini-train 4 / epochs 10 setup
+* About the same score as the past but took over 24 hours (ouch)
+
+### Image Augmentation 3 rewrite
+* tuned fancy_pca to be more standardized and readable
+* modified the crop alg so that it will crop from more of a picture's available data instead of being centered in the middle
+* modified the crop alg so that it doesn't zoom as much, so more of the central subject is in frame
+* broke out image augmentation into it's own library so that loader_bot_omega can simply import what it needs
+* tested and validated new principles in jupyter notebook data_augmentation_v3.ipynb
+
+#### v2.2v (sprint)
+<img src="/imgs/model_v2_2v.png" alt="Model v2_2v" width="800" height="400">
+
+* `/src/model_cactuswren_v2_2.py`  
+* Image augmentation v3 rewrite
+* Went back to typical sprint: 4 mini-train of 10 epochs with LR per mini-train being LR, LR / 2, LR / 4, LR / 8
+* Didn't seem to move the needle
+
+#### v2.2u (sprint)
+<img src="/imgs/model_v2_2u.png" alt="Model v2_2u" width="800" height="400">
+
+* `/src/model_cactuswren_v2_2.py`  
+* mini-train 1: 30 epochs, mini-train 2: 30 epochs, mini-train 3-4: 10 epochs
+* new sprint record of 0.75
+
+#### v2.2t (sprint)
+<img src="/imgs/model_v2_2t.png" alt="Model v2_2t" width="800" height="400">
+
+* `/src/model_cactuswren_v2_2.py`  
+* Night run, increased the mini-train 1 epochs to 100
+* Didn't really help
+
+#### v2.2s (sprint)
+<img src="/imgs/model_v2_2s.png" alt="Model v2_2s" width="800" height="400">
+
+* `/src/model_cactuswren_v2_2.py`  
+* Try regularized 'double brian layers' for 30 epochs
+* Then 10 epochs of the 2/4/6 unfrozen layers
+* Seemed worse
+
+#### v2.2r (sprint)
+<img src="/imgs/model_v2_2r.png" alt="Model v2_2r" width="800" height="400">
+
+* `/src/model_cactuswren_v2_2.py`  
+* Increase first mini-train epochs to 30 to see if that helped (not really)
+
+#### v2.2q (sprint)
+<img src="/imgs/model_v2_2q.png" alt="Model v2_2q" width="800" height="400">
+
+* `/src/model_cactuswren_v2_2.py`  
+* Increased L1 regularization (0.0001) on 'brian layers'
+* Now seeing some good regularizing effect on 'brian layer' training but not on unfrozen layers
+
+#### v2.2p (sprint)
+<img src="/imgs/model_v2_2p.png" alt="Model v2_2p" width="800" height="400">
+
+* `/src/model_cactuswren_v2_2.py`  
+* L1 regularization (0.00001) on 'brian layers'
+* Didn't really see regularizing effect
 
 #### v2.4c(print)
 <img src="/imgs/model_v2_4c.png" alt="Model v2_4c" width="800" height="400">
