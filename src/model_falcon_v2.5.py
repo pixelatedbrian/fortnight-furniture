@@ -181,7 +181,7 @@ def setup_to_finetune(model, freeze, optimizer, weight_decay):
         # https://github.com/keras-team/keras/issues/2717
         if hasattr(layer, 'kernel_regularizer'):
             layer.kernel_regularizer = regularizers.l1(weight_decay)
-            print("        adding regularization to thawed layer")
+            # print("        adding regularization to thawed layer")
 
     # # regularize all layers:
     # for layer in model.layers:
@@ -192,6 +192,31 @@ def setup_to_finetune(model, freeze, optimizer, weight_decay):
     # sgd = SGD(lr=lr, momentum=0.9)
 
     model.compile(optimizer=optimizer, loss='categorical_crossentropy', metrics=['accuracy'])
+
+
+def activate_regularization(model):
+    '''
+    Adding regularization to pretrained model doesn't work unless you save the
+    model and then reload it. At least according to:
+    https://github.com/keras-team/keras/issues/9106
+
+    So this function will save a model then reload it.
+
+    INPUT:
+    model: model that will be reloaded
+
+    RETURNS:
+    reloaded model
+    '''
+    print("Activate Regularization: Save Model...")
+    model.save_weights("temp.h5")
+    print("Activate Regularization: Save Model Complete.")
+
+    print("Activate Regularization: Reload Model Weights...")
+    model.load_weights("temp.h5")
+    print("Activate Regularization: Reload Model Weights Complete.")
+
+    return model
 
 
 def plot_hist(history, info_str, epochs=2, augmentation=1, sprint=False):
@@ -306,6 +331,7 @@ def run():
     AUGMENTATION = 1    # could do 3 epochs of 10 augmentation or 30 of 1 which
                         # provides more data for plots to work with
 
+    MINITRAINS = 4
     DO = 0.55  # drop out
 
     # for Adam inital LR of 0.0001 is a good starting point
@@ -317,7 +343,7 @@ def run():
     # OPTIMIZER = SGD(lr=LR, momentum=0.9, nesterov=True)
 
     NB_IV3_LAYERS_TO_FREEZE = 172
-    MODEL_ID = 'v2_5d'
+    MODEL_ID = 'v2_5e'
 
     plot_file = "model_{:}.png".format(MODEL_ID)
     weights_file = "weights/model_{:}_weights.h5".format(MODEL_ID)
@@ -370,71 +396,103 @@ def run():
     # transfer learning
     setup_to_transfer_learn(model, base_model, OPTIMIZER)
 
-    # Run model
-    history_t1 = model.fit_generator(generator=training_generator,
-                                     validation_data=validation_generator,
-                                     epochs=EPOCHS,
-                                     use_multiprocessing=False)
+    history_tl = None   # preinitialize history log
 
-    # mini-train 2
-    OPTIMIZER = Adam(lr=LR / 2.0, decay=DECAY)
-    # try to fine tune some of the InceptionV3 layers also
-    setup_to_finetune(model, NB_IV3_LAYERS_TO_FREEZE - 2, OPTIMIZER, WEIGHT_DECAY)
+    for mt in range(MINITRAINS):
+        temp = mt + 1
 
-    print("\n\n        Starting epoch {:}\n\n".format(EPOCHS + 1))
+        if temp == 1:
+            # Run model
+            history_t1 = model.fit_generator(generator=training_generator,
+                                             validation_data=validation_generator,
+                                             epochs=EPOCHS,
+                                             use_multiprocessing=False)
 
-    # Run model
-    history_t2 = model.fit_generator(generator=training_generator,
-                                     validation_data=validation_generator,
-                                     epochs=EPOCHS,
-                                     use_multiprocessing=False)
+            history_tl = history_t1.history
 
-    # mini-train 3
-    OPTIMIZER = Adam(lr=LR / 4.0, decay=DECAY)
-    # try to fine tune some of the InceptionV3 layers also
-    setup_to_finetune(model, NB_IV3_LAYERS_TO_FREEZE - 4, OPTIMIZER, WEIGHT_DECAY)
+        else:
+            # mini-train 2
+            OPTIMIZER = Adam(lr=LR / 2.0**temp, decay=DECAY)
+            # try to fine tune some of the InceptionV3 layers also
+            setup_to_finetune(model, NB_IV3_LAYERS_TO_FREEZE - (2 * temp), OPTIMIZER, WEIGHT_DECAY)
 
-    print("\n\n        Starting epoch {:}\n\n".format(EPOCHS * 2 + 1))
+            model = activate_regularization(model)
 
-    # Run model
-    history_t3 = model.fit_generator(generator=training_generator,
-                                     validation_data=validation_generator,
-                                     epochs=EPOCHS,
-                                     use_multiprocessing=False)
+            print("\n\n        Starting epoch {:}\n\n".format(EPOCHS * temp + 1))
 
-    # mini-train 4
-    OPTIMIZER = Adam(lr=LR / 8.0, decay=DECAY)
-    # try to fine tune some of the InceptionV3 layers also
-    setup_to_finetune(model, NB_IV3_LAYERS_TO_FREEZE - 6, OPTIMIZER, WEIGHT_DECAY)
+            # Run model
+            history_t2 = model.fit_generator(generator=training_generator,
+                                             validation_data=validation_generator,
+                                             epochs=EPOCHS,
+                                             use_multiprocessing=False)
 
-    print("\n\n        Starting epoch {:}\n\n".format(EPOCHS * 3 + 1))
+            # save the weights in case we want to predict on them later
+            model.save(weights_file)
 
-    # Run model
-    history_t4 = model.fit_generator(generator=training_generator,
-                                     validation_data=validation_generator,
-                                     epochs=EPOCHS,
-                                     use_multiprocessing=False)
+            history_tl["acc"] += history_t2.history["acc"]
+            history_tl["val_acc"] += history_t2.history["val_acc"]
+            history_tl["loss"] += history_t2.history["loss"]
+            history_tl["val_loss"] += history_t2.history["val_loss"]
 
-    # save the weights in case we want to predict on them later
-    model.save(weights_file)
-
-    history_tl = history_t1.history
-    history_tl["acc"] += history_t2.history["acc"]
-    history_tl["val_acc"] += history_t2.history["val_acc"]
-    history_tl["loss"] += history_t2.history["loss"]
-    history_tl["val_loss"] += history_t2.history["val_loss"]
-
-    history_tl = history_t1.history
-    history_tl["acc"] += history_t3.history["acc"]
-    history_tl["val_acc"] += history_t3.history["val_acc"]
-    history_tl["loss"] += history_t3.history["loss"]
-    history_tl["val_loss"] += history_t3.history["val_loss"]
-
-    history_tl = history_t1.history
-    history_tl["acc"] += history_t4.history["acc"]
-    history_tl["val_acc"] += history_t4.history["val_acc"]
-    history_tl["loss"] += history_t4.history["loss"]
-    history_tl["val_loss"] += history_t4.history["val_loss"]
+    # # mini-train 2
+    # OPTIMIZER = Adam(lr=LR / 2.0, decay=DECAY)
+    # # try to fine tune some of the InceptionV3 layers also
+    # setup_to_finetune(model, NB_IV3_LAYERS_TO_FREEZE - 2, OPTIMIZER, WEIGHT_DECAY)
+    #
+    # print("\n\n        Starting epoch {:}\n\n".format(EPOCHS + 1))
+    #
+    # # Run model
+    # history_t2 = model.fit_generator(generator=training_generator,
+    #                                  validation_data=validation_generator,
+    #                                  epochs=EPOCHS,
+    #                                  use_multiprocessing=False)
+    #
+    # # mini-train 3
+    # OPTIMIZER = Adam(lr=LR / 4.0, decay=DECAY)
+    # # try to fine tune some of the InceptionV3 layers also
+    # setup_to_finetune(model, NB_IV3_LAYERS_TO_FREEZE - 4, OPTIMIZER, WEIGHT_DECAY)
+    #
+    # print("\n\n        Starting epoch {:}\n\n".format(EPOCHS * 2 + 1))
+    #
+    # # Run model
+    # history_t3 = model.fit_generator(generator=training_generator,
+    #                                  validation_data=validation_generator,
+    #                                  epochs=EPOCHS,
+    #                                  use_multiprocessing=False)
+    #
+    # # mini-train 4
+    # OPTIMIZER = Adam(lr=LR / 8.0, decay=DECAY)
+    # # try to fine tune some of the InceptionV3 layers also
+    # setup_to_finetune(model, NB_IV3_LAYERS_TO_FREEZE - 6, OPTIMIZER, WEIGHT_DECAY)
+    #
+    # print("\n\n        Starting epoch {:}\n\n".format(EPOCHS * 3 + 1))
+    #
+    # # Run model
+    # history_t4 = model.fit_generator(generator=training_generator,
+    #                                  validation_data=validation_generator,
+    #                                  epochs=EPOCHS,
+    #                                  use_multiprocessing=False)
+    #
+    # # save the weights in case we want to predict on them later
+    # model.save(weights_file)
+    #
+    # history_tl = history_t1.history
+    # history_tl["acc"] += history_t2.history["acc"]
+    # history_tl["val_acc"] += history_t2.history["val_acc"]
+    # history_tl["loss"] += history_t2.history["loss"]
+    # history_tl["val_loss"] += history_t2.history["val_loss"]
+    #
+    # history_tl = history_t1.history
+    # history_tl["acc"] += history_t3.history["acc"]
+    # history_tl["val_acc"] += history_t3.history["val_acc"]
+    # history_tl["loss"] += history_t3.history["loss"]
+    # history_tl["val_loss"] += history_t3.history["val_loss"]
+    #
+    # history_tl = history_t1.history
+    # history_tl["acc"] += history_t4.history["acc"]
+    # history_tl["val_acc"] += history_t4.history["val_acc"]
+    # history_tl["loss"] += history_t4.history["loss"]
+    # history_tl["val_loss"] += history_t4.history["val_loss"]
 
     plot_hist(history_tl, plot_file, epochs=len(history_tl["acc"]), sprint=True)
 
