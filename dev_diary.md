@@ -72,13 +72,13 @@
 | 2.2x | 0.744 | 0.55 | 0.00025 | 40 | 18k | 1.8 | aug v3 4x minibatch, decreased fancy_pca STD from 1.0 to 0.1 like paper advises |
 | 2.2y | 0.731 | 0.55 | 0.00025 | 70 | 18k | 3.2 | aug v3 4x minibatch but R1: 20 epochs, R2: 30E, R3: 10E, R4: 10E, reduced R2-4 LR to lr/8 |
 | 2.5a | 0.742 | 0.55 | 0.00025 | 40 | 18K | 1.8 | Back to normal 4 mini-batch of 10 epochs, unfreezing 2 layers after 1st mini-train. Added L2 weight decay to unfrozen layers in mini-train 2+ | 
-| 2.5b | 0.742 | 0.55 | 0.00025 | 40 | 18k | 1.8 | try L2 regularization 0.0001|
-| 2.5c | 0.742 | 0.55 | 0.00025 | 40 | 18k | 1.8 | try L2 regularization 0.001|
+| 2.5b | 0.742 | 0.55 | 0.00025 | 40 | 18k | 1.8 | try L2 regularization 0.0001 |
+| 2.5c | 0.742 | 0.55 | 0.00025 | 40 | 18k | 1.8 | try L2 regularization 0.001 |
 | 2.5d | 0.742 | 0.55 | 0.00025 | 40 | 18k | 1.8 | try L1 regularization 0.001, still not working |
 | 2.5e | 0.732 | 0.55 | 0.00025 | 40 | 18k | 1.8 | seems like there is a problem of applying regularization to pretrained weights, might be able to work around, L1 reg 0.0001 |
-| 2.5f | 0.736 | 0.55 | 0.00025 | 50 | 18k | 1.8 | 5 mini-train since it's learning more slowly with the regularization |
-| 2.5g | ? | 0.55 | 0.00025 | 40 | 18k | 1.8 | switch back to L2 regularization at 0.0001 |
-
+| 2.5f | 0.736 | 0.55 | 0.00025 | 50 | 18k | 2.3 | 5 mini-train since it's learning more slowly with the regularization |
+| 2.5g | 0.736 | 0.55 | 0.00025 | 50 | 18k | 2.3 | switch back to L2 regularization at 0.0001, oddly seems the same |
+| 2.5h | ? | 0.55 | 0.00025 | 100 | 18k | ? | night train, increase reg to 0.0005, 10 mini-train |
 
 #### v2.5f (sprint)
 <img src="/imgs/model_v2_5f.png" alt="Model v2_5f" width="800" height="400">
