@@ -72,14 +72,17 @@
 | 2.2x | 0.744 | 0.55 | 0.00025 | 40 | 18k | 1.8 | aug v3 4x minibatch, decreased fancy_pca STD from 1.0 to 0.1 like paper advises |
 | 2.2y | 0.731 | 0.55 | 0.00025 | 70 | 18k | 3.2 | aug v3 4x minibatch but R1: 20 epochs, R2: 30E, R3: 10E, R4: 10E, reduced R2-4 LR to lr/8 |
 | 2.5a | 0.742 | 0.55 | 0.00025 | 40 | 18K | 1.8 | Back to normal 4 mini-batch of 10 epochs, unfreezing 2 layers after 1st mini-train. Added L2 weight decay to unfrozen layers in mini-train 2+ | 
-| 2.5b | ? | 0.55 | 0.00025 | 40 | 18k | 1.8 | try L2 regularization 0.0001|
+| 2.5b | 0.742 | 0.55 | 0.00025 | 40 | 18k | 1.8 | try L2 regularization 0.0001|
+| 2.5c | 0.742 | 0.55 | 0.00025 | 40 | 18k | 1.8 | try L2 regularization 0.001|
+| 2.5d | 0.742 | 0.55 | 0.00025 | 40 | 18k | 1.8 | try L1 regularization 0.001, still not working |
+| 2.5e | ? | 0.55 | 0.00025 | 40 | 18k | 1.8 | seems like there is a problem of applying regularization to pretrained weights, might be able to work around |
 
 #### v2.5b (sprint)
 <img src="/imgs/model_v2_5b.png" alt="Model v2_5b" width="800" height="400">
 
 * `/src/model_falcon_v2_5.py`
 * Increased L2 regularization value of 0.0001
-* ?
+* same, looks like regularization isn't working
 
 #### v2.5a (sprint)
 <img src="/imgs/model_v2_5a.png" alt="Model v2_5a" width="800" height="400">
