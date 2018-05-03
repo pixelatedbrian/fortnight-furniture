@@ -76,7 +76,8 @@
 | 2.5c | 0.742 | 0.55 | 0.00025 | 40 | 18k | 1.8 | try L2 regularization 0.001|
 | 2.5d | 0.742 | 0.55 | 0.00025 | 40 | 18k | 1.8 | try L1 regularization 0.001, still not working |
 | 2.5e | 0.732 | 0.55 | 0.00025 | 40 | 18k | 1.8 | seems like there is a problem of applying regularization to pretrained weights, might be able to work around, L1 reg 0.0001 |
-| 2.5f | ? | 0.55 | 0.00025 | 40 | 18k | 1.8 | try L1 regularization 0.001|
+| 2.5f | 0.736 | 0.55 | 0.00025 | 50 | 18k | 1.8 | 5 mini-train since it's learning more slowly with the regularization |
+| 2.5g | ? | 0.55 | 0.00025 | 40 | 18k | 1.8 | switch back to L2 regularization at 0.0001 |
 
 
 #### v2.5f (sprint)
