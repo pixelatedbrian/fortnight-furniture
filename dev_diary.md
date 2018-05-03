@@ -75,7 +75,36 @@
 | 2.5b | 0.742 | 0.55 | 0.00025 | 40 | 18k | 1.8 | try L2 regularization 0.0001|
 | 2.5c | 0.742 | 0.55 | 0.00025 | 40 | 18k | 1.8 | try L2 regularization 0.001|
 | 2.5d | 0.742 | 0.55 | 0.00025 | 40 | 18k | 1.8 | try L1 regularization 0.001, still not working |
-| 2.5e | ? | 0.55 | 0.00025 | 40 | 18k | 1.8 | seems like there is a problem of applying regularization to pretrained weights, might be able to work around |
+| 2.5e | 0.732 | 0.55 | 0.00025 | 40 | 18k | 1.8 | seems like there is a problem of applying regularization to pretrained weights, might be able to work around, L1 reg 0.0001 |
+| 2.5f | ? | 0.55 | 0.00025 | 40 | 18k | 1.8 | try L1 regularization 0.001|
+
+
+#### v2.5f (sprint)
+<img src="/imgs/model_v2_5f.png" alt="Model v2_5f" width="800" height="400">
+
+* `/src/model_falcon_v2_5.py`
+* Try going 5 mini-train runs
+
+#### v2.5e (sprint)
+<img src="/imgs/model_v2_5e.png" alt="Model v2_5e" width="800" height="400">
+
+* `/src/model_falcon_v2_5.py`
+* Saving and loading seems to finally get the regularization working
+* Train accuracy went from 95% to 84%, test accuracy didn't increase but might just need more time now?
+
+#### v2.5d (sprint)
+<img src="/imgs/model_v2_5d.png" alt="Model v2_5d" width="800" height="400">
+
+* `/src/model_falcon_v2_5.py`
+* Tried switching to L1 regularization
+* still not working
+
+#### v2.5c (sprint)
+<img src="/imgs/model_v2_5c.png" alt="Model v2_5c" width="800" height="400">
+
+* `/src/model_falcon_v2_5.py`
+* Increased L1 regularization value of 0.001
+* same, looks like regularization isn't working
 
 #### v2.5b (sprint)
 <img src="/imgs/model_v2_5b.png" alt="Model v2_5b" width="800" height="400">
