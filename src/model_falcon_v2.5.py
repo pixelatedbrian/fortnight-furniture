@@ -168,6 +168,9 @@ def setup_to_finetune(model, freeze, optimizer, weight_decay):
     note: NB_IV3_LAYERS corresponds to the top 2 inception blocks in the inceptionv3 arch
     Args:
     model: keras model
+    freeze: number of layers to keep frozen
+    optimizer: which optimizer to use so the model can be compiled
+    weight_decay: how much to regularize the thawed layers
     """
     for layer in model.layers[:freeze]:
         layer.trainable = False
@@ -177,7 +180,8 @@ def setup_to_finetune(model, freeze, optimizer, weight_decay):
         # regularize unfrozen layers (new as of model v2.5)
         # https://github.com/keras-team/keras/issues/2717
         if hasattr(layer, 'kernel_regularizer'):
-            layer.kernel_regularizer = regularizers.l2(weight_decay)
+            layer.kernel_regularizer = regularizers.l1(weight_decay)
+            print("        adding regularization to thawed layer")
 
     # # regularize all layers:
     # for layer in model.layers:
@@ -313,7 +317,7 @@ def run():
     # OPTIMIZER = SGD(lr=LR, momentum=0.9, nesterov=True)
 
     NB_IV3_LAYERS_TO_FREEZE = 172
-    MODEL_ID = 'v2_5a'
+    MODEL_ID = 'v2_5d'
 
     plot_file = "model_{:}.png".format(MODEL_ID)
     weights_file = "weights/model_{:}_weights.h5".format(MODEL_ID)
