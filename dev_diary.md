@@ -81,6 +81,28 @@
 | 2.5h | 0.748 | 0.55 | 0.00025 | 100 | 18k | 5.0 | night train, increase reg to 0.0005, 10 mini-train |
 | 2.5i | ? | 0.55 | 0.00025 | 100 | 18k | 5.0 | Make LR stable after mini-train 2 and on |
 
+#### v2.5j (sprint)
+<img src="/imgs/model_v2_5j.png" alt="Model v2_5j" width="800" height="400">
+
+* `/src/model_falcon_v2_5.py`
+* undo the constant LR back to LR / 2^MT
+* change layer thawing from 5 per mini-train back to 2 per mini-train
+* with more mini-trains the unfrozen layers will still ultimately be a lot more (from 8 to 20)
+* attempt to fix the history weirdness, graph can't be worse than last time
+* increase the L2 regularization from 0.0005 to 0.001
+* increase the starting LR from 0.00025 to 0.0005
+* the model diverges again at later training
+
+
+#### v2.5i (sprint)
+<img src="/imgs/model_v2_5i.png" alt="Model v2_5i" width="800" height="400">
+
+* `/src/model_falcon_v2_5.py`
+* 10 mini-trains of 10 epochs
+* tried fixing the zero padding on the histories, made it worse
+* constant learning rate of mini-trains after MT1 of LR/10, seems like might be too low
+* regularization is failing, model is diverging widely again
+
 #### v2.5h (sprint)
 <img src="/imgs/model_v2_5h.png" alt="Model v2_5h" width="800" height="400">
 
