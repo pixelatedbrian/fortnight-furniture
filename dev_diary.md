@@ -78,7 +78,24 @@
 | 2.5e | 0.732 | 0.55 | 0.00025 | 40 | 18k | 1.8 | seems like there is a problem of applying regularization to pretrained weights, might be able to work around, L1 reg 0.0001 |
 | 2.5f | 0.736 | 0.55 | 0.00025 | 50 | 18k | 2.3 | 5 mini-train since it's learning more slowly with the regularization |
 | 2.5g | 0.736 | 0.55 | 0.00025 | 50 | 18k | 2.3 | switch back to L2 regularization at 0.0001, oddly seems the same |
-| 2.5h | ? | 0.55 | 0.00025 | 100 | 18k | ? | night train, increase reg to 0.0005, 10 mini-train |
+| 2.5h | 0.748 | 0.55 | 0.00025 | 100 | 18k | 5.0 | night train, increase reg to 0.0005, 10 mini-train |
+| 2.5i | ? | 0.55 | 0.00025 | 100 | 18k | 5.0 | Make LR stable after mini-train 2 and on |
+
+#### v2.5h (sprint)
+<img src="/imgs/model_v2_5h.png" alt="Model v2_5h" width="800" height="400">
+
+* `/src/model_falcon_v2_5.py`
+* 10 mini-trains of 10 epochs
+* 0.748 so showing some promise
+* had to reduce batch size to 128 but doesn't seem to be affecting (already slow) speed
+* But the LR is currently LR / 2**(mini-train-1) so by mini-train 9 the LR is tiny
+* for v2.5i make LR / 10 constant after the 1st mini-train
+
+#### v2.5f (sprint)
+<img src="/imgs/model_v2_5f.png" alt="Model v2_5f" width="800" height="400">
+
+* `/src/model_falcon_v2_5.py`
+* Try going 5 mini-train runs
 
 #### v2.5f (sprint)
 <img src="/imgs/model_v2_5f.png" alt="Model v2_5f" width="800" height="400">
