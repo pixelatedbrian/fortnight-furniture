@@ -336,14 +336,14 @@ def run():
 
     # for Adam inital LR of 0.0001 is a good starting point
     # for SGD initial LR of 0.001 is a good starting point
-    LR = 0.00025
+    LR = 0.0005
     DECAY = 0.5e-6
-    WEIGHT_DECAY = 0.0005
+    WEIGHT_DECAY = 0.001
     OPTIMIZER = Adam(lr=LR, decay=DECAY)
     # OPTIMIZER = SGD(lr=LR, momentum=0.9, nesterov=True)
 
     NB_IV3_LAYERS_TO_FREEZE = 172
-    MODEL_ID = 'v2_5i'
+    MODEL_ID = 'v2_5j'
 
     plot_file = "model_{:}.png".format(MODEL_ID)
     weights_file = "weights/model_{:}_weights.h5".format(MODEL_ID)
@@ -373,7 +373,7 @@ def run():
                    'n_channels': 3,
                    'augmentation': 1,
                    'augment': False,
-                   'shuffle': True}
+                   'shuffle': False}
 
     # Datasets
     X_train_img_paths = data_link_dict["X_test_1"]
@@ -396,29 +396,28 @@ def run():
     # transfer learning
     setup_to_transfer_learn(model, base_model, OPTIMIZER)
 
-    history = None   # preinitialize history log
+    history = {}   # preinitialize history log
 
     for mt in range(MINITRAINS):
         temp = mt + 1
 
         if temp == 1:
             # Run model
-            history = model.fit_generator(generator=training_generator,
+            new_history = model.fit_generator(generator=training_generator,
                                              validation_data=validation_generator,
                                              epochs=EPOCHS,
                                              use_multiprocessing=False)
 
-            # seems to be prepending a 0 to the list so ignore that
-            history["acc"] = history.history["acc"][1:]
-            history["val_acc"] = history.history["val_acc"][1:]
-            history["loss"] = history.history["loss"][1:]
-            history["val_loss"] = history.hirstor["val_loss"][1:]
+            history["acc"] = new_history.history["acc"]
+            history["val_acc"] = new_history.history["val_acc"]
+            history["loss"] = new_history.history["loss"]
+            history["val_loss"] = new_history.history["val_loss"]
 
         else:
             # mini-train 2
-            OPTIMIZER = Adam(lr=LR / 10, decay=DECAY)
+            OPTIMIZER = Adam(lr=LR / 2**temp, decay=DECAY)
             # try to fine tune some of the InceptionV3 layers also
-            setup_to_finetune(model, NB_IV3_LAYERS_TO_FREEZE - (5 * temp), OPTIMIZER, WEIGHT_DECAY)
+            setup_to_finetune(model, NB_IV3_LAYERS_TO_FREEZE - (2 * temp), OPTIMIZER, WEIGHT_DECAY)
 
             model = activate_regularization(model)
 
@@ -433,10 +432,16 @@ def run():
             # save the weights in case we want to predict on them later
             model.save(weights_file)
 
-            history["acc"] += new_history.history["acc"][1:]
-            history["val_acc"] += new_history.history["val_acc"][1:]
-            history["loss"] += new_history.history["loss"][1:]
-            history["val_loss"] += new_history.history["val_loss"][1:]
+            history["acc"] += new_history.history["acc"]
+            history["val_acc"] += new_history.history["val_acc"]
+            history["loss"] += new_history.history["loss"]
+            history["val_loss"] += new_history.history["val_loss"]
+
+        # seems to be prepending a 0 to the list so ignore that
+        history["acc"] = history["acc"][1:]
+        history["val_acc"] = history["val_acc"][1:]
+        history["loss"] = history["loss"][1:]
+        history["val_loss"] = history["val_loss"][1:]
 
         plot_hist(history, plot_file, epochs=len(history["acc"]), sprint=True)
 
