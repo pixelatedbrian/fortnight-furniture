@@ -79,7 +79,8 @@
 | 2.5f | 0.736 | 0.55 | 0.00025 | 50 | 18k | 2.3 | 5 mini-train since it's learning more slowly with the regularization |
 | 2.5g | 0.736 | 0.55 | 0.00025 | 50 | 18k | 2.3 | switch back to L2 regularization at 0.0001, oddly seems the same |
 | 2.5h | 0.748 | 0.55 | 0.00025 | 100 | 18k | 5.0 | night train, increase reg to 0.0005, 10 mini-train |
-| 2.5i | ? | 0.55 | 0.00025 | 100 | 18k | 5.0 | Make LR stable after mini-train 2 and on |
+| 2.5i | 0.741 | 0.55 | 0.00025 | 100 | 18k | 5.0 | Make LR stable after mini-train 2 and on |
+| 2.5j | ? | 0.55 | 0.0005 | 100 | 18k | 5.0 | undid constant LR, increased regularization, increased LR, tried plot fix |
 
 #### v2.5j (sprint)
 <img src="/imgs/model_v2_5j.png" alt="Model v2_5j" width="800" height="400">
@@ -112,12 +113,14 @@
 * had to reduce batch size to 128 but doesn't seem to be affecting (already slow) speed
 * But the LR is currently LR / 2**(mini-train-1) so by mini-train 9 the LR is tiny
 * for v2.5i make LR / 10 constant after the 1st mini-train
+* history plot is messed up, seems like saving the model and loading is corrupting the history somehow
 
-#### v2.5f (sprint)
-<img src="/imgs/model_v2_5f.png" alt="Model v2_5f" width="800" height="400">
+#### v2.5g (sprint)
+<img src="/imgs/model_v2_5g.png" alt="Model v2_5g" width="800" height="400">
 
 * `/src/model_falcon_v2_5.py`
-* Try going 5 mini-train runs
+* went back to L2 regularization
+* results the same... because regularization still isn't working
 
 #### v2.5f (sprint)
 <img src="/imgs/model_v2_5f.png" alt="Model v2_5f" width="800" height="400">
