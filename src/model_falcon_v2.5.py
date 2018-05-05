@@ -344,18 +344,18 @@ def run():
                         # provides more data for plots to work with
 
     MINITRAINS = 15
-    DO = 0.55  # drop out
+    DO = 0.50  # drop out
 
     # for Adam inital LR of 0.0001 is a good starting point
     # for SGD initial LR of 0.001 is a good starting point
-    LR = 0.0001
+    LR = 0.00025
     DECAY = 0.5e-6
     L2_REG = 0.01
     OPTIMIZER = Adam(lr=LR, decay=DECAY)
     # OPTIMIZER = SGD(lr=LR, momentum=0.9, nesterov=True)
 
     NB_IV3_LAYERS_TO_FREEZE = 172
-    MODEL_ID = 'v2_5l'
+    MODEL_ID = 'v2_5m'
 
     plot_file = "model_{:}.png".format(MODEL_ID)
     weights_file = "weights/model_{:}_weights.h5".format(MODEL_ID)
@@ -427,7 +427,7 @@ def run():
 
         else:
             # mini-train 2
-            OPTIMIZER = Adam(lr=LR / 2**temp, decay=DECAY)
+            OPTIMIZER = Adam(lr=LR / 1.5**temp, decay=DECAY)
             # try to fine tune some of the InceptionV3 layers also
             setup_to_finetune(model, NB_IV3_LAYERS_TO_FREEZE - (5 * temp), OPTIMIZER, L2_REG)
 
