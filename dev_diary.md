@@ -82,8 +82,24 @@
 | 2.5i | 0.741 | 0.55 | 0.00025 | 100 | 18k | 5.0 | Make LR stable after mini-train 2 and on |
 | 2.5j | 0.743 | 0.55 | 0.0005 | 100 | 18k | 5.0 | undid constant LR, increased reg, increased LR, tried plot fix |
 | 2.5k | 0.742 | 0.55 | 0.0005 | 100 | 18k | 5.0 | fix zeros in plots in plot function, increase regularization to 0.01 |
-| 2.5l | 0.743 | 0.55 | 0.00025 | 100 | 18k | 5.0 | increase LR decay some |
-| 2.5m | ? | 0.55 | 0.0001 | 150 | 18k | 5.0 | switch regularization back to L2, still high value of 0.01, reduce LR, increase minitrains |
+| 2.5l | 0.725 | 0.55 | 0.0001 | 150 | 18k | 7.4 | switch regularization back to L2, still high value of 0.01, reduce LR, increase minitrains |
+| 2.5m | ? | 0.50 | 0.0005 | 150 | 18k | 7.4 | increase LR back to 0.00025, decrease per minitrain drop of LR to 1.5^MT, reduce dropout slightly to 0.50 |
+
+#### v2.5m (sprint)
+<img src="/imgs/model_v2_5k.png" alt="Model v2_5k" width="800" height="400">
+
+* `/src/model_falcon_v2_5.py`
+* **finally** seems regularized, but still plateauing at ~0.73 accuracy on test set
+* increase learning rate slightly
+* modify LR decay to be less aggressive since mini-trains are getting higher (15 now)
+* changed LR decay of minitrain from LR / 2**(MT-1) -> LR / 1.5**(MT-1)
+* reduce dropout to 0.50 since that seems to be pretty standard in papers
+
+#### v2.5k (sprint)
+<img src="/imgs/model_v2_5k.png" alt="Model v2_5k" width="800" height="400">
+
+* `/src/model_falcon_v2_5.py`
+* increase regularization to 0.01 (seems high but we'll see)
 
 #### v2.5k (sprint)
 <img src="/imgs/model_v2_5k.png" alt="Model v2_5k" width="800" height="400">
