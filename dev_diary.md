@@ -81,7 +81,9 @@
 | 2.5h | 0.748 | 0.55 | 0.00025 | 100 | 18k | 5.0 | night train, increase reg to 0.0005, 10 mini-train |
 | 2.5i | 0.741 | 0.55 | 0.00025 | 100 | 18k | 5.0 | Make LR stable after mini-train 2 and on |
 | 2.5j | 0.743 | 0.55 | 0.0005 | 100 | 18k | 5.0 | undid constant LR, increased reg, increased LR, tried plot fix |
-| 2.5k | ? | 0.55 | 0.0005 | 100 | 18k | 5.0 | fix zeros in plots in plot function, increase regularization to 0.01 |
+| 2.5k | 0.742 | 0.55 | 0.0005 | 100 | 18k | 5.0 | fix zeros in plots in plot function, increase regularization to 0.01 |
+| 2.5l | 0.743 | 0.55 | 0.00025 | 100 | 18k | 5.0 | increase LR decay some |
+| 2.5m | ? | 0.55 | 0.0001 | 150 | 18k | 5.0 | switch regularization back to L2, still high value of 0.01, reduce LR, increase minitrains |
 
 #### v2.5k (sprint)
 <img src="/imgs/model_v2_5k.png" alt="Model v2_5k" width="800" height="400">
