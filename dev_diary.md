@@ -80,7 +80,14 @@
 | 2.5g | 0.736 | 0.55 | 0.00025 | 50 | 18k | 2.3 | switch back to L2 regularization at 0.0001, oddly seems the same |
 | 2.5h | 0.748 | 0.55 | 0.00025 | 100 | 18k | 5.0 | night train, increase reg to 0.0005, 10 mini-train |
 | 2.5i | 0.741 | 0.55 | 0.00025 | 100 | 18k | 5.0 | Make LR stable after mini-train 2 and on |
-| 2.5j | ? | 0.55 | 0.0005 | 100 | 18k | 5.0 | undid constant LR, increased regularization, increased LR, tried plot fix |
+| 2.5j | 0.743 | 0.55 | 0.0005 | 100 | 18k | 5.0 | undid constant LR, increased reg, increased LR, tried plot fix |
+| 2.5k | ? | 0.55 | 0.0005 | 100 | 18k | 5.0 | fix zeros in plots in plot function, increase regularization to 0.01 |
+
+#### v2.5k (sprint)
+<img src="/imgs/model_v2_5k.png" alt="Model v2_5k" width="800" height="400">
+
+* `/src/model_falcon_v2_5.py`
+* increase regularization to 0.01 (seems high but we'll see)
 
 #### v2.5j (sprint)
 <img src="/imgs/model_v2_5j.png" alt="Model v2_5j" width="800" height="400">
