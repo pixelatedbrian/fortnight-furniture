@@ -9,29 +9,35 @@ Python 3.
 from keras import layers
 from keras import models
 
+# Resnet50 from:
+# https://gist.github.com/mjdietzx/0cb95922aac14d446a6530f87b3a04ce#file-residual_network-py
 
-class RecoilNet():
-    #
-    # image dimensions
-    #
+class RecoilNet(object):
 
-    img_height = 299
-    img_width = 299
-    img_channels = 3
+    def __init__(self, summary=False):
+        #
+        # image dimensions
+        #
 
-    #
-    # network params
-    #
+        self.summary = summary
+        self.img_height = 299
+        self.img_width = 299
+        self.img_channels = 3
 
-    cardinality = 32
+        #
+        # network params
+        #
 
+        self.cardinality = 32
 
-    def __init__(self):
         image_tensor = layers.Input(shape=(img_height, img_width, img_channels))
         network_output = residual_network(image_tensor)
 
-        model = models.Model(inputs=[image_tensor], outputs=[network_output])
-        print(model.summary())
+        self.model = models.Model(inputs=[image_tensor], outputs=[network_output])
+
+        if self.summary is True:
+            print(self.model.summary())
+            print("len model", len(self.model))
 
         return model
 

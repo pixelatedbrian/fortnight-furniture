@@ -9,53 +9,59 @@ Python 3.
 from keras import layers
 from keras import models
 
+# Resnet50 from:
+# https://gist.github.com/mjdietzx/0cb95922aac14d446a6530f87b3a04ce#file-residual_network-py
 
 class RecoilNet(object):
-    #
-    # image dimensions
-    #
 
-    img_height = 299
-    img_width = 299
-    img_channels = 3
+    def __init__(self, summary=False):
+        #
+        # image dimensions
+        #
 
-    #
-    # network params
-    #
+        self.summary = summary
+        self.img_height = 299
+        self.img_width = 299
+        self.img_channels = 3
 
-    cardinality = 32
+        self.classes = 128
 
+        #
+        # network params
+        #
 
-    def __init__(self):
+        self.cardinality = 32
+
         image_tensor = layers.Input(shape=(self.img_height,
                                            self.img_width,
                                            self.img_channels))
 
         network_output = self.residual_network(image_tensor)
 
-        model = models.Model(inputs=[image_tensor], outputs=[network_output])
-        print(model.summary())
+        self.model = models.Model(inputs=[image_tensor], outputs=[network_output])
 
-        return model
+        if self.summary is True:
+            print(self.model.summary())
+            print("len model", len(self.model.layers))
+
+    def get_model(self):
+        return self.model
 
     def residual_network(self, x):
         """
         ResNeXt by default. For ResNet set `cardinality` = 1 above.
 
         """
-        def add_common_layers(self, x):
-            x = layers.BatchNormalization()(x)
-            x = layers.LeakyReLU()(x)
+        def add_common_layers(y):
+            y = layers.BatchNormalization()(y)
+            y = layers.LeakyReLU()(y)
 
-            return x
+            return y
 
-        def grouped_convolution(self, y, nb_channels, _strides):
+        def grouped_convolution(y, nb_channels, _strides):
             # when `cardinality` == 1 this is just a standard convolution
             if self.cardinality == 1:
-                return layers.Conv2D(nb_channels,
-                                     kernel_size=(3, 3),
-                                     strides=_strides,
-                                     padding='same')(y)
+                return layers.Conv2D(nb_channels, kernel_size=(3, 3), strides=_strides, padding='same')(y)
 
             assert not nb_channels % self.cardinality
             _d = nb_channels // self.cardinality
@@ -72,7 +78,7 @@ class RecoilNet(object):
 
             return y
 
-        def residual_block(self, y, nb_channels_in, nb_channels_out, _strides=(1, 1), _project_shortcut=False):
+        def residual_block(y, nb_channels_in, nb_channels_out, _strides=(1, 1), _project_shortcut=False):
             """
             Our network consists of a stack of residual blocks. These blocks have the same topology,
             and are subject to two simple rules:
@@ -85,7 +91,7 @@ class RecoilNet(object):
             y = layers.Conv2D(nb_channels_in, kernel_size=(1, 1), strides=(1, 1), padding='same')(y)
             y = add_common_layers(y)
 
-            # ResNeXt (identical to ResNet when `cardinality` == 1)
+            # ResNeXt (identical to ResNet when `self.cardinality` == 1)
             y = grouped_convolution(y, nb_channels_in, _strides=_strides)
             y = add_common_layers(y)
 
@@ -135,6 +141,7 @@ class RecoilNet(object):
             x = residual_block(x, 1024, 2048, _strides=strides)
 
         x = layers.GlobalAveragePooling2D()(x)
-        x = layers.Dense(1)(x)
+        # x = layers.Flatten()(x)
+        x = layers.Dense(self.classes, activation="softmax", name="softmax_128")(x)
 
         return x

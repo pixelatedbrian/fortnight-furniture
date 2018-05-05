@@ -181,7 +181,7 @@ def setup_to_finetune(model, freeze, optimizer, weight_decay):
         # regularize unfrozen layers (new as of model v2.5)
         # https://github.com/keras-team/keras/issues/2717
         if hasattr(layer, 'kernel_regularizer'):
-            layer.kernel_regularizer = regularizers.l1(weight_decay)
+            layer.kernel_regularizer = regularizers.l2(weight_decay)
             # print("        adding regularization to thawed layer")
 
     # # regularize all layers:
@@ -343,12 +343,12 @@ def run():
     AUGMENTATION = 1    # could do 3 epochs of 10 augmentation or 30 of 1 which
                         # provides more data for plots to work with
 
-    MINITRAINS = 10
+    MINITRAINS = 15
     DO = 0.55  # drop out
 
     # for Adam inital LR of 0.0001 is a good starting point
     # for SGD initial LR of 0.001 is a good starting point
-    LR = 0.0005
+    LR = 0.0001
     DECAY = 0.5e-6
     L2_REG = 0.01
     OPTIMIZER = Adam(lr=LR, decay=DECAY)
