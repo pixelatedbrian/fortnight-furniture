@@ -262,13 +262,16 @@ def plot_hist(history, info_str, epochs=2, augmentation=1, sprint=False):
     majorFormatter = FormatStrFormatter('%d')
     minorLocator = MultipleLocator(minor_ticks)
 
-    # determine how many zero layers there are
-    drop = np.sum([1 if loss == 0 else 0 for loss in history['loss']])
-
-    history['loss'] = history['loss'][drop:]
-    history['val_loss'] = history['val_loss'][drop:]
-    history['acc'] = history['acc'][drop:]
-    history['val_acc'] = history['val_acc'][drop:]
+    # # determine how many zero layers there are
+    # drop = np.sum([1 if loss == 0 else 0 for loss in history['loss']])
+    #
+    # if drop > 1:
+    #     drop -= 1
+    #
+    # history['loss'] = history['loss'][drop:]
+    # history['val_loss'] = history['val_loss'][drop:]
+    # history['acc'] = history['acc'][drop:]
+    # history['val_acc'] = history['val_acc'][drop:]
 
     # correct x axis
     history['loss'] = [0.0] + history['loss']
@@ -336,7 +339,7 @@ def run():
     with open("../data/data_splits.json") as infile:
         data_link_dict = json.load(infile)
 
-    EPOCHS = 1
+    EPOCHS = 10
     AUGMENTATION = 1    # could do 3 epochs of 10 augmentation or 30 of 1 which
                         # provides more data for plots to work with
 
