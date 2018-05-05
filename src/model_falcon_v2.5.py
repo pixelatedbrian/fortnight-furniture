@@ -14,6 +14,7 @@ from keras import regularizers
 
 # import glob
 import json
+import numpy as np
 
 from loader_bot_omega import LoaderBot   # dynamic full image augmentation
 # from loader_bot import LoaderBot
@@ -180,7 +181,7 @@ def setup_to_finetune(model, freeze, optimizer, weight_decay):
         # regularize unfrozen layers (new as of model v2.5)
         # https://github.com/keras-team/keras/issues/2717
         if hasattr(layer, 'kernel_regularizer'):
-            layer.kernel_regularizer = regularizers.l2(weight_decay)
+            layer.kernel_regularizer = regularizers.l1(weight_decay)
             # print("        adding regularization to thawed layer")
 
     # # regularize all layers:
@@ -261,6 +262,14 @@ def plot_hist(history, info_str, epochs=2, augmentation=1, sprint=False):
     majorFormatter = FormatStrFormatter('%d')
     minorLocator = MultipleLocator(minor_ticks)
 
+    # determine how many zero layers there are
+    drop = np.sum([1 if loss == 0 else 0 for loss in history['loss']])
+
+    history['loss'] = history['loss'][drop:]
+    history['val_loss'] = history['val_loss'][drop:]
+    history['acc'] = history['acc'][drop:]
+    history['val_acc'] = history['val_acc'][drop:]
+
     # correct x axis
     history['loss'] = [0.0] + history['loss']
     history['val_loss'] = [0.0] + history['val_loss']
@@ -327,7 +336,7 @@ def run():
     with open("../data/data_splits.json") as infile:
         data_link_dict = json.load(infile)
 
-    EPOCHS = 10
+    EPOCHS = 1
     AUGMENTATION = 1    # could do 3 epochs of 10 augmentation or 30 of 1 which
                         # provides more data for plots to work with
 
@@ -338,12 +347,12 @@ def run():
     # for SGD initial LR of 0.001 is a good starting point
     LR = 0.0005
     DECAY = 0.5e-6
-    WEIGHT_DECAY = 0.001
+    L2_REG = 0.01
     OPTIMIZER = Adam(lr=LR, decay=DECAY)
     # OPTIMIZER = SGD(lr=LR, momentum=0.9, nesterov=True)
 
     NB_IV3_LAYERS_TO_FREEZE = 172
-    MODEL_ID = 'v2_5j'
+    MODEL_ID = 'v2_5l'
 
     plot_file = "model_{:}.png".format(MODEL_ID)
     weights_file = "weights/model_{:}_weights.h5".format(MODEL_ID)
@@ -417,7 +426,7 @@ def run():
             # mini-train 2
             OPTIMIZER = Adam(lr=LR / 2**temp, decay=DECAY)
             # try to fine tune some of the InceptionV3 layers also
-            setup_to_finetune(model, NB_IV3_LAYERS_TO_FREEZE - (2 * temp), OPTIMIZER, WEIGHT_DECAY)
+            setup_to_finetune(model, NB_IV3_LAYERS_TO_FREEZE - (5 * temp), OPTIMIZER, L2_REG)
 
             model = activate_regularization(model)
 
@@ -438,10 +447,10 @@ def run():
             history["val_loss"] += new_history.history["val_loss"]
 
         # seems to be prepending a 0 to the list so ignore that
-        history["acc"] = history["acc"][1:]
-        history["val_acc"] = history["val_acc"][1:]
-        history["loss"] = history["loss"][1:]
-        history["val_loss"] = history["val_loss"][1:]
+        history["acc"] = history["acc"]
+        history["val_acc"] = history["val_acc"]
+        history["loss"] = history["loss"]
+        history["val_loss"] = history["val_loss"]
 
         plot_hist(history, plot_file, epochs=len(history["acc"]), sprint=True)
 
