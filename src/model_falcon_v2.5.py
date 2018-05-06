@@ -427,7 +427,8 @@ def run():
 
         else:
 
-            temp_lr = 0.0005 / (10.0**(mt / 5 - (mt // 7.5)))
+            temp_lr = LR / (10.0**(mt / 5 - (mt // 7.5)))
+            print("Learning rate for mini-train: {:2.5f}".format(temp_lr))
             # mini-train 2
             OPTIMIZER = Adam(lr=temp_lr, decay=0.0)
             # try to fine tune some of the InceptionV3 layers also
