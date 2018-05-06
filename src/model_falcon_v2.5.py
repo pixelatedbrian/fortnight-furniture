@@ -339,12 +339,12 @@ def run():
     with open("../data/data_splits.json") as infile:
         data_link_dict = json.load(infile)
 
-    EPOCHS = 10
+    EPOCHS = 5
     AUGMENTATION = 1    # could do 3 epochs of 10 augmentation or 30 of 1 which
                         # provides more data for plots to work with
 
-    MINITRAINS = 15
-    DO = 0.50  # drop out
+    MINITRAINS = 30
+    DO = 0.55  # drop out
 
     # for Adam inital LR of 0.0001 is a good starting point
     # for SGD initial LR of 0.001 is a good starting point
@@ -355,7 +355,7 @@ def run():
     # OPTIMIZER = SGD(lr=LR, momentum=0.9, nesterov=True)
 
     NB_IV3_LAYERS_TO_FREEZE = 172
-    MODEL_ID = 'v2_5m'
+    MODEL_ID = 'v2_5n'
 
     plot_file = "model_{:}.png".format(MODEL_ID)
     weights_file = "weights/model_{:}_weights.h5".format(MODEL_ID)
@@ -426,8 +426,10 @@ def run():
             history["val_loss"] = new_history.history["val_loss"]
 
         else:
+
+            temp_lr = 0.0005 / (10.0**(mt / 5 - (mt // 7.5)))
             # mini-train 2
-            OPTIMIZER = Adam(lr=LR / 1.5**temp, decay=DECAY)
+            OPTIMIZER = Adam(lr=temp_lr, decay=0.0)
             # try to fine tune some of the InceptionV3 layers also
             setup_to_finetune(model, NB_IV3_LAYERS_TO_FREEZE - (5 * temp), OPTIMIZER, L2_REG)
 
