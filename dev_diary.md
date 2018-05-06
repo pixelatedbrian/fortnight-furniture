@@ -93,6 +93,7 @@
 * increase dropout back to 0.55
 * change learning rate to programmed annealing
 * mini-trains x 2  (30) but epochs per MT reduced from 10 to 5 to have more granular control
+* increase L2 regularization from 0.01 to 0.025
 
 #### v2.5m (sprint)
 <img src="/imgs/model_v2_5m.png" alt="Model v2_5m" width="800" height="400">
