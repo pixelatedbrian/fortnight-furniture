@@ -291,7 +291,7 @@ def plot_hist(history, info_str, epochs=2, augmentation=1, sprint=False):
 
     axs[0].set_xlim(1, epochs)
     axs[0].set_ylabel('Loss')
-#     axs[0].set_ylim(0, 15)
+    axs[0].set_ylim(0, 5)
 
     axs[0].plot(history['loss'], color="blue", linestyle="--", alpha=0.8, lw=1.0)
     axs[0].plot(history['val_loss'], color="blue", alpha=0.8, lw=1.0)
@@ -306,9 +306,9 @@ def plot_hist(history, info_str, epochs=2, augmentation=1, sprint=False):
     axs[1].set_title(title_text)
 
     if augmentation > 1:
-        axs[0].set_xlabel('Epochs\nAugmentation of {:3d}'.format(augmentation))
+        axs[1].set_xlabel('Epochs\nAugmentation of {:3d}'.format(augmentation))
     else:
-        axs[0].set_xlabel('Epochs')
+        axs[1].set_xlabel('Epochs')
 
     axs[1].set_xlim(1, epochs)
     axs[1].set_ylabel('Accuracy')
@@ -326,6 +326,28 @@ def plot_hist(history, info_str, epochs=2, augmentation=1, sprint=False):
 
     plt.savefig("../imgs/" + info_str, facecolor='w', edgecolor='w', transparent=False)
     # plt.show()
+
+
+def temp_clean_history(hist):
+    '''
+    For whatever reason saving and loading weights prepends a 0 to the history
+    of the model. (weird)
+
+    This attempts to strip that padding so that the charts appear as they Should
+
+    INPUTS:
+    hist: dictionary with the history of a model (acc, val, etc)
+
+    RETURNS:
+    dictionary of lists with the padded zeros removed
+    '''
+    temp_hist = hist.copy()
+    chop = sum([1 for item in hist["acc"] if item == 0])
+
+    for key in temp_hist.keys():
+        temp_hist[key] = temp_hist[key][chop:]
+
+    return temp_hist
 
 
 def run():
@@ -350,7 +372,7 @@ def run():
     # for SGD initial LR of 0.001 is a good starting point
     LR = 0.00025
     DECAY = 0.5e-6
-    L2_REG = 0.01
+    L2_REG = 0.05
     OPTIMIZER = Adam(lr=LR, decay=DECAY)
     # OPTIMIZER = SGD(lr=LR, momentum=0.9, nesterov=True)
 
@@ -400,7 +422,7 @@ def run():
 
     # setup model
     base_model = InceptionV3(weights='imagenet', include_top=False) #include_top=False excludes final FC layer
-    model = regular_brian_layers(base_model, 128, DO, l1_reg=0.0001)
+    model = regular_brian_layers(base_model, 128, DO, l1_reg=0.0005)
 
     # print(model.summary())
 
@@ -428,11 +450,18 @@ def run():
         else:
 
             temp_lr = LR / (10.0**(mt / 5 - (mt // 7.5)))
-            print("Learning rate for mini-train: {:2.5f}".format(temp_lr))
+            print("\n\nLearning rate for mini-train: {:2.8f}\n\n".format(temp_lr))
             # mini-train 2
             OPTIMIZER = Adam(lr=temp_lr, decay=0.0)
             # try to fine tune some of the InceptionV3 layers also
-            setup_to_finetune(model, NB_IV3_LAYERS_TO_FREEZE - (5 * temp), OPTIMIZER, L2_REG)
+
+            thaw_count = int(2.5 * temp)
+            if thaw_count > 50:
+                thaw_count = 50
+
+            thaw_count = NB_IV3_LAYERS_TO_FREEZE - thaw_count
+
+            setup_to_finetune(model, thaw_count, OPTIMIZER, L2_REG)
 
             model = activate_regularization(model)
 
@@ -458,7 +487,9 @@ def run():
         history["loss"] = history["loss"]
         history["val_loss"] = history["val_loss"]
 
-        plot_hist(history, plot_file, epochs=len(history["acc"]), sprint=True)
+        temp_hist = temp_clean_history(history)
+
+        plot_hist(temp_hist, plot_file, epochs=len(history["acc"]), sprint=True)
 
     # try to save the history so models can be more easily compared and Also
     # to better log results if going back is needed

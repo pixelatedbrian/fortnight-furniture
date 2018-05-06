@@ -12,6 +12,7 @@ from keras import models
 # Resnet50 from:
 # https://gist.github.com/mjdietzx/0cb95922aac14d446a6530f87b3a04ce#file-residual_network-py
 
+
 class RecoilNet(object):
 
     def __init__(self, summary=False):

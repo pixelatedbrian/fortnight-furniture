@@ -74,6 +74,7 @@ def plot_hist(history, info_str, epochs=2, augmentation=1, sprint=False):
         axs[0].set_xlabel('Epochs')
 
     axs[0].set_xlim(1, epochs)
+    axs[0].set_ylim(0, 5)
     axs[0].set_ylabel('Loss')
 #     axs[0].set_ylim(0, 15)
 
@@ -90,9 +91,9 @@ def plot_hist(history, info_str, epochs=2, augmentation=1, sprint=False):
     axs[1].set_title(title_text)
 
     if augmentation > 1:
-        axs[0].set_xlabel('Epochs\nAugmentation of {:3d}'.format(augmentation))
+        axs[1].set_xlabel('Epochs\nAugmentation of {:3d}'.format(augmentation))
     else:
-        axs[0].set_xlabel('Epochs')
+        axs[1].set_xlabel('Epochs')
 
     axs[1].set_xlim(1, epochs)
     axs[1].set_ylabel('Accuracy')
