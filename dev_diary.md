@@ -84,8 +84,25 @@
 | 2.5k | 0.742 | 0.55 | 0.0005 | 100 | 18k | 5.0 | fix zeros in plots in plot function, increase regularization to 0.01 |
 | 2.5l | 0.725 | 0.55 | 0.0001 | 150 | 18k | 7.4 | switch regularization back to L2, still high value of 0.01, reduce LR, increase minitrains |
 | 2.5m | 0.760 | 0.50 | 0.00025 | 150 | 18k | 7.4 | 0.7596 accuracy, new record. Not regularizing again though? increase LR back to 0.00025, decrease per minitrain drop of LR to 1.5^MT, reduce dropout slightly to 0.50 |
-| 2.5n | ? | 0.55 | 0.00025 | 150 | 18k | 7.4 | Many changes, see list below |
+| 2.5n | ? | 0.55 | 0.00025 | 150 | 18k | 7.4 | --Many changes, see list below-- |
 
+#### v3.0a (sprint)
+<img src="/imgs/model_v3_0a.png" alt="Model v3_0a" width="800" height="400">
+
+* `/src/model_acidmaw_3_0.py`
+* try training a brand new ResNet50
+* use SGD with Nesterov
+* currently no dropout or other forms of explicit regularization (still augmenting images though)
+* crashed on batch size 128, working on BS=16, going to try higher values as might speed things up
+
+
+
+### Arranging deck chairs on the Titanic?  
+ * Been tweaking Inceptionv3 for over a month now
+ * Tried VGG16 and that didn't seem to do well
+ * Tried ResNet50 and that seemed to generalize to train very well but due to a bug (or something) it couldn't predict on the test set even (predictions essentially were random, validation accuracy never got above 1.5%)
+ * Going to try to train a new ResNet50 on this data for 3.0
+ * train 0.0709 at end of 3rd epoch first tune
 
 #### v2.5o (sprint)
 <img src="/imgs/model_v2_5o.png" alt="Model v2_5o" width="800" height="400">
@@ -103,6 +120,7 @@
 * increase L2 regularization from 0.01 to 0.05
 * cap layer thaw to 50
 * reduce thaw from 5 per mini-train to int(2.5 per minitrain)
+* crashed out, out of memory on GPU
 
 #### v2.5m (sprint)
 <img src="/imgs/model_v2_5m.png" alt="Model v2_5m" width="800" height="400">
