@@ -104,8 +104,8 @@
 * changed LR decay of minitrain from LR / 2**(MT-1) -> LR / 1.5**(MT-1)
 * reduce dropout to 0.50 since that seems to be pretty standard in papers
 
-#### v2.5k (sprint)
-<img src="/imgs/model_v2_5k.png" alt="Model v2_5k" width="800" height="400">
+#### v2.5l (sprint)
+<img src="/imgs/model_v2_5l.png" alt="Model v2_5l" width="800" height="400">
 
 * `/src/model_falcon_v2_5.py`
 * increase regularization to 0.01 (seems high but we'll see)
