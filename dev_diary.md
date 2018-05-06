@@ -100,7 +100,7 @@
 * increase dropout back to 0.55
 * change learning rate to programmed annealing
 * mini-trains x 2  (30) but epochs per MT reduced from 10 to 5 to have more granular control
-* increase L2 regularization from 0.01 to 0.025
+* increase L2 regularization from 0.01 to 0.05
 * cap layer thaw to 50
 * reduce thaw from 5 per mini-train to int(2.5 per minitrain)
 
