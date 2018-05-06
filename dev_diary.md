@@ -95,7 +95,7 @@
 * mini-trains x 2  (30) but epochs per MT reduced from 10 to 5 to have more granular control
 
 #### v2.5m (sprint)
-<img src="/imgs/model_v2_5k.png" alt="Model v2_5k" width="800" height="400">
+<img src="/imgs/model_v2_5m.png" alt="Model v2_5m" width="800" height="400">
 
 * `/src/model_falcon_v2_5.py`
 * **finally** seems regularized, but still plateauing at ~0.73 accuracy on test set
