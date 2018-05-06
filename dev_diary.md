@@ -83,7 +83,16 @@
 | 2.5j | 0.743 | 0.55 | 0.0005 | 100 | 18k | 5.0 | undid constant LR, increased reg, increased LR, tried plot fix |
 | 2.5k | 0.742 | 0.55 | 0.0005 | 100 | 18k | 5.0 | fix zeros in plots in plot function, increase regularization to 0.01 |
 | 2.5l | 0.725 | 0.55 | 0.0001 | 150 | 18k | 7.4 | switch regularization back to L2, still high value of 0.01, reduce LR, increase minitrains |
-| 2.5m | ? | 0.50 | 0.0005 | 150 | 18k | 7.4 | increase LR back to 0.00025, decrease per minitrain drop of LR to 1.5^MT, reduce dropout slightly to 0.50 |
+| 2.5m | 0.760 | 0.50 | 0.00025 | 150 | 18k | 7.4 | 0.7596 accuracy, new record. Not regularizing again though? increase LR back to 0.00025, decrease per minitrain drop of LR to 1.5^MT, reduce dropout slightly to 0.50 |
+| 2.5n | ? | 0.55 | 0.00025 | 150 | 18k | 7.4 | Many changes, see list below |
+
+#### v2.5n (sprint)
+<img src="/imgs/model_v2_5n.png" alt="Model v2_5n" width="800" height="400">
+
+* `/src/model_falcon_v2_5.py`
+* increase dropout back to 0.55
+* change learning rate to programmed annealing
+* mini-trains x 2  (30) but epochs per MT reduced from 10 to 5 to have more granular control
 
 #### v2.5m (sprint)
 <img src="/imgs/model_v2_5k.png" alt="Model v2_5k" width="800" height="400">
