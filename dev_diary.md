@@ -86,6 +86,13 @@
 | 2.5m | 0.760 | 0.50 | 0.00025 | 150 | 18k | 7.4 | 0.7596 accuracy, new record. Not regularizing again though? increase LR back to 0.00025, decrease per minitrain drop of LR to 1.5^MT, reduce dropout slightly to 0.50 |
 | 2.5n | ? | 0.55 | 0.00025 | 150 | 18k | 7.4 | Many changes, see list below |
 
+
+#### v2.5o (sprint)
+<img src="/imgs/model_v2_5o.png" alt="Model v2_5o" width="800" height="400">
+
+* `/src/model_falcon_v2_5.py`
+* try switching to SGD again
+
 #### v2.5n (sprint)
 <img src="/imgs/model_v2_5n.png" alt="Model v2_5n" width="800" height="400">
 
@@ -94,6 +101,8 @@
 * change learning rate to programmed annealing
 * mini-trains x 2  (30) but epochs per MT reduced from 10 to 5 to have more granular control
 * increase L2 regularization from 0.01 to 0.025
+* cap layer thaw to 50
+* reduce thaw from 5 per mini-train to int(2.5 per minitrain)
 
 #### v2.5m (sprint)
 <img src="/imgs/model_v2_5m.png" alt="Model v2_5m" width="800" height="400">
