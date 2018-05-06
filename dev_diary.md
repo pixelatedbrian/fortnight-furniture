@@ -94,15 +94,16 @@
 * use SGD with Nesterov
 * currently no dropout or other forms of explicit regularization (still augmenting images though)
 * crashed on batch size 128, working on BS=16, going to try higher values as might speed things up
-
-
+* BS=64 crashed, BS=32 seems stable so far
+* train 0.0709 at end of 3rd epoch first tune
+* modified LR from Adam-like 0.00025 to SGD-like 0.0025
+* train 0.1291 at end of 3rd epoch after 2nd non-full run tune
 
 ### Arranging deck chairs on the Titanic?  
  * Been tweaking Inceptionv3 for over a month now
  * Tried VGG16 and that didn't seem to do well
  * Tried ResNet50 and that seemed to generalize to train very well but due to a bug (or something) it couldn't predict on the test set even (predictions essentially were random, validation accuracy never got above 1.5%)
  * Going to try to train a new ResNet50 on this data for 3.0
- * train 0.0709 at end of 3rd epoch first tune
 
 #### v2.5o (sprint)
 <img src="/imgs/model_v2_5o.png" alt="Model v2_5o" width="800" height="400">
