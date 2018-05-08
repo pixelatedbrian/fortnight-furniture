@@ -6,6 +6,8 @@ from deepcnn import NewResNet50
 
 from keras.optimizers import Adam, SGD
 from keras import regularizers
+from keras.callbacks import TensorBoard
+import keras.backend as K
 
 # Keras imports
 # from keras.models import  Sequential, Model
@@ -100,22 +102,22 @@ def run():
     with open("../data/data_splits.json") as infile:
         data_link_dict = json.load(infile)
 
-    EPOCHS = 10
+    EPOCHS = 2
     AUGMENTATION = 1    # could do 3 epochs of 10 augmentation or 30 of 1 which
                         # provides more data for plots to work with
 
-    MINITRAINS = 5
-    DO = 0.55  # drop out
+    MINITRAINS = 10
+    DO = 0.250  # drop out
 
     # for Adam inital LR of 0.0001 is a good starting point
     # for SGD initial LR of 0.001 is a good starting point
-    LR = 0.0025
+    LR = 0.005
     # DECAY = 0.5e-6
     L2_REG = 0.05
     # OPTIMIZER = Adam(lr=LR, decay=DECAY)
     OPTIMIZER = SGD(lr=LR, momentum=0.9, nesterov=True)
 
-    MODEL_ID = 'v2_5n'
+    MODEL_ID = 'v3_0d'
 
     plot_file = "model_{:}.png".format(MODEL_ID)
     weights_file = "weights/model_{:}_weights.h5".format(MODEL_ID)
@@ -132,7 +134,7 @@ def run():
     # These parameters are for LoaderBot v2.0
     # Parameters for Generators
     params = {'dim': (299, 299),
-              'batch_size': 64,
+              'batch_size': 16,
               'n_classes': 128,
               'n_channels': 3,
               'augmentation': AUGMENTATION,
@@ -140,7 +142,7 @@ def run():
     #
     # Parameters for Generators
     test_params = {'dim': (299, 299),
-                   'batch_size': 64,
+                   'batch_size': 16,
                    'n_classes': 128,
                    'n_channels': 3,
                    'augmentation': 1,
@@ -148,8 +150,8 @@ def run():
                    'shuffle': False}
 
     # Datasets
-    X_train_img_paths = data_link_dict["X_test_1"]
-    y_train = data_link_dict["y_test_1"]
+    X_train_img_paths = data_link_dict["X_train_2"]
+    y_train = data_link_dict["y_train_2"]
 
     X_test_img_paths = data_link_dict["X_test_2"]
     y_test = data_link_dict["y_test_2"]
@@ -162,9 +164,12 @@ def run():
     # base_model = InceptionV3(weights='imagenet', include_top=False) #include_top=False excludes final FC layer
     # model = regular_brian_layers(base_model, 128, DO, l1_reg=0.0005)
 
-    model = NewResNet50()
+    model = NewResNet50(dropout=DO)
+    model.load_weights("weights/model_v3_0c_weights.h5")
 
     model.compile(optimizer=OPTIMIZER, loss='categorical_crossentropy', metrics=['accuracy'])
+
+    # tensorboard = TensorBoard(log_dir="logs/", histogram_freq=0)
 
     # print(model.summary())
 
@@ -180,9 +185,9 @@ def run():
         if temp == 1:
             # Run model
             new_history = model.fit_generator(generator=training_generator,
-                                             validation_data=validation_generator,
-                                             epochs=EPOCHS,
-                                             use_multiprocessing=False)
+                                              validation_data=validation_generator,
+                                              epochs=EPOCHS,
+                                              use_multiprocessing=False)
 
             history["acc"] = new_history.history["acc"]
             history["val_acc"] = new_history.history["val_acc"]
@@ -191,13 +196,16 @@ def run():
 
         else:
 
-            temp_lr = LR / (10.0**(mt / 5 - (mt // 7.5)))
+            # temp_lr = LR / (10.0**(mt / 5 - (mt // 7.5)))
+            # temp_lr = LR / temp
+            temp_lr = LR
             print("\n\nLearning rate for mini-train: {:2.8f}\n\n".format(temp_lr))
             # mini-train 2
-            OPTIMIZER = Adam(lr=temp_lr, decay=0.0)
+            # OPTIMIZER = Adam(lr=temp_lr, decay=0.0)
+            K.set_value(OPTIMIZER.lr, temp_lr)
             # try to fine tune some of the InceptionV3 layers also
 
-            model.compile(optimizer=OPTIMIZER, loss='categorical_crossentropy', metrics=['accuracy'])
+            # model.compile(optimizer=OPTIMIZER, loss='categorical_crossentropy', metrics=['accuracy'])
 
             print("\n\n        Starting epoch {:}\n\n".format(EPOCHS * mt + 1))
 

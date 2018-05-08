@@ -75,7 +75,7 @@ def plot_hist(history, info_str, epochs=2, augmentation=1, sprint=False):
 
     axs[0].set_xlim(1, epochs)
     axs[0].set_ylabel('Loss')
-#     axs[0].set_ylim(0, 15)
+    axs[0].set_ylim(0, 5.0)
 
     axs[0].plot(history['loss'], color="blue", linestyle="--", alpha=0.8, lw=1.0)
     axs[0].plot(history['val_loss'], color="blue", alpha=0.8, lw=1.0)

@@ -11,6 +11,7 @@ import warnings
 
 from keras.layers import Input
 from keras import layers
+from keras.layers import Dropout
 from keras.layers import Dense
 from keras.layers import Activation
 from keras.layers import Flatten
@@ -34,7 +35,12 @@ from keras.engine.topology import get_source_inputs
 from keras.optimizers import Adam, SGD
 
 
-def identity_block(input_tensor, kernel_size, filters, stage, block):
+def identity_block(input_tensor,
+                   kernel_size,
+                   filters,
+                   stage,
+                   block,
+                   dropout=0.50):
     """The identity block is the block that has no conv layer at shortcut.
     # Arguments
         input_tensor: input tensor
@@ -55,21 +61,30 @@ def identity_block(input_tensor, kernel_size, filters, stage, block):
     x = Conv2D(filters1, (1, 1), name=conv_name_base + '2a')(input_tensor)
     x = BatchNormalization(axis=bn_axis, name=bn_name_base + '2a')(x)
     x = Activation('relu')(x)
+    x = Dropout(dropout)(x)
 
     x = Conv2D(filters2, kernel_size,
                padding='same', name=conv_name_base + '2b')(x)
     x = BatchNormalization(axis=bn_axis, name=bn_name_base + '2b')(x)
     x = Activation('relu')(x)
+    x = Dropout(dropout)(x)
 
     x = Conv2D(filters3, (1, 1), name=conv_name_base + '2c')(x)
     x = BatchNormalization(axis=bn_axis, name=bn_name_base + '2c')(x)
+    x = Dropout(dropout)(x)
 
     x = layers.add([x, input_tensor])
     x = Activation('relu')(x)
     return x
 
 
-def conv_block(input_tensor, kernel_size, filters, stage, block, strides=(2, 2)):
+def conv_block(input_tensor,
+               kernel_size,
+               filters,
+               stage,
+               block,
+               strides=(2, 2),
+               dropout=0.50):
     """conv_block is the block that has a conv layer at shortcut
     # Arguments
         input_tensor: input tensor
@@ -93,14 +108,17 @@ def conv_block(input_tensor, kernel_size, filters, stage, block, strides=(2, 2))
                name=conv_name_base + '2a')(input_tensor)
     x = BatchNormalization(axis=bn_axis, name=bn_name_base + '2a')(x)
     x = Activation('relu')(x)
+    x = Dropout(dropout)(x)
 
     x = Conv2D(filters2, kernel_size, padding='same',
                name=conv_name_base + '2b')(x)
     x = BatchNormalization(axis=bn_axis, name=bn_name_base + '2b')(x)
     x = Activation('relu')(x)
+    x = Dropout(dropout)(x)
 
     x = Conv2D(filters3, (1, 1), name=conv_name_base + '2c')(x)
     x = BatchNormalization(axis=bn_axis, name=bn_name_base + '2c')(x)
+    x = Dropout(dropout)(x)
 
     shortcut = Conv2D(filters3, (1, 1), strides=strides,
                       name=conv_name_base + '1')(input_tensor)
@@ -113,7 +131,8 @@ def conv_block(input_tensor, kernel_size, filters, stage, block, strides=(2, 2))
 
 def NewResNet50(input_shape=(299, 299, 3),
                 pooling=None,
-                classes=128):
+                classes=128,
+                dropout=0.50):
     """Instantiates the ResNet50 architecture.
     Optionally loads weights pre-trained
     on ImageNet. Note that when using TensorFlow,
@@ -172,27 +191,28 @@ def NewResNet50(input_shape=(299, 299, 3),
     x = Conv2D(64, (7, 7), strides=(2, 2), name='conv1')(x)
     x = BatchNormalization(axis=bn_axis, name='bn_conv1')(x)
     x = Activation('relu')(x)
+    x = Dropout(dropout)(x)
     x = MaxPooling2D((3, 3), strides=(2, 2))(x)
 
-    x = conv_block(x, 3, [64, 64, 256], stage=2, block='a', strides=(1, 1))
-    x = identity_block(x, 3, [64, 64, 256], stage=2, block='b')
-    x = identity_block(x, 3, [64, 64, 256], stage=2, block='c')
+    x = conv_block(x, 3, [64, 64, 256], stage=2, block='a', strides=(1, 1), dropout=dropout)
+    x = identity_block(x, 3, [64, 64, 256], stage=2, block='b', dropout=dropout)
+    x = identity_block(x, 3, [64, 64, 256], stage=2, block='c', dropout=dropout)
 
-    x = conv_block(x, 3, [128, 128, 512], stage=3, block='a')
-    x = identity_block(x, 3, [128, 128, 512], stage=3, block='b')
-    x = identity_block(x, 3, [128, 128, 512], stage=3, block='c')
-    x = identity_block(x, 3, [128, 128, 512], stage=3, block='d')
+    x = conv_block(x, 3, [128, 128, 512], stage=3, block='a', dropout=dropout)
+    x = identity_block(x, 3, [128, 128, 512], stage=3, block='b', dropout=dropout)
+    x = identity_block(x, 3, [128, 128, 512], stage=3, block='c', dropout=dropout)
+    x = identity_block(x, 3, [128, 128, 512], stage=3, block='d', dropout=dropout)
 
-    x = conv_block(x, 3, [256, 256, 1024], stage=4, block='a')
-    x = identity_block(x, 3, [256, 256, 1024], stage=4, block='b')
-    x = identity_block(x, 3, [256, 256, 1024], stage=4, block='c')
-    x = identity_block(x, 3, [256, 256, 1024], stage=4, block='d')
-    x = identity_block(x, 3, [256, 256, 1024], stage=4, block='e')
-    x = identity_block(x, 3, [256, 256, 1024], stage=4, block='f')
+    x = conv_block(x, 3, [256, 256, 1024], stage=4, block='a', dropout=dropout)
+    x = identity_block(x, 3, [256, 256, 1024], stage=4, block='b', dropout=dropout)
+    x = identity_block(x, 3, [256, 256, 1024], stage=4, block='c', dropout=dropout)
+    x = identity_block(x, 3, [256, 256, 1024], stage=4, block='d', dropout=dropout)
+    x = identity_block(x, 3, [256, 256, 1024], stage=4, block='e', dropout=dropout)
+    x = identity_block(x, 3, [256, 256, 1024], stage=4, block='f', dropout=dropout)
 
-    x = conv_block(x, 3, [512, 512, 2048], stage=5, block='a')
-    x = identity_block(x, 3, [512, 512, 2048], stage=5, block='b')
-    x = identity_block(x, 3, [512, 512, 2048], stage=5, block='c')
+    x = conv_block(x, 3, [512, 512, 2048], stage=5, block='a', dropout=dropout)
+    x = identity_block(x, 3, [512, 512, 2048], stage=5, block='b', dropout=dropout)
+    x = identity_block(x, 3, [512, 512, 2048], stage=5, block='c', dropout=dropout)
 
     x = AveragePooling2D((7, 7), name='avg_pool')(x)
 
