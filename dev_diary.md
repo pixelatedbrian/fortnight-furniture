@@ -86,6 +86,26 @@
 | 2.5m | 0.760 | 0.50 | 0.00025 | 150 | 18k | 7.4 | 0.7596 accuracy, new record. Not regularizing again though? increase LR back to 0.00025, decrease per minitrain drop of LR to 1.5^MT, reduce dropout slightly to 0.50 |
 | 2.5n | ? | 0.55 | 0.00025 | 150 | 18k | 7.4 | --Many changes, see list below-- |
 
+| 3.0a | 0.515 | 0.0 | 0.0025 | 50 | 18k | 3.7 | ResNet50 from scratch, needs dropout, prob doesn't need adaptive LR right now |
+| 3.0b | 0.440 | 0.5 | 0.0025 | 50 | 18k | 3.7 | added in dropout, made LR drop by LR / (minitrain + 1) |
+| 3.0c | 0.520 | 0.05 | 0.0025 | 50 | 18k | 3.7 | reduced dropout |
+| 3.0d | 0.708 | 0.25 | 0.0025 | 50 | 180k | 3.7 | warm_start with weights from 3.0c, did it on full image set 180k images about 1.33 hr per epoch, seems to need more dropout |
+
+### Image files have sort of meta features that can be inferred from the image itself. 
+ * height
+ * width
+ * aspect ratio of w/h
+ * file size (byes)
+ * number of pixels (h * w)
+ * pixels / byte of file (proxy for how compressible the image is?)
+ * color_channel_mean of file (r, g, b)
+ * accumulated error per color (resididual data from finding image set global standard deviation, see more details of that below)
+ 
+The above data was fed into a basic deep neural network. Randomly attempting to guess a image class should be about 0.78% accurate.  The DNN, using the meta features above, was about to get ~10% accuracy on the test set.  Obviously not amazing _but_ it does seem to imply that there is signal there. Newest idea is to concatenate this data into an InceptionV3 transfer learning model to try to give the model a bit more information.  I believe that this complies with the rules as the meta features all come from the image data itself and not the filename or url at all.
+
+Going to try to extend 2.5x to 2.6 with data concatenation.
+
+
 #### v3.0a (sprint)
 <img src="/imgs/model_v3_0a.png" alt="Model v3_0a" width="800" height="400">
 
