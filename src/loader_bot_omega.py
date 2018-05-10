@@ -141,38 +141,41 @@ class LoaderBot(keras.utils.Sequence):
                 print("pre_crop", pre_crop.shape)
                 print("new size:", temp_img.shape)
 
-            resized = resized / 255.0   # convert to float
+
 
             ############################
             ### Furniture Pics Stats ###
             ############################
-            fixed_r_mean = 176.0038 / 255.0
-            fixed_g_mean = 166.2084 / 255.0
-            fixed_b_mean = 158.0920 / 255.0
 
-            fixed_r_std = 75.3496 / 255.0
-            fixed_g_std = 78.9376 / 255.0
-            fixed_b_std = 83.4740 / 255.0
+            # resized = resized / 255.0   # convert to float
 
-            # zero center color
-            resized[..., 0] -= fixed_r_mean     # red
-            resized[..., 1] -= fixed_g_mean     # green
-            resized[..., 2] -= fixed_b_mean     # blue
-
-            # normalize
-            resized[..., 0] /= fixed_r_std      # red
-            resized[..., 1] /= fixed_g_std      # green
-            resized[..., 2] /= fixed_b_std      # blue
+            # fixed_r_mean = 176.0038 / 255.0
+            # fixed_g_mean = 166.2084 / 255.0
+            # fixed_b_mean = 158.0920 / 255.0
+            #
+            # fixed_r_std = 75.3496 / 255.0
+            # fixed_g_std = 78.9376 / 255.0
+            # fixed_b_std = 83.4740 / 255.0
+            #
+            # # zero center color
+            # resized[..., 0] -= fixed_r_mean     # red
+            # resized[..., 1] -= fixed_g_mean     # green
+            # resized[..., 2] -= fixed_b_mean     # blue
+            #
+            # # normalize
+            # resized[..., 0] /= fixed_r_std      # red
+            # resized[..., 1] /= fixed_g_std      # green
+            # resized[..., 2] /= fixed_b_std      # blue
 
             ######################
             ### Imagenet Stuff ###
             ######################
-            # resized = resized / 255.0   # convert to float
-            #
-            # # remove imagenet means from values
-            # resized[..., 0] -= (103.939 / 255.0)    # red
-            # resized[..., 1] -= (116.779 / 255.0)    # green
-            # resized[..., 2] -= (123.68 / 255.0)     # blue
+            resized = resized / 255.0   # convert to float
+
+            # remove imagenet means from values
+            resized[..., 0] -= (103.939 / 255.0)    # red
+            resized[..., 1] -= (116.779 / 255.0)    # green
+            resized[..., 2] -= (123.68 / 255.0)     # blue
 
             X[i, ] = resized
 
