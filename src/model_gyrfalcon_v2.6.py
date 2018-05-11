@@ -6,18 +6,20 @@ from keras.applications import InceptionV3
 from keras.optimizers import Adam, SGD
 
 # Keras imports
-from keras.models import  Sequential, Model
-from keras.layers import Dense, Dropout, Flatten, Activation, GlobalAveragePooling2D
+from keras.models import  Sequential, Model, Input
+from keras.layers import Dense, Dropout, Flatten, Activation, GlobalAveragePooling2D, BatchNormalization
 from keras.layers.convolutional import Conv2D, MaxPooling2D
 # from keras.callbacks import EarlyStopping
 from keras import regularizers
-from keras.layers.merge import Concatenate
+from keras.layers import concatenate
 
 # import glob
 import json
 import numpy as np
+import pandas as pd
 
-from loader_bot_omega import LoaderBot   # dynamic full image augmentation
+from loader_bot_reloaded import LoaderBot  # include meta features
+# from loader_bot_omega import LoaderBot   # dynamic full image augmentation
 # from loader_bot import LoaderBot
 
 import time
@@ -80,6 +82,66 @@ def regular_brian_layers(base_model, num_classes, dropout=0.2, l1_reg=0.01):
     return model
 
 
+def regular_meta_brian_layers(base_model, num_classes, dropout=0.2, l1_reg=0.01):
+    """Add last layer to the convnet
+    Args:
+    base_model: keras model excluding top
+    nb_classes: # of classes
+    Returns:
+    new keras model with last layer
+    """
+    ##############################################
+    ### BUILD MINI-DNN FOR IMAGE META-FEATURES ###
+    ##############################################
+    meta_features_x = Input(shape=(12,))
+
+    mx = Dense(128)(meta_features_x)
+    mx = BatchNormalization()(mx)
+    mx = Dropout(0.15)(mx)
+    mx = Activation("relu")(mx)
+
+    mx = Dense(256)(meta_features_x)
+    mx = BatchNormalization()(mx)
+    mx = Dropout(0.15)(mx)
+    mx = Activation("relu")(mx)
+
+    mx = Dense(128)(meta_features_x)
+    mx = BatchNormalization()(mx)
+    mx = Dropout(0.15)(mx)
+    mx = Activation("relu")(mx)
+
+    x = base_model.output
+    x = GlobalAveragePooling2D()(x)
+
+    x = concatenate([x, mx], axis=-1)
+
+    x = Dense(1024,
+              activation='relu',
+              kernel_initializer='he_normal',
+              kernel_regularizer=regularizers.l1(l1_reg))(x) #new FC layer, random init
+    # x = Dense(1024, activation='relu')(x)
+    x = Dropout(dropout)(x)
+
+    x = Dense(512,
+              activation='relu',
+              kernel_initializer='he_normal',
+              kernel_regularizer=regularizers.l1(l1_reg))(x) #new FC layer, random init
+    # x = Dense(512, activation='relu')(x) #new FC layer, random init
+    x = Dropout(dropout)(x)
+
+    x = Dense(256,
+              activation='relu',
+              kernel_initializer='he_normal',
+              kernel_regularizer=regularizers.l1(l1_reg))(x) #new FC layer, random init    # x = Dense(256, activation='relu')(x) #new FC layer, random init
+    x = Dropout(dropout)(x)
+
+    predictions = Dense(num_classes, activation='softmax')(x) #new softmax layer
+
+    model = Model(inputs=[base_model.input, meta_features_x], outputs=predictions)
+
+    return model
+
+
 def double_regular_brian_layers(base_model, num_classes, dropout=0.2, l1_reg=0.01):
     """Add last layer to the convnet
     Args:
@@ -130,7 +192,7 @@ def double_regular_meta_brian_layers(base_model, num_classes, dropout=0.2, l1_re
     x = base_model.output
     x = GlobalAveragePooling2D()(x)
 
-    x = Concatenate([x, meta_features_x])
+    x = concatenate([x, meta_features_x], axis=-1)
 
     x = Dense(2048,
               activation='relu',
@@ -154,7 +216,7 @@ def double_regular_meta_brian_layers(base_model, num_classes, dropout=0.2, l1_re
 
     predictions = Dense(num_classes, activation='softmax')(x) #new softmax layer
 
-    model = Model(inputs=base_model.input, outputs=predictions)
+    model = Model(inputs=[base_model.input, meta_features_x], outputs=predictions)
 
     return model
 
@@ -300,8 +362,8 @@ def run():
     AUGMENTATION = 1    # could do 3 epochs of 10 augmentation or 30 of 1 which
                         # provides more data for plots to work with
 
-    MINITRAINS = 30
-    DO = 0.50  # drop out
+    MINITRAINS = 17  # with 20 epoch for initial train it will add to 100 total
+    DO = 0.55  # drop out
 
     # for Adam inital LR of 0.0001 is a good starting point
     # for SGD initial LR of 0.001 is a good starting point
@@ -345,25 +407,44 @@ def run():
                    'shuffle': False}
 
     # Datasets
-    X_train_img_paths = [_dict["path"] for _dict in data_link_dict["X_test_1"]]
+
+    # get list of dictionaries from the data dictionary
+    X_train = data_link_dict["X_test_1"]
+
+    # convert to dataframe with specific order so we know path is in index 0
+    df = pd.DataFrame(X_train, columns=['path', 'aspect_ratio',
+                                        'b_accum_err', 'b_mean', 'file_size',
+                                        'g_accum_err', 'g_mean', 'h', 'pix_pb',
+                                        'pixels', 'r_accum_err', 'r_mean', 'w'])
+    X_train = df.values
+
     # X_train_img_paths = data_link_dict["X_test_1"]
     y_train = data_link_dict["y_test_1"]
 
-    X_test_img_paths = [_dict["path"] for _dict in data_link_dict["X_test_2"]]
+    X_test = data_link_dict["X_test_2"]
+
+    # convert to dataframe with specific order so we know path is in index 0
+    df = pd.DataFrame(X_test, columns=['path', 'aspect_ratio',
+                                       'b_accum_err', 'b_mean', 'file_size',
+                                       'g_accum_err', 'g_mean', 'h', 'pix_pb',
+                                       'pixels', 'r_accum_err', 'r_mean', 'w'])
+    X_test = df.values
+
     # X_test_img_paths = data_link_dict["X_test_2"]
     y_test = data_link_dict["y_test_2"]
 
-    print("length of X_train_img_paths:", len(X_train_img_paths))
+    print("length of X_train_img_paths:", len(X_train))
 
     del data_link_dict
 
     # Generators
-    training_generator = LoaderBot(X_train_img_paths, y_train, **params)
-    validation_generator = LoaderBot(X_test_img_paths, y_test, **test_params)
+    training_generator = LoaderBot(X_train, y_train, **params)
+    validation_generator = LoaderBot(X_test, y_test, **test_params)
 
     # setup model
     base_model = InceptionV3(weights='imagenet', include_top=False) #include_top=False excludes final FC layer
-    model = regular_brian_layers(base_model, 128, DO, l1_reg=0.0005)
+    model = regular_meta_brian_layers(base_model, 128, DO, l1_reg=0.0001)
+    # model = regular_brian_layers(base_model, 128, DO, l1_reg=0.0005)
 
     # print(model.summary())
 
@@ -379,9 +460,9 @@ def run():
         if temp == 1:
             # Run model
             new_history = model.fit_generator(generator=training_generator,
-                                             validation_data=validation_generator,
-                                             epochs=EPOCHS,
-                                             use_multiprocessing=False)
+                                              validation_data=validation_generator,
+                                              epochs=EPOCHS * 4,
+                                              use_multiprocessing=False)
 
             history["acc"] = new_history.history["acc"]
             history["val_acc"] = new_history.history["val_acc"]
