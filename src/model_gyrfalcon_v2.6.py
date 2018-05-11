@@ -142,7 +142,8 @@ def regular_meta_brian_layers(base_model, num_classes, dropout=0.2, l1_reg=0.01)
     return model
 
 
-def double_regular_brian_layers(base_model, num_classes, dropout=0.2, l1_reg=0.01):
+def meta_brian_layers(base_model, raven_model, num_classes,
+                      dropout=0.2, l1_reg=0.01):
     """Add last layer to the convnet
     Args:
     base_model: keras model excluding top
@@ -152,63 +153,26 @@ def double_regular_brian_layers(base_model, num_classes, dropout=0.2, l1_reg=0.0
     """
     x = base_model.output
     x = GlobalAveragePooling2D()(x)
-    x = Dense(2048,
+
+    mx = raven_model.output
+
+    x = concatenate([x, mx], axis=-1)
+
+    x = Dense(1024,
               activation='relu',
               kernel_initializer='he_normal',
               kernel_regularizer=regularizers.l1(l1_reg))(x) #new FC layer, random init
     # x = Dense(1024, activation='relu')(x)
     x = Dropout(dropout)(x)
 
-    x = Dense(1024,
+    x = Dense(512,
               activation='relu',
               kernel_initializer='he_normal',
               kernel_regularizer=regularizers.l1(l1_reg))(x) #new FC layer, random init
     # x = Dense(512, activation='relu')(x) #new FC layer, random init
     x = Dropout(dropout)(x)
 
-    x = Dense(512,
-              activation='relu',
-              kernel_initializer='he_normal',
-              kernel_regularizer=regularizers.l1(l1_reg))(x) #new FC layer, random init    # x = Dense(256, activation='relu')(x) #new FC layer, random init
-    x = Dropout(dropout)(x)
-
-    predictions = Dense(num_classes, activation='softmax')(x) #new softmax layer
-
-    model = Model(inputs=base_model.input, outputs=predictions)
-
-    return model
-
-
-def double_regular_meta_brian_layers(base_model, num_classes, dropout=0.2, l1_reg=0.01):
-    """Add last layer to the convnet
-    Args:
-    base_model: keras model excluding top
-    nb_classes: # of classes
-    Returns:
-    new keras model with last layer
-    """
-    meta_features_x = Input(shape=(12,))
-
-    x = base_model.output
-    x = GlobalAveragePooling2D()(x)
-
-    x = concatenate([x, meta_features_x], axis=-1)
-
-    x = Dense(2048,
-              activation='relu',
-              kernel_initializer='he_normal',
-              kernel_regularizer=regularizers.l1(l1_reg))(x) #new FC layer, random init
-    # x = Dense(1024, activation='relu')(x)
-    x = Dropout(dropout)(x)
-
-    x = Dense(1024,
-              activation='relu',
-              kernel_initializer='he_normal',
-              kernel_regularizer=regularizers.l1(l1_reg))(x) #new FC layer, random init
-    # x = Dense(512, activation='relu')(x) #new FC layer, random init
-    x = Dropout(dropout)(x)
-
-    x = Dense(512,
+    x = Dense(256,
               activation='relu',
               kernel_initializer='he_normal',
               kernel_regularizer=regularizers.l1(l1_reg))(x) #new FC layer, random init    # x = Dense(256, activation='relu')(x) #new FC layer, random init
@@ -347,6 +311,36 @@ def temp_clean_history(hist):
     return temp_hist
 
 
+def Raven(DO=0.25, classes=128, load_weights=False):
+    _input = Input(shape=(12,))
+
+    # First Layer
+    x = Dense(128)(_input)
+    x = BatchNormalization()(x)
+    x = Dropout(DO)(x)
+    x = Activation("relu")(x)
+
+    # Second Layer
+    x = Dense(256)(x)
+    x = BatchNormalization()(x)
+    x = Dropout(DO)(x)
+    x = Activation("relu")(x)
+
+    # Third Layer
+    x = Dense(512)(x)
+    x = BatchNormalization()(x)
+    x = Dropout(DO)(x)
+    x = Activation("relu")(x)
+
+    output = Dense(classes, activation='softmax')(x)
+    model = Model(inputs=_input, outputs=output)
+
+    if load_weights is True:
+        model.load("/weights/err_0.091_model_raven.h5")
+
+    return model
+
+
 def run():
     # data_link_dict = get_skfold_data(path="../data/imgs/*.jpg")
     start_time = time.time()
@@ -374,7 +368,7 @@ def run():
     # OPTIMIZER = SGD(lr=LR, momentum=0.9, nesterov=True)
 
     NB_IV3_LAYERS_TO_FREEZE = 172
-    MODEL_ID = 'v2_6d'
+    MODEL_ID = 'v2_6e'
 
     plot_file = "model_{:}.png".format(MODEL_ID)
     weights_file = "weights/model_{:}_weights.h5".format(MODEL_ID)
@@ -443,6 +437,10 @@ def run():
 
     # setup model
     base_model = InceptionV3(weights='imagenet', include_top=False) #include_top=False excludes final FC layer
+
+    # DNN for meta-image features with optional transfer learning
+    raven_model = Raven(0.05, classes=128, load_weights=False)
+
     model = regular_meta_brian_layers(base_model, 128, DO, l1_reg=0.0001)
     # model = regular_brian_layers(base_model, 128, DO, l1_reg=0.0005)
 
