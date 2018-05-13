@@ -84,12 +84,66 @@
 | 2.5k | 0.742 | 0.55 | 0.0005 | 100 | 18k | 5.0 | fix zeros in plots in plot function, increase regularization to 0.01 |
 | 2.5l | 0.725 | 0.55 | 0.0001 | 150 | 18k | 7.4 | switch regularization back to L2, still high value of 0.01, reduce LR, increase minitrains |
 | 2.5m | 0.760 | 0.50 | 0.00025 | 150 | 18k | 7.4 | 0.7596 accuracy, new record. Not regularizing again though? increase LR back to 0.00025, decrease per minitrain drop of LR to 1.5^MT, reduce dropout slightly to 0.50 |
-| 2.5n | ? | 0.55 | 0.00025 | 150 | 18k | 7.4 | --Many changes, see list below-- |
-
+| 2.5n | ? | 0.55 | 0.00025 | 150 | 18k | 7.4 | --Many changes, see list below-- Crashed in run probably from memory exhaustion |
 | 3.0a | 0.515 | 0.0 | 0.0025 | 50 | 18k | 3.7 | ResNet50 from scratch, needs dropout, prob doesn't need adaptive LR right now |
 | 3.0b | 0.440 | 0.5 | 0.0025 | 50 | 18k | 3.7 | added in dropout, made LR drop by LR / (minitrain + 1) |
 | 3.0c | 0.520 | 0.05 | 0.0025 | 50 | 18k | 3.7 | reduced dropout |
 | 3.0d | 0.708 | 0.25 | 0.0025 | 50 | 180k | 3.7 | warm_start with weights from 3.0c, did it on full image set 180k images about 1.33 hr per epoch, seems to need more dropout |
+| 2.6a | 0.53 | 0.55 | 0.00025 | 60 | 18k | 2.7 | Trying to reestablish v2.5 series baseline but failing |
+| 2.6b | 0.57 | 0.55 | 0.00025 | 30 | 18k | 1.5 | Still failing |
+| 2.6c | 0.72 | 0.55 | 0.00025 | 150 | 18k |7.5 | Finally got it, it was because the corpus means were being subtracted during image processing, instead of the Imagenet means |
+| 2.6d | 0.755 | 0.55 | 0.00025 | 100 | 18k | 5.0 | Concatenating Raven model/data. See notes. |
+| 2.6e | 0.750 | 0.55 | 0.00025 | 30 | 18k | 1.5 | Removed softmax from Raven model, extended non-fine tune 1st mini-train to 20 epochs |
+| 2.6f | 0.753 | 0.62 | 0.00025 | 100 | 18k | 5.0 | Concatenating Raven model/data. See notes. |
+
+### Found a sort of 'bug' in what images were being fed into the augmentation system.
+ * `/src/loader_bot_omega.py`
+ * LoaderBot was loading in images from `root/data/stage3_imgs/` 
+ * I thought that those images were cleaned up images (1x1 images and similar removed) but otherwise full images
+ * Upon switching LoaderBot to use the original raw images from `root/data/imgs/` I found that training time went from ~3 min per epoch to ~15-18min per epoch. 
+ * For a long time I thought that there was some kind of bug in LoaderBot but finally I loaded some `stage3_imgs` files and saw that they were all already 299x299px center crops of the raw images.  Which means that all previous augmentation was being performed on the small central crops as opposed to trying to take broader or zoomed slices of the original image.
+ * Given that correctly augmenting was taking 15+ min per epoch (on the Sprint data no less, which is only 10% of the training set) that made it look like training on the whole set was going to be incredibly slow.
+ * Therefore I finally implemented the long considered 'static augmentation'.  Essentially each raw image is loaded, a FOR LOOP is run and the image is augmented x amount of times. (20 in this case)  Then those images are saved with the incremental number added to the file name.
+ * `/src/loader_bot_reloaded.py` was created
+ * LoaderBot - Reloaded has an option to randomly load from the specified range. So now it will look at the file path specified by the training data dictionary. Then, given the range of options (0 to 19 in this case), it will randomly select a pre-augmented file to be used for this particular batch.
+ * This will hopefully provide a combination of solid augmentation and also speed up epochs compared to previous versions as there is less processing of the images involved.
+
+
+#### v2.6f (sprint)
+<img src="/imgs/model_v2_6f.png" alt="Model v2_6f" width="800" height="400">
+
+* `/src/model_gyrfalcon_v2_6.py`
+* Loading in pretrained weights from a 9% validation accuracy Raven model
+* Increased dropout to 0.62, didn't really seem to help the overfitting, at least within 100 total epochs
+* Kind of concerned that backprop is 'ruining' the 'better' pretrained weights of the Raven model
+* Next version going to try freezing Raven model, at least initially, in similar concept to Iv3
+
+#### v2.6e (sprint)
+<img src="/imgs/model_v2_6e.png" alt="Model v2_6e" width="800" height="400">
+
+* `/src/model_gyrfalcon_v2_6.py`
+* The same as 2.6d except that the softmax layer of Raven DNN has been removed.
+* Performance slightly worse
+* Tried extending the 1st mini-train without fine tuning of Inception v3 enabled in order to give the Raven DNN more time to train. Didn't seem to help
+
+#### v2.6d (sprint)
+<img src="/imgs/model_v2_6d.png" alt="Model v2_6d" width="800" height="400">
+
+* `/src/model_gyrfalcon_v2_6.py`
+* Concatenated a small DNN side by side with the Inception v3 model.  The Raven DNN uses the image meta features listed below to attempt to make predictions
+* When training on image meta data accuracy was able to get to about 10% on the validation set. Not great by any means, but it does seem to imply some signal as it's about 12x the accuracy one would expect from random guessing.
+* First training of the dual models involved untrained weights for the Raven DNN
+* After the fact also realized that when the Raven DNN was being concatenated that it still had the softmax predictions layer left over from it's solo-development stage.  Therefore the 'Brian net' DNN after InceptionV3/Raven was taking in probablities directly from the Raven model.
+* Got back to 75% accuracy which is above average for sprints but still not an improvement
+
+#### v2.6a-c (sprint)
+<img src="/imgs/model_v2_6a.png" alt="Model v2_6a" width="800" height="400">
+
+* `/src/model_gyrfalcon_v2_6.py`
+* The goal was to concatenate a DNN that works on image meta features with the relatively successful v2.5 model framework using Sprint data sets
+* First simply tried to prove that the baseline had similar performance to the original v2.5 series
+* This was not the case, performance was crushed from ~75% accuracy down to low 50%s.
+* Eventually figured out that the ResNet train on only this image corpus (not transfer learning) averages were being subtracted instead of the ImageNet averages.  This caused the massive drop in accuracy.  Lesson learned _**Subtracting the correct means from image color channels in pre-processing is extremely important.**_
 
 ### Image files have sort of meta features that can be inferred from the image itself. 
  * height
