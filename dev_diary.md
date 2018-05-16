@@ -95,6 +95,29 @@
 | 2.6d | 0.755 | 0.55 | 0.00025 | 100 | 18k | 5.0 | Concatenating Raven model/data. See notes. |
 | 2.6e | 0.750 | 0.55 | 0.00025 | 30 | 18k | 1.5 | Removed softmax from Raven model, extended non-fine tune 1st mini-train to 20 epochs |
 | 2.6f | 0.753 | 0.62 | 0.00025 | 100 | 18k | 5.0 | Concatenating Raven model/data. See notes. |
+| 2.6g | 0.760 | 0.55 | 0.00025 | 100 | 18k | 5.0 | Loading Raven weights, freezing Raven model |
+| 2.6h | 0.755 | 0.55 | 0.00025 | 150 | 18k | 7.5 | 150 epochs night run |
+| 2.6i | 0.827 | 0.55 | 0.00025 | 40 | 180k | 13.4 | Run on full training data, new accuracy record, old loader_bot augmentation |
+| 2.6j | 0.832 | 0.55 | 0.00025 | 40 | 180k | 14.27 | Learning Rate Annealing, Run on full training data, new accuracy record at epoch 29 |
+
+#### v2.6j
+<img src="/imgs/model_v2_6j.png" alt="Model v2_6j" width="800" height="400">
+
+* `/src/model_gyrfalcon_v2_6.py`
+* Extension of 2.6i
+* New record accuracy on validation set for full train run 0.832 at E29
+* Original 'flawed' loader_bot augmentation (of already cropped images)
+* L2 regularization slightly decreased from 0.05 to 0.025
+* Allow Raven to thaw after 5 epochs for 'fine tuning'
+* Learning rate annealing for period of 'bump' around every 7 epochs (40E total)
+
+#### v2.6i
+<img src="/imgs/model_v2_6i.png" alt="Model v2_6i" width="800" height="400">
+
+* `/src/model_gyrfalcon_v2_6.py`
+* Loading in pretrained weights from a 9% validation accuracy Raven model
+* New record accuracy on validation set for full train run
+* L2 regularization slightly decreased from 0.05 to 0.025
 
 ### Found a sort of 'bug' in what images were being fed into the augmentation system.
  * `/src/loader_bot_omega.py`
