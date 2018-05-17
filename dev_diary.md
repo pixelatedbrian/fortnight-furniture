@@ -100,6 +100,13 @@
 | 2.6i | 0.827 | 0.55 | 0.00025 | 40 | 180k | 13.4 | Run on full training data, new accuracy record, old loader_bot augmentation |
 | 2.6j | 0.832 | 0.55 | 0.00025 | 40 | 180k | 14.27 | Learning Rate Annealing, Run on full training data, new accuracy record at epoch 29 |
 
+### Submitted Results
+ * Scored slightly worse on the leaderboard than before.  Accuracy was worse by 1% to 20%
+ * Found that the color channels of the images are inconsistent between training sets which is messing things up
+ * The static image augmentation is failing to progress past 2% accuracy, which is infuriating.  Not sure what is going on.
+ * For static image aug fixed it so that it would be maintaining RBG in a standard manner. The main cause of the problem is that CV2 opens images in a non RGB format X-(
+ * Going to attempt to disable smart crop for the static image augmentation and see if that helps.
+
 #### v2.6j
 <img src="/imgs/model_v2_6j.png" alt="Model v2_6j" width="800" height="400">
 
