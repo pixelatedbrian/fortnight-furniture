@@ -101,6 +101,8 @@
 | 2.6j | 0.832 | 0.55 | 0.00025 | 40 | 180k | 14.27 | Learning Rate Annealing, Run on full training data, new accuracy record at epoch 29 |
 | 2.7a | 0.722 | 0.55 | 0.00025 | 175 | 18k | 7.0 | 175 epochs night run, full 20 count static augmentation, aug odds 100% |
 | 2.7b | 0.709 | 0.55 | 0.00025 | 150 | 18k | 6.4 | 150 epochs, increasing aug odds from 0% to 100% by 5% increments |
+| 2.7c | n/a | 0.55 | 0.00025 | 150 | 18k | 6.4 | loaded weights from 2.5m, Train/test folds are different so the weights have seen some of the test images. Pulling score |
+| 2.7d | ? | 0.55 | 0.00025 | 150 | 18k | 7.0 | no augmentation run to reestablish baseline and pre-train weights on correct train/test splits  |
 
 ### Submitted Results
  * Scored slightly worse on the leaderboard than before.  Accuracy was worse by 1% to 20%
