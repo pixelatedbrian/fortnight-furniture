@@ -99,6 +99,8 @@
 | 2.6h | 0.755 | 0.55 | 0.00025 | 150 | 18k | 7.5 | 150 epochs night run |
 | 2.6i | 0.827 | 0.55 | 0.00025 | 40 | 180k | 13.4 | Run on full training data, new accuracy record, old loader_bot augmentation |
 | 2.6j | 0.832 | 0.55 | 0.00025 | 40 | 180k | 14.27 | Learning Rate Annealing, Run on full training data, new accuracy record at epoch 29 |
+| 2.7a | 0.722 | 0.55 | 0.00025 | 175 | 18k | 7.0 | 175 epochs night run, full 20 count static augmentation, aug odds 100% |
+| 2.7b | 0.709 | 0.55 | 0.00025 | 150 | 18k | 6.4 | 150 epochs, increasing aug odds from 0% to 100% by 5% increments |
 
 ### Submitted Results
  * Scored slightly worse on the leaderboard than before.  Accuracy was worse by 1% to 20%
