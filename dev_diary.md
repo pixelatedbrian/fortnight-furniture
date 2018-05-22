@@ -104,7 +104,10 @@
 | 2.7c | n/a | 0.55 | 0.00025 | 150 | 18k | 6.4 | loaded weights from 2.5m, Train/test folds are different so the weights have seen some of the test images. Pulling score |
 | 2.7d | 0.693 | 0.55 | 0.00025 | 150 | 18k | 6.4 | no augmentation run to reestablish baseline and pre-train weights on correct train/test splits  |
 | 2.7e | 0.735 | 0.50 | 0.00025 | 150 | 18k | 6.0 | 150 epochs, no augmentation, reduce regularization some dropout to 0.50 |
-| 2.7f | ? | 0.50 | 0.00025 | 150 | 18k | 6.0 | import weights from 2.7e and do full augmentation |
+| 2.7f | 0.738 | 0.50 | 0.00025 | 150 | 18k | 6.0 | import weights from 2.7f and do full augmentation on sprint set |
+| 2.7g | 0.751 | 0.50 | 0.00025 | 200 | 18k | 8.6 | full augmentation, less regularization DO 0.50 200 total epochs, LR = LR / 1.5^mini-train |
+| 2.7h | ? | 0.50 | 0.00025 | 200 | 18k | 8.6 | full train, full augmentation, use weights from 2.7g |
+
 
 #### v2.7a
 <img src="/imgs/model_v2_7a.png" alt="Model v2_7a" width="800" height="400">
