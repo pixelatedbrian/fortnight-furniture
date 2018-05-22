@@ -102,7 +102,19 @@
 | 2.7a | 0.722 | 0.55 | 0.00025 | 175 | 18k | 7.0 | 175 epochs night run, full 20 count static augmentation, aug odds 100% |
 | 2.7b | 0.709 | 0.55 | 0.00025 | 150 | 18k | 6.4 | 150 epochs, increasing aug odds from 0% to 100% by 5% increments |
 | 2.7c | n/a | 0.55 | 0.00025 | 150 | 18k | 6.4 | loaded weights from 2.5m, Train/test folds are different so the weights have seen some of the test images. Pulling score |
-| 2.7d | ? | 0.55 | 0.00025 | 150 | 18k | 7.0 | no augmentation run to reestablish baseline and pre-train weights on correct train/test splits  |
+| 2.7d | 0.693 | 0.55 | 0.00025 | 150 | 18k | 6.4 | no augmentation run to reestablish baseline and pre-train weights on correct train/test splits  |
+| 2.7e | 0.735 | 0.50 | 0.00025 | 150 | 18k | 6.0 | 150 epochs, no augmentation, reduce regularization some dropout to 0.50 |
+| 2.7f | ? | 0.50 | 0.00025 | 150 | 18k | 6.0 | import weights from 2.7e and do full augmentation |
+
+#### v2.7a
+<img src="/imgs/model_v2_7a.png" alt="Model v2_7a" width="800" height="400">
+
+* `/src/model_hawk_v2_7.py`
+* Extension of 2.5
+* 
+
+### Static Augmentation of Images
+ * 
 
 ### Submitted Results
  * Scored slightly worse on the leaderboard than before.  Accuracy was worse by 1% to 20%
