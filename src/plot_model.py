@@ -4,6 +4,28 @@ import matplotlib.pyplot as plt
 from matplotlib.ticker import MultipleLocator, FormatStrFormatter
 
 
+def clean_history(hist):
+    '''
+    For whatever reason saving and loading weights prepends a 0 to the history
+    of the model. (weird)
+
+    This attempts to strip that padding so that the charts appear as they Should
+
+    INPUTS:
+    hist: dictionary with the history of a model (acc, val, etc)
+
+    RETURNS:
+    dictionary of lists with the padded zeros removed
+    '''
+    temp_hist = hist.copy()
+    chop = sum([1 for item in hist["acc"] if item == 0])
+
+    for key in temp_hist.keys():
+        temp_hist[key] = temp_hist[key][chop:]
+
+    return temp_hist
+
+
 def plot_hist(history, info_str, epochs=2, augmentation=1, sprint=False):
     '''
     Make a plot of the rate of error as well as the accuracy of the model
@@ -21,6 +43,10 @@ def plot_hist(history, info_str, epochs=2, augmentation=1, sprint=False):
     performing then the values could be reused in order to attempt to
     replicate the result.
     '''
+
+    # clean the history first in case it was zero padded from keras
+    history = clean_history(history)
+
     fig, axs = plt.subplots(1, 2, figsize=(16, 8))
 
     fig.suptitle("", fontsize=12, fontweight='normal')
@@ -31,7 +57,7 @@ def plot_hist(history, info_str, epochs=2, augmentation=1, sprint=False):
     minor_ticks = int(epochs / 20.0)
 
     title_text = "Homewares and Furniture Image Identification\n Train Set and Dev Set"
-    ACC = 0.817   # record accuracy
+    ACC = 0.829   # record accuracy
     if sprint is True:
         ACC = 0.750
         title_text = "SPRINT: Homewares and Furniture Image Identification\n Train Set and Dev Set"
@@ -110,3 +136,4 @@ def plot_hist(history, info_str, epochs=2, augmentation=1, sprint=False):
 
     plt.savefig("../imgs/" + info_str, facecolor='w', edgecolor='w', transparent=False)
     # plt.show()
+    plt.close('all')

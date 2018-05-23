@@ -16,7 +16,8 @@ from keras import regularizers
 import json
 import numpy as np
 
-from loader_bot_omega import LoaderBot   # dynamic full image augmentation
+from loader_bot_reloaded import LoaderBot   # Static augmentation
+# from loader_bot_omega import LoaderBot   # dynamic full image augmentation
 # from loader_bot import LoaderBot
 
 import time
@@ -377,7 +378,7 @@ def run():
     # OPTIMIZER = SGD(lr=LR, momentum=0.9, nesterov=True)
 
     NB_IV3_LAYERS_TO_FREEZE = 172
-    MODEL_ID = 'v2_5o'
+    MODEL_ID = 'v2_5z'
 
     plot_file = "model_{:}.png".format(MODEL_ID)
     weights_file = "weights/model_{:}_weights.h5".format(MODEL_ID)
@@ -393,20 +394,13 @@ def run():
 
     # These parameters are for LoaderBot v2.0
     # Parameters for Generators
-    params = {'dim': (299, 299),
-              'batch_size': 128,
-              'n_classes': 128,
-              'n_channels': 3,
-              'augmentation': AUGMENTATION,
+    params = {'batch_size': 128,
+              'random_pics': 1,
+              'percent_random': 0.0,
               'shuffle': True}
     #
     # Parameters for Generators
-    test_params = {'dim': (299, 299),
-                   'batch_size': 128,
-                   'n_classes': 128,
-                   'n_channels': 3,
-                   'augmentation': 1,
-                   'augment': False,
+    test_params = {'batch_size': 128,
                    'shuffle': False}
 
     # Datasets
@@ -415,8 +409,6 @@ def run():
 
     X_test_img_paths = data_link_dict["X_test_2"]
     y_test = data_link_dict["y_test_2"]
-
-    print(X_train_img_paths[:5])
 
     # Generators
     training_generator = LoaderBot(X_train_img_paths, y_train, **params)

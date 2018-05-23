@@ -25,7 +25,7 @@ if __name__ == "__main__":
     # images
     prediction_df.predicted.apply(lambda x: np.random.randint(1, 128))
     print(prediction_df.head())
-    prediction_df.to_csv("../data/start_predictions.csv")
+    prediction_df.to_csv("../data/start_predictions.csv", index=False)
 
     print("extract files that we want")
 
@@ -81,4 +81,4 @@ if __name__ == "__main__":
 
     out_df.loc[:, "predicted"] = new_preds
 
-    out_df.to_csv("../data/model_v1_8_predictions.csv")
+    out_df.to_csv("../data/model_v1_8_predictions.csv", index=False)

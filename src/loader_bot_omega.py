@@ -7,7 +7,7 @@ from image_aug import fancy_pca, rotate_bound, smart_crop, crop_image
 class LoaderBot(keras.utils.Sequence):
     'Generates data for Keras'
     def __init__(self, list_IDs, labels, batch_size=32, dim=(299, 299), n_channels=3,
-                 n_classes=128, shuffle=False, augmentation=1, augment=True):
+                 n_classes=128, shuffle=False, augmentation=1, augment=False):
         '''
         Initialization
         Already shuffled by get_skfold_indicies so no need to shuffle again
@@ -26,7 +26,7 @@ class LoaderBot(keras.utils.Sequence):
 
     def __len__(self):
         'Denotes the number of batches per epoch'
-        self.len = int(np.floor(len(self.list_IDs) / self.batch_size)) * self.augmentation
+        self.len = int(np.floor(len(self.list_IDs) / self.batch_size))
         return self.len
 
     def __getitem__(self, index):
@@ -72,13 +72,30 @@ class LoaderBot(keras.utils.Sequence):
 
             # ID:
             # ../data/stage1_imgs/flip_116297_85.jpg
+            # temp = cv2.imread(ID)
+
+            ###############################################
+            # test model 2_5 on augmented images
+            ###############################################
+            path = "../data/static_aug2/0_" + ID.split("/")[-1]
+
+            # print(">>>>>>>>>>>>>>>>>>>>", ID, path)
 
             # For some reason CV2 loads as BGR instead of RGB
-            temp = cv2.imread(ID)
+            temp = cv2.imread(path)
+
+            # some pictures in /imgs have been removed because they were 1px x 1px
+            # do a hack to fix that problem for this test
+            if temp is None:
+                # print(ID, path)
+                temp_path = list_IDs_temp[i - 5]
+                path = "../data/static_aug2/0_" + temp_path.split("/")[-1]
+                temp = cv2.imread(path)
+            ###############################################
 
             # Store class
             # y[i] = self.labels[ID]
-            y[i] = int(ID.split("/")[-1].split(".")[0].split("_")[-1]) - 1
+            y[i] = int(path.split("/")[-1].split(".")[0].split("_")[-1]) - 1
 
             # do some error checking because some files suck
             # for example some files are shape(1, 1, 3)
