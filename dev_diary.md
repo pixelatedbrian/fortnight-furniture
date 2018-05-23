@@ -106,15 +106,25 @@
 | 2.7e | 0.735 | 0.50 | 0.00025 | 150 | 18k | 6.0 | 150 epochs, no augmentation, reduce regularization some dropout to 0.50 |
 | 2.7f | 0.738 | 0.50 | 0.00025 | 150 | 18k | 6.0 | import weights from 2.7f and do full augmentation on sprint set |
 | 2.7g | 0.751 | 0.50 | 0.00025 | 200 | 18k | 8.6 | full augmentation, less regularization DO 0.50 200 total epochs, LR = LR / 1.5^mini-train |
-| 2.7h | ? | 0.50 | 0.00025 | 200 | 18k | 8.6 | full train, full augmentation, use weights from 2.7g |
+| 2.7h | 0.823 | 0.55 | 0.00025 | 200 | 180k | 5.6 | full train, full augmentation, use weights from 2.7g |
+| 2.7i | 0.830 | 0.55 | 0.00025 | 30 | 180k | 5.5 | same as 2.7h but with learning rate annealing |
+| 2.7j | 0.748 | 0.55 | 0.00025 | 60 | 18k | 8.6 | base 2.7 but with extra layer in Brian DNN making it 4 layers 2048 FC -> 1024 FC -> 512 FC -> 256 FC -> 128 Softmax |
+| 2.7k | 0.727 | 0.575 | 0.00025 | 25 | 18k | 8.6 | 2.7j with heavy regularization, L2 0.075, killed train early |
+| 2.7l | 0.750 | 0.625 | 0.00025 | 25 | 18k | 8.6 | 2.7j with very heavy regularization, L2 0.125 |
 
+#### v2.7l
+<img src="/imgs/model_v2_7l.png" alt="Model v2_7l" width="800" height="400">
+
+* `/src/model_hawk_v2_7.py`
+* Tried using a deeper net, it definitely learned faster but variance is huge as the network overfits yet the validation error again plateaus at ~0.75.  At this point seems like inherent limitations in Inception v3
 
 #### v2.7a
 <img src="/imgs/model_v2_7a.png" alt="Model v2_7a" width="800" height="400">
 
 * `/src/model_hawk_v2_7.py`
 * Extension of 2.5
-* 
+* Removed the Raven DNN 'assist' because it was preventing static augmentation from working
+* got static augmentation working but it doesn't seem to be helping
 
 ### Static Augmentation of Images
  * 
