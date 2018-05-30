@@ -3,3 +3,4 @@
 *.ipynb
 *.pth
 /pyre/data/*
+/pyre/tmp/*
