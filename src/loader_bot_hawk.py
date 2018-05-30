@@ -72,6 +72,15 @@ class LoaderBot(keras.utils.Sequence):
             # load whatever the file is:
             img_data = cv2.imread(path)
 
+            if img_data.shape[0] != self.dim[0]:
+                # resize images for certain networks besides InceptionV3
+                try:
+                    # image is just a square but not necessarily 299px x 299px
+                    # generalize to self.dim so other 'nets can be used, like VGG16
+                    img_data = cv2.resize(img_data, self.dim, interpolation=cv2.INTER_AREA)
+                except:
+                    print("something went horribly wrong in LoaderBot _generate_data", img_file, "shape", img_data.shape)
+
             # if img_data is None:
             #     print(">>>>>>>>>>>>>>>>", path)
 
@@ -82,12 +91,20 @@ class LoaderBot(keras.utils.Sequence):
             ######################
             ### Imagenet Stuff ###
             ######################
-            img_data = img_data / 255.0   # convert to float
+            img_data = img_data.astype('float64')
+            img_data = img_data / 255.0  # convert to float
+
+            mean = [0.485, 0.456, 0.406]
+            std = [0.229, 0.224, 0.225]
+
+            img_data[..., 0] = (img_data[..., 0] - mean[0]) / std[0]  # red
+            img_data[..., 1] = (img_data[..., 1] - mean[1]) / std[1]  # green
+            img_data[..., 2] = (img_data[..., 2] - mean[2]) / std[2]  # blue
 
             # remove imagenet means from values
-            img_data[..., 0] -= (103.939 / 255.0)    # red
-            img_data[..., 1] -= (116.779 / 255.0)    # green
-            img_data[..., 2] -= (123.68 / 255.0)     # blue
+            # img_data[..., 0] = (img_data[..., 0] - 103.939) * 0.017    # red
+            # img_data[..., 1] = (img_data[..., 1] - 116.779) * 0.017    # green
+            # img_data[..., 2] = (img_data[..., 2] - 123.68) * 0.017     # blue
 
             X[idx, ] = img_data
 

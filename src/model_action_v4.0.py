@@ -1,4 +1,5 @@
-from keras.applications import InceptionV3
+# from keras.applications import InceptionV3
+from keras.applications import DenseNet201
 # from keras.applications.inception_v3 import preprocess_input
 # from keras.preprocessing.image import img_to_array
 # from keras.preprocessing.image import load_img
@@ -43,7 +44,7 @@ def regular_brian_layers(base_model, num_classes, dropout=0.2, l1_reg=0.01):
     new keras model with last layer
     """
     x = base_model.output
-    x = GlobalAveragePooling2D()(x)
+    x = GlobalAveragePooling2D(name='avg_pool')(x)
     x = Dense(1024,
               activation='relu',
               kernel_initializer='he_normal',
@@ -80,12 +81,6 @@ def neo_brian_layers(base_model, num_classes, dropout=0.5):
     new keras model with last layer
     """
     x = base_model.output
-    x = GlobalAveragePooling2D()(x)
-    x = Dense(2048)(x)  # new FC layer, random init
-    x = LeakyReLU()(x)
-    # x = Dense(1024, activation='relu')(x)
-    x = Dropout(dropout)(x)
-
     x = Dense(1024)(x)  # new FC layer, random init
     x = LeakyReLU()(x)
     # x = Dense(512, activation='relu')(x) #new FC layer, random init
@@ -208,21 +203,23 @@ def run():
     # data_link_dict = get_skfold_data(path="../data/imgs/*.jpg")
     start_time = time.time()
 
+    IMAGE_DIM = (224, 224, 3)
+
     EPOCHS = 5
     MINITRAINS = 30
-    DO = 0.625  # drop out
+    DO = 0.50  # drop out
     SPRINT = True   # is this run a full train or a sprint
 
     # for Adam inital LR of 0.0001 is a good starting point
     # for SGD initial LR of 0.001 is a good starting point
-    LR = 0.00025
+    LR = 0.025
     DECAY = 0.5e-6
-    L2_REG = 0.125
-    OPTIMIZER = Adam(lr=LR, decay=DECAY)
-    # OPTIMIZER = SGD(lr=LR, momentum=0.9, nesterov=True)
+    L2_REG = 0.05
+    # OPTIMIZER = Adam(lr=LR, decay=DECAY)
+    OPTIMIZER = SGD(lr=LR, momentum=0.9, nesterov=True)
 
     NB_IV3_LAYERS_TO_FREEZE = 172
-    MODEL_ID = 'v2_7m'
+    MODEL_ID = 'v4_0a'
 
     plot_file = "model_{:}.png".format(MODEL_ID)
     weights_file = "weights/model_{:}_weights.h5".format(MODEL_ID)
@@ -238,13 +235,15 @@ def run():
 
     # These parameters are for LoaderBot v2.0
     # Parameters for Generators
-    params = {'batch_size': 128,
+    params = {'batch_size': 16,
+              'dim': (224, 224),
               'augment': True,
               'augment_odds': 1.0,
               'shuffle': True}
     #
     # Parameters for Generators
-    test_params = {'batch_size': 128,
+    test_params = {'batch_size': 16,
+                   'dim': (224, 224),
                    'augment': False,
                    'shuffle': False}
 
@@ -258,8 +257,9 @@ def run():
     validation_generator = LoaderBot(data["X_test"], data["y_test"], **test_params)
 
     # setup model
-    base_model = InceptionV3(weights='imagenet', include_top=False)  # include_top=False excludes final FC layer
-    model = neo_brian_layers(base_model, 128, DO)
+    base_model = DenseNet201(include_top=False, input_shape=IMAGE_DIM)
+    # base_model = InceptionV3(weights='imagenet', include_top=False)  # include_top=False excludes final FC layer
+    model = regular_brian_layers(base_model, 128, DO, l1_reg=0.01)
 
     # print(model.summary())
     # model.load_weights("weights/model_v2_7g_weights.h5")

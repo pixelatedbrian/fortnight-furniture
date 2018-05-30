@@ -139,7 +139,7 @@ def process_image(path, out_path, flip=False, size=(299, 299)):
             return
 
 
-def clean_file_at_location(inpath, outpath="../data/ready_test/"):
+def clean_file_at_location(inpath, outpath="../data/validation/"):
     '''
     input:
     in_path: directory to look for files to fix
